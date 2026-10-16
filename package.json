@@ -2,12 +2,13 @@
   "name": "pokedex",
   "version": "1.0.0",
   "private": true,
-  "description": "Plain HTML, CSS and JavaScript Pokedex frontend prototypes",
+  "description": "A browser-based Pokémon binder workshop with local saving, customization and collection tools.",
   "scripts": {
     "build": "node scripts/build-preview.cjs",
     "check": "node scripts/check-project.cjs",
     "test": "node scripts/test-project.cjs",
-    "test:browser": "python scripts/check-browser.py"
+    "test:browser": "python scripts/check-browser.py",
+    "build:pages": "node scripts/build-pages.cjs"
   },
   "engines": {
     "node": ">=18"

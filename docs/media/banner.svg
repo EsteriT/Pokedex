@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="Pokedex. Your collection. Your way.">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#252830"/><stop offset="1" stop-color="#17191e"/></linearGradient><linearGradient id="card" x2="1" y2="1"><stop stop-color="#c74758"/><stop offset="1" stop-color="#773545"/></linearGradient></defs>
+<rect width="1200" height="320" rx="24" fill="url(#bg)"/>
+<circle cx="65" cy="65" r="18" fill="none" stroke="#df6676" stroke-width="4"/><path d="M47 65h36" stroke="#df6676" stroke-width="4"/><circle cx="65" cy="65" r="6" fill="#252830" stroke="#df6676" stroke-width="3"/>
+<text x="99" y="73" fill="#e6a8b1" font-family="Arial,sans-serif" font-size="18" letter-spacing="5">POKEDEX</text>
+<text x="45" y="158" fill="#f4f4f6" font-family="Arial,sans-serif" font-weight="700" font-size="47">Your collection.</text>
+<text x="45" y="214" fill="#f4f4f6" font-family="Arial,sans-serif" font-weight="700" font-size="47">Your way.</text>
+<text x="48" y="273" fill="#acb3c4" font-family="Arial,sans-serif" font-size="17">Arrange. Customize. Collect.</text>
+<g transform="translate(770 35) rotate(7 160 120)"><rect width="340" height="250" rx="16" fill="#2d3039" stroke="#444955"/><path d="M170 12v226" stroke="#17191e" stroke-width="5"/>
+<g fill="url(#card)" stroke="#e08693"><rect x="16" y="17" width="64" height="99" rx="6"/><rect x="91" y="17" width="64" height="99" rx="6"/><rect x="185" y="17" width="64" height="99" rx="6"/></g>
+<g fill="#343945" stroke="#505766"><rect x="260" y="17" width="64" height="99" rx="6"/><rect x="16" y="132" width="64" height="99" rx="6"/><rect x="91" y="132" width="64" height="99" rx="6"/><rect x="185" y="132" width="64" height="99" rx="6"/><rect x="260" y="132" width="64" height="99" rx="6"/></g>
+<g fill="none" stroke="#acb3c4" stroke-width="2"><path d="M282 67h20m-10-10v20M207 181h20m-10-10v20"/></g></g></svg>

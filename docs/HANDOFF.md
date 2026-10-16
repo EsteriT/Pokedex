@@ -104,3 +104,7 @@ Cards, customization and View/settings occupy the left tool column on tablet/des
 Floating selection tools size to their currently visible actions even after dragging, with smaller bold icons inside consistent buttons. Icons and disclosure chevrons are centered; customizer section headings have bounded padding and one chevron. Empty pockets always show a plus, including a safe position within a concave merged shape. An unselected facing page has no red active outline, and collapsed Pages/Overflow shortcuts have no selected state. Brief notifications show the action as text for three seconds, with Close and the existing version-safe Undo. Save remains explicit and browser-local.
 
 Regression checks cover the exact Cover-to-style path on desktop/phones, both page views and pane combinations at desktop/tablet widths, native card swaps, state history with full Overflow, toolbar shrinking after dragging, icon centers, disclosure bounds and notification expiry/dismissal. Brave/Edge and phone-size emulation are available; physical iOS/Safari still require manual release checks.
+
+## GitHub publishing
+
+The user authorized publication to `EsteriT/Pokedex`. The original MVP tag stays on `dcff24c`; publishing changes are separate. `npm run build:pages` creates the checked static artifact in `dist/`. The Pages workflow deploys pushes to `main`; see [DEPLOYMENT.md](DEPLOYMENT.md). Routine frontend work still does not authorize unrelated hosting or backend changes.

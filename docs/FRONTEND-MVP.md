@@ -35,4 +35,4 @@ Authentication/backend integration, cloud storage, live catalogue/pricing, publi
 
 ## Version-control status
 
-The project was not a Git repository at acceptance. This milestone is recorded in documentation; no Git commit or tag was created. When Git is initialized, this identifier can be used to label the accepted baseline.
+The accepted baseline is preserved in commit `dcff24c` (`Complete frontend MVP`) and the annotated tag `frontend-mvp-2026-10-16`. Publishing documentation and hosting configuration are added separately, without moving the milestone tag.

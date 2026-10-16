@@ -1,45 +1,80 @@
-# Pokedex frontend prototypes
+<div align="center">
 
-Plain HTML, CSS and JavaScript prototypes for Pokémon collectors. The current pages are Landing, Workspace, Binder editor, Discover and Binder viewer.
+<img src="docs/media/banner.svg" alt="Pokedex — Your collection. Your way." width="100%">
 
-## Frontend MVP milestone
+**A Pokémon binder workshop built around your cards.**
 
-**Accepted on 2026-10-16.** The current frontend is the approved MVP baseline. Scope, verification and remaining integration work are recorded in [Frontend MVP milestone](docs/FRONTEND-MVP.md).
+Arrange your collection, customize every detail, and make a binder that feels like yours.
 
-## Open the website
+[![Frontend MVP](https://img.shields.io/badge/status-frontend_MVP-c74758?style=flat-square)](docs/FRONTEND-MVP.md)
+![Vanilla JavaScript](https://img.shields.io/badge/built_with-HTML_·_CSS_·_JavaScript-2e313b?style=flat-square)
+![Local storage](https://img.shields.io/badge/storage-your_browser-2e313b?style=flat-square)
 
-Open [preview/Pokedex-landing-page.html](preview/Pokedex-landing-page.html), or use VS Code Live Server on src/index.html. Source pages load local assets; generated previews embed scripts, styles, fonts and cover-demo artwork. Card images still require internet access.
+[**Open the website ↗**](https://esterit.github.io/Pokedex/) &nbsp; · &nbsp; [Documentation](docs/README.md) &nbsp; · &nbsp; [MVP milestone](https://github.com/EsteriT/Pokedex/tree/frontend-mvp-2026-10-16)
 
-## Edit and verify
+</div>
 
-- Edit src/\*.html, src/scripts/ and src/styles/. Do not edit preview files directly.
-- `npm run build` rebuilds all five linked standalone previews.
-- `npm run check` checks file references, JavaScript syntax, CSS assets and preview links.
-- `npm test` runs binder, collection, catalogue and customization regressions.
-- `npm run test:browser` runs isolated Chromium browser regressions against source and previews (Python 3 plus Brave, Chrome or Edge; optionally set BROWSER_PATH). Covers icon toolbar and Help, click selection/merge, touch movement and placed-card swaps, styling page turns, pane centering, notification timing, transparent covers/backups, directional insertion, cross-binder copies, responsive fitting, keyboard access and the other page flows. No Python packages are required.
-- VS Code workspace settings enable Prettier Format on Save. Use the included .prettierrc.json.
+---
 
-Node.js 18+ is required for build/check/test. The build has no npm dependencies.
+<img src="docs/media/workshop.png" alt="Pokedex workshop showing a two-page binder, sleeve customization and page navigation" width="100%">
 
-## Project structure
+### A place for every card
 
-| Directory    | Responsibility                                               |
-| ------------ | ------------------------------------------------------------ |
-| src/\*.html  | Five editable page entry points                              |
-| src/styles/  | Shared design system, component styles and page layouts      |
-| src/scripts/ | State, validation, persistence, rendering and UI modules     |
-| src/data/    | Sample catalogue, inventory and landing demo data            |
-| assets/      | Original artwork, font binaries, licenses and attribution    |
-| scripts/     | Dependency-free build and regression checks                  |
-| preview/     | Generated standalone pages                                   |
-| docs/        | Product decisions, architecture, current handoff and history |
+| | What you can do |
+| :--- | :--- |
+| **Build your binder** | Arrange cards in one or two page views. Add, reorder and resize pages; merge connected pockets. |
+| **Move things naturally** | Drag cards to swap pockets, push a row toward an empty space, or keep displaced cards in Overflow. Select batches and copy cards between binders. |
+| **Make it yours** | Choose covers, including transparent; add titles and artwork; style cards with sleeves and toploaders. |
+| **Find what fits** | Explore the sample catalogue through search, filters and curated color matching. Track your collection in Workspace. |
+| **Keep your work** | Save in your browser, download a backup, and restore it later. Open a read-only view of your saved binder. |
 
-Read [docs/HANDOFF.md](docs/HANDOFF.md) before implementation. Product requirements are in [docs/DESIGN.md](docs/DESIGN.md); backend plans are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). [AGENTS.md](AGENTS.md) contains project working rules.
+### Before you begin
 
-## Current scope
+This is the **frontend MVP**, accepted on October 16, 2026. It includes **55 sample card printings**; prices are fictional interface examples.
 
-The editor supports custom covers, per-page layouts, connected pocket merging, cards/artwork/placeholders, overflow, sleeve/toploader styling, Undo/Redo, inspection, binder preview and page duplication. Workspace tracks binders and physical inventory; Discover searches a local catalogue and hands selections to the editor or collection.
+Your saved data stays in the current browser and website address. **Use Save to keep edits and Download backup to keep a portable copy.** Clearing site data can remove saved binders. There are no cloud accounts or cross-device sync yet. To move from localhost to the hosted website, download a backup locally and restore it on the website.
 
-Save is explicit and browser-local. Binder and collection records are separate; unsaved edits have no recovery draft. JSON import/download provides a portable backup. The catalogue is a 55-card sample; price displays are fictional interface examples.
+### Run locally
 
-Authentication, cloud storage, live catalogue/prices, public sharing and print/image export are future integration work. Nothing is deployed.
+Requires Node.js 18+ and a local web server. There are no npm dependencies to install.
+
+```sh
+git clone https://github.com/EsteriT/Pokedex.git
+cd Pokedex
+npm run build
+python -m http.server 5500
+```
+
+Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
+
+### Develop & verify
+
+Edit the files in `src/`; generated previews are rebuilt from those sources.
+
+| Command | Purpose |
+| :--- | :--- |
+| `npm run build` | Rebuild the five standalone previews. |
+| `npm run check` | Validate references, JavaScript, assets and preview links. |
+| `npm test` | Check binder, collection, catalogue and customization behavior. |
+| `npm run build:pages` | Build the deployment into `dist/` and check its page links. |
+| `npm run test:browser` | Run Chromium regressions with Python 3 and Brave, Chrome or Edge. Set `BROWSER_PATH` if needed. |
+
+```text
+src/        Editable pages, styles, scripts and sample data
+assets/     Fonts, artwork and their attribution
+preview/    Generated standalone versions of the five pages
+scripts/    Dependency-free builds and regression checks
+docs/       Design decisions, architecture and project records
+```
+
+### Project notes
+
+- [Frontend MVP](docs/FRONTEND-MVP.md) — accepted scope and compatibility limits.
+- [Deployment](docs/DEPLOYMENT.md) — GitHub Pages setup and publishing.
+- [Design](docs/DESIGN.md) · [Architecture](docs/ARCHITECTURE.md) · [Current handoff](docs/HANDOFF.md).
+
+Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, authentication, cloud storage, public sharing and print/image export remain future work.
+
+---
+
+<sub>Independent fan project. Pokémon and related artwork belong to their respective owners; this project is not affiliated with or endorsed by them. See [artwork credits](assets/credits/pokemon-cover-art.txt) and the [Manrope font license](assets/manrope-OFL.txt). No project-wide software license has been selected.</sub>

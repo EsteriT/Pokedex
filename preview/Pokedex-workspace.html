@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <title>My binders — Pokedex</title>
     <meta
       name="description"
@@ -2947,6 +2947,27 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   border-radius: 12px;
   padding: var(--panel-padding, var(--space-6));
 }
+
+/* Shared mobile forms avoid focus zoom; full-screen dialogs clear device edges. */
+@media (max-width: 700px) {
+  :is(.workspace-page, .discover-page) :is(input, select, textarea) {
+    font-size: 16px;
+  }
+  :is(.workspace-page, .discover-page) .account summary {
+    min-width: 44px;
+    justify-content: center;
+  }
+  :is(.workspace-page, .discover-page) dialog {
+    overscroll-behavior: contain;
+  }
+  .discover-page :is(.details-topbar, .image-topbar) {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+  .discover-page :is(.detail-scroll, #image-dialog, #inventory-dialog),
+  .workspace-page .inventory-form > .dialog-actions {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
 </style>
     <style>/* Collection gallery: visual browsing with details and bulk tools on demand. */
 #collection-panel .collection-heading {
@@ -4365,6 +4386,24 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 .workspace-page .page-heading > div {
   min-width: 0;
+}
+
+@media (max-width: 620px) {
+  .workspace-page .workspace-tab-row {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .workspace-page .workspace-tab-row .tabs {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .workspace-page :is(.binder-entry-actions, .collection-entry-actions) {
+    width: 100%;
+    margin-left: 0;
+  }
+  .workspace-page :is(#create-binder, #collection-add) {
+    width: 100%;
+  }
 }
 </style>
     <style>/* Workspace collection: compact structure, clear actions, shared theme tokens. */
@@ -6074,7 +6113,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 @media (max-width: 1100px) {
   :is(.workspace-page, .editor-page, .discover-page) {
-    --app-shell-gutter: 32px;
+    --app-shell-gutter: max(32px, env(safe-area-inset-left), env(safe-area-inset-right));
   }
   :is(.workspace-page, .editor-page, .discover-page) .site-header {
     gap: 20px;
@@ -6094,7 +6133,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 @media (max-width: 700px) {
   :is(.workspace-page, .editor-page, .discover-page) {
-    --app-shell-gutter: 16px;
+    --app-shell-gutter: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
   }
 }
 @media (max-width: 620px) {
@@ -6145,12 +6184,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 @media (max-width: 1100px) {
   .editor-page {
-    --app-shell-gutter: 32px;
+    --app-shell-gutter: max(32px, env(safe-area-inset-left), env(safe-area-inset-right));
   }
 }
 @media (max-width: 700px) {
   .editor-page {
-    --app-shell-gutter: 16px;
+    --app-shell-gutter: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
   }
 }
 
@@ -6214,6 +6253,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 @media (max-width: 620px) {
   .discover-page #inventory-dialog :is(input, select, textarea) {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 700px) {
+  :is(.workspace-page, .discover-page) .site-header .header-tools select {
     font-size: 16px;
   }
 }

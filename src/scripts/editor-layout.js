@@ -14,7 +14,9 @@
   const dock = document.querySelector(".editor-dock"),
     toast = document.querySelector(".editor-feedback");
   const narrow = matchMedia("(max-width: 1100px)");
-  const phone = matchMedia("(max-width: 700px)");
+  const phone = matchMedia(
+    "(max-width: 700px), (max-width: 1024px) and (max-height: 500px)",
+  );
   const preference = "pokedex.editor.cards-open.v2";
   let cardsOpen = false,
     wasCustomizing = false,
@@ -265,6 +267,27 @@
     head.append(heading);
     head.append(close);
     panel.prepend(head);
+  }
+  for (const panel of [cards, custom]) {
+    const resize = document.createElement("button");
+    resize.type = "button";
+    resize.className = "sheet-size";
+    resize.setAttribute("aria-label", "Expand panel");
+    resize.setAttribute("aria-expanded", "false");
+    resize.setAttribute("aria-controls", panel.id);
+    resize.title = "Expand panel";
+    resize.innerHTML =
+      '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>';
+    panel.querySelector(".panel-heading, .customizer-heading").insertBefore(
+      resize, panel.querySelector("#cards-close, #customize-close"),
+    );
+    resize.addEventListener("click", () => {
+      const expanded = panel.classList.toggle("sheet-expanded");
+      resize.setAttribute("aria-expanded", String(expanded));
+      resize.setAttribute("aria-label", expanded ? "Reduce panel" : "Expand panel");
+      resize.title = resize.getAttribute("aria-label");
+      layout();
+    });
   }
   const floating = new Map();
   let floatingDrag = null;
@@ -623,7 +646,17 @@
     attributes: true,
     attributeFilter: ["hidden"],
   });
-  window.addEventListener("resize", layout);
+  function viewportLayout() {
+    const viewport = window.visualViewport;
+    document.body.style.setProperty(
+      "--editor-height",
+      (viewport?.scale === 1 ? viewport.height : innerHeight) + "px",
+    );
+    layout();
+  }
+  window.addEventListener("resize", viewportLayout);
+  window.visualViewport?.addEventListener("resize", viewportLayout);
+  viewportLayout();
   document.addEventListener("dragend", () => requestAnimationFrame(layout));
   document.addEventListener("drop", () =>
     requestAnimationFrame(() => {

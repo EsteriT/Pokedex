@@ -122,3 +122,13 @@ The editor owns the single Ctrl/Cmd+S handler. Clean documents, open dialogs and
 Styling scopes are revalidated after page turns and selection changes. An unavailable selection falls back to a populated current page; empty pages require an explicit scope choice. Style drafts survive and the scope never automatically broadens to Entire binder. ArrowRight navigates existing pages only; the visible plus button still adds pages.
 
 Toolbar keys skip hidden/disabled controls. Dialog focus restores to a usable trigger or visible fallback after rendering and never steals focus from another modal. Discover uses the same optional initial card status as Workspace. These flows are covered by the desktop reliability browser regressions against source and previews. Mobile layout changes and image delivery optimization are separate work.
+
+## Phone layout and cosmetic cleanup - 2026-10-17
+
+The editor uses its mobile header, bottom dock and sheets on portrait phones and short landscape screens up to 1024px wide. Normal tablet and desktop layouts retain their existing panel geometry. Portrait Cards and customization panels reserve a usable preview area, offer Expand/Reduce controls, and keep card results/presets scrollable. Short landscape customization puts the binder beside compact controls; its Close, target picker, page navigation and Apply remain reachable. Pages and Overflow stay separate views, and the Pages sheet enters vertically.
+
+The editor follows visual-viewport height changes so controls refit when a software keyboard reduces space. Compact portrait viewports let the active sheet use the available area; input scrolling and explicit Close remain available. This is viewport emulation coverage, not certification of a physical keyboard or iOS browser. Save remains manual, style drafts survive page turns, and no document or storage schema changed.
+
+Mobile controls use at least 44px targets in the editor dock, selection bar, page navigation and sidebar view buttons. Full-screen Help, dialog limits, mobile form text and device safe-area padding were tightened. Workspace creation actions share a full-width phone row with less dead space. The landing viewer's decorative glow no longer expands the narrow layout viewport. Publishing documentation's corrupted navigation arrows were corrected.
+
+Browser regressions cover 320/390/440px portrait, 844/956px landscape, both themes, sheet expansion, reachable controls, styling retarget/page turns, separate Pages/Overflow, actual emulated touch placement, viewport shrink/restore, and horizontal bounds on all five pages. Real iOS/Android devices and Safari/Firefox still require manual verification. Image loading optimization is separate work.

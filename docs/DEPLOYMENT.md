@@ -6,7 +6,7 @@
 
 ## First deployment
 
-In the repository, open **Settings â†’ Pages â†’ Build and deployment â†’ Source** and select **GitHub Actions**. The included Pages workflow builds and verifies the frontend on pushes to `main`. You can also run it manually from **Actions â†’ Deploy website â†’ Run workflow**.
+In the repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The included Pages workflow builds and verifies the frontend on pushes to `main`. You can also run it manually from **Actions → Deploy website → Run workflow**.
 
 The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. There is no server or database to configure.
 

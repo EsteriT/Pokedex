@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <title>Binder viewer — Pokedex</title>
     <style>* {
   box-sizing: border-box;
@@ -1366,6 +1366,27 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: var(--panel-padding, var(--space-6));
+}
+
+/* Shared mobile forms avoid focus zoom; full-screen dialogs clear device edges. */
+@media (max-width: 700px) {
+  :is(.workspace-page, .discover-page) :is(input, select, textarea) {
+    font-size: 16px;
+  }
+  :is(.workspace-page, .discover-page) .account summary {
+    min-width: 44px;
+    justify-content: center;
+  }
+  :is(.workspace-page, .discover-page) dialog {
+    overscroll-behavior: contain;
+  }
+  .discover-page :is(.details-topbar, .image-topbar) {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+  .discover-page :is(.detail-scroll, #image-dialog, #inventory-dialog),
+  .workspace-page .inventory-form > .dialog-actions {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
 }
 </style>
     <style>.binder-cover-art {

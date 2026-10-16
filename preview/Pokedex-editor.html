@@ -2,7 +2,7 @@
 <html lang="en" class="editor-loading">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <title>Binder editor — Pokedex</title>
     <style>
       #editor-startup {
@@ -1085,7 +1085,7 @@ body {
     height: 510px;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .editor-main {
     padding: 20px;
   }
@@ -2204,6 +2204,27 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   border-radius: 12px;
   padding: var(--panel-padding, var(--space-6));
 }
+
+/* Shared mobile forms avoid focus zoom; full-screen dialogs clear device edges. */
+@media (max-width: 700px) {
+  :is(.workspace-page, .discover-page) :is(input, select, textarea) {
+    font-size: 16px;
+  }
+  :is(.workspace-page, .discover-page) .account summary {
+    min-width: 44px;
+    justify-content: center;
+  }
+  :is(.workspace-page, .discover-page) dialog {
+    overscroll-behavior: contain;
+  }
+  .discover-page :is(.details-topbar, .image-topbar) {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+  .discover-page :is(.detail-scroll, #image-dialog, #inventory-dialog),
+  .workspace-page .inventory-form > .dialog-actions {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
 </style>
     <style>/* Secondary design tools stay in contextual views. */
 .studio-preview-button {
@@ -2526,7 +2547,7 @@ summary:focus-visible {
 button:disabled {
   cursor: default;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .studio-dialog {
     padding: 16px;
   }
@@ -2595,7 +2616,7 @@ button:disabled {
   display: none;
 }
 
-@media (min-width: 701px) {
+@media (min-width: 701px) and (min-height: 501px), (min-width: 1025px) {
   .editor-shell.customizing > .canvas-panel {
     height: min(760px, calc(100dvh - 128px));
     min-height: 440px;
@@ -2635,7 +2656,7 @@ button:disabled {
   transform-origin: 25% center;
   pointer-events: none;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .departing-cover {
     inset: 16px;
   }
@@ -2656,7 +2677,7 @@ button:disabled {
 }
 
 /* Scroll presets separately; the action row never overlaps artwork. */
-@media (min-width: 701px) {
+@media (min-width: 701px) and (min-height: 501px), (min-width: 1025px) {
   .editor-shell.customizing > .cover-customizer {
     display: flex;
     flex-direction: column;
@@ -2793,7 +2814,7 @@ body.editor-page.calm-editor {
   --calm-large: 20px;
   display: grid;
   grid-template-rows: 64px minmax(0, 1fr);
-  height: 100dvh;
+  height: var(--editor-height, 100dvh);
   min-height: 0;
   overflow: hidden;
   font-size: var(--calm-small);
@@ -4165,7 +4186,7 @@ body.editor-page.calm-editor {
     max-width: 160px;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   body.editor-page.calm-editor {
     grid-template-rows: auto minmax(0, 1fr);
   }
@@ -4327,7 +4348,7 @@ body.editor-page.calm-editor {
     grid-column: 2;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .topbar-actions .account {
     right: 16px;
     top: 16px;
@@ -4517,7 +4538,7 @@ body.editor-page.calm-editor {
   margin-top: 8px;
   padding-top: 8px;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .frame-style-option svg {
     width: 72px;
     height: 99px;
@@ -4581,7 +4602,7 @@ body.editor-page.calm-editor {
   line-height: 1.2;
   gap: 4px;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor #cover-preview-stage {
     height: 112px;
     min-height: 112px;
@@ -4606,7 +4627,7 @@ body.editor-page.calm-editor {
   border: 0;
   padding: 0;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .controls-pill .page-navigation {
     order: -2;
   }
@@ -4760,7 +4781,7 @@ body.editor-page.calm-editor {
   padding: 8px 4px;
   white-space: nowrap;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .editor-shell.utility-open {
     grid-template-columns: 64px minmax(0, 1fr) var(--pages-column);
   }
@@ -5033,7 +5054,7 @@ body.editor-page.calm-editor {
 .calm-editor #pocket-dialog button:hover {
   background: var(--soft);
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .pocket-design-dialog[open] {
     padding: 16px;
     gap: 8px;
@@ -5146,7 +5167,7 @@ body.editor-page.calm-editor {
 .calm-editor .is-spread .editor-pocket {
   position: absolute;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .editor-dock {
     padding: 12px 8px;
     gap: 8px;
@@ -5401,7 +5422,7 @@ body.editor-page.calm-editor {
     box-shadow: none;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .pages-sidebar {
     width: min(232px, calc(100vw - 96px));
   }
@@ -5652,7 +5673,7 @@ body.editor-page.calm-editor {
 .mobile-back-icon {
   display: none;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   body.editor-page.calm-editor {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: 56px minmax(0, 1fr);
@@ -5661,7 +5682,7 @@ body.editor-page.calm-editor {
     min-width: 0;
     height: 56px;
     min-height: 56px;
-    padding: 6px 8px;
+    padding: 6px max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
     gap: 4px;
     flex-wrap: nowrap;
   }
@@ -5811,7 +5832,7 @@ body.editor-page.calm-editor {
     right: 0;
     width: 100%;
     max-width: none;
-    height: min(75dvh, 600px);
+    height: min(75%, 600px);
     padding: 12px;
     border: 1px solid var(--line);
     border-radius: 16px 16px 0 0;
@@ -5875,7 +5896,7 @@ body.editor-page.calm-editor {
     position: absolute;
     inset: auto 0 0;
     width: 100%;
-    height: min(75dvh, 640px);
+    height: var(--cards-sheet-height);
     max-height: 100%;
     margin: 0;
     padding: 12px 16px;
@@ -5886,10 +5907,11 @@ body.editor-page.calm-editor {
     z-index: 50;
   }
   .calm-editor .editor-shell {
-    --custom-sheet-height: min(62dvh, 560px);
+    --custom-sheet-height: min(max(62%, 400px), calc(100% - 96px));
+    --cards-sheet-height: min(max(62%, 400px), calc(100% - 96px));
   }
   .calm-editor .editor-shell.styling-card {
-    --custom-sheet-height: min(66dvh, 600px);
+    --custom-sheet-height: min(max(62%, 400px), calc(100% - 96px));
   }
   .calm-editor .editor-shell.customizing > .cover-customizer {
     height: var(--custom-sheet-height);
@@ -6051,11 +6073,11 @@ body.editor-page.calm-editor {
   }
 }
 
-@media (max-width: 700px) and (max-height: 500px) and (min-width: 500px) {
+@media (max-width: 700px) and (max-height: 500px) and (min-width: 500px), (max-width: 1024px) and (max-height: 500px) and (min-width: 500px) {
   .calm-editor .card-picker {
     height: 100%;
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 240px minmax(0, 1fr);
     grid-template-rows: auto auto auto minmax(40px, 1fr);
     gap: 8px 16px;
     overflow-y: auto;
@@ -6371,7 +6393,7 @@ body.editor-page.calm-editor {
   width: auto;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .topbar-actions {
     grid-template-columns: 40px 60px 40px;
   }
@@ -6424,11 +6446,11 @@ body.editor-page.calm-editor {
   }
 }
 
-@media (min-width: 701px) and (max-width: 1100px) and (max-height: 500px) {
+@media (min-width: 1025px) and (max-width: 1100px) and (max-height: 500px) {
   .calm-editor .card-picker {
     width: calc(100% - 80px);
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 240px minmax(0, 1fr);
     grid-template-rows: auto auto auto minmax(40px, 1fr);
     gap: 8px 16px;
     overflow-y: auto;
@@ -6645,7 +6667,7 @@ body.editor-page.calm-editor {
   box-shadow: none;
   background: var(--surface);
 }
-@media (min-width: 701px) {
+@media (min-width: 701px) and (min-height: 501px), (min-width: 1025px) {
   .calm-editor .editor-shell,
   .calm-editor .editor-shell.customizing {
     grid-template-columns: 80px var(--cards-column) minmax(0, 1fr) 0 var(
@@ -6691,7 +6713,7 @@ body.editor-page.calm-editor {
     padding-inline: 64px;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor
     .selection-status
     :is(button, .workshop-icon, .selection-icon, .floating-handle) {
@@ -6714,7 +6736,7 @@ body.editor-page.calm-editor {
   }
 }
 
-@media (min-width: 701px) {
+@media (min-width: 701px) and (min-height: 501px), (min-width: 1025px) {
   .calm-editor #pages-toggle > .mobile-pages-icon,
   .calm-editor .workspace-back > .mobile-back-icon {
     display: none;
@@ -6725,7 +6747,7 @@ body.editor-page.calm-editor {
     display: none;
   }
 }
-@media (min-width: 701px) and (max-width: 1100px) and (max-height: 500px) {
+@media (min-width: 1025px) and (max-width: 1100px) and (max-height: 500px) {
   .calm-editor .editor-shell.cards-open {
     --cards-column: 396px;
   }
@@ -6747,15 +6769,15 @@ body.editor-page.calm-editor {
   height: 40px;
 }
 
-@media (min-width: 701px) and (max-width: 1100px) {
+@media (min-width: 701px) and (max-width: 1100px) and (min-height: 501px), (min-width: 1025px) and (max-width: 1100px) {
   .calm-editor .canvas-stage {
     padding-inline: 16px;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .editor-shell.cards-open .canvas-stage {
-    bottom: min(75dvh, 640px);
+    bottom: var(--cards-sheet-height);
     padding: 8px 16px;
   }
   .calm-editor .editor-shell.utility-open .canvas-stage {
@@ -6813,10 +6835,200 @@ body.editor-page.calm-editor {
   min-width: max-content;
   padding-inline: 12px;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .customizer-tabs button.workshop-icon {
     width: 44px;
     height: 44px;
+  }
+}
+
+/* Phone panel sizing stays relative to the canvas, including keyboard resize. */
+.calm-editor .sheet-size {
+  display: none;
+}
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .editor-shell:has(.card-picker.sheet-expanded) {
+    --cards-sheet-height: min(82%, calc(100% - 96px));
+  }
+  .calm-editor .editor-shell:has(.cover-customizer.sheet-expanded) {
+    --custom-sheet-height: min(82%, calc(100% - 96px));
+  }
+  .calm-editor .sheet-size {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    order: 2;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    border-radius: 10px;
+  }
+  .calm-editor .sheet-size[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .calm-editor .card-picker {
+    overflow-y: auto;
+  }
+  .calm-editor .card-picker .card-results {
+    min-height: 180px;
+  }
+  .calm-editor .customizer-heading h2 {
+    flex: 1;
+    min-width: 0;
+  }
+  .calm-editor #customize-close {
+    order: 3;
+  }
+  .calm-editor .card-picker .panel-heading,
+  .calm-editor .customizer-heading {
+    gap: 8px;
+  }
+  .calm-editor .editor-rail {
+    scroll-padding-inline: 8px 60px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .calm-editor .editor-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .calm-editor .editor-shell #pages-toggle {
+    box-shadow: -8px 0 12px var(--surface);
+    border-color: var(--muted);
+  }
+  .calm-editor .editor-rail > :is(button, a),
+  .calm-editor .editor-rail > details > summary,
+  .calm-editor .page-navigation button,
+  .calm-editor .sidebar-views button,
+  .calm-editor .selection-status :is(button, .workshop-icon, .selection-icon, .floating-handle) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .calm-editor .cover-customizer,
+  .calm-editor .card-picker,
+  .calm-editor .page-list,
+  .calm-editor .sidebar-overflow,
+  .calm-editor .customizer-design-body {
+    overscroll-behavior: contain;
+  }
+  .calm-editor .selection-status {
+    max-height: min(160px, 35dvh);
+    overflow: auto;
+  }
+  .calm-editor .studio-dialog :is(input, select, textarea),
+  .calm-editor .arrange-dialog :is(input, select, textarea),
+  .calm-editor #help-search {
+    font-size: 16px;
+  }
+  .calm-editor .studio-dialog,
+  .calm-editor .arrange-dialog {
+    max-height: calc(var(--editor-height, 100dvh) - 24px);
+    max-width: calc(100vw - 24px);
+  }
+  .calm-editor .editor-main:has(#editor-load-error) {
+    overflow-y: auto;
+  }
+  .calm-editor #editor-load-error {
+    margin: 16px;
+  }
+  .calm-editor .workshop-help {
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: var(--editor-height, 100dvh);
+    max-height: var(--editor-height, 100dvh);
+    padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .calm-editor .editor-shell:not(.pages-collapsed) .pages-sidebar {
+    animation-name: phone-panel-in;
+  }
+
+}
+@media (min-width: 500px) and (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .editor-shell {
+    --cards-sheet-height: 100%;
+  }
+  .calm-editor .card-picker .card-results {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .calm-editor .card-picker .panel-heading .sheet-size,
+  .calm-editor .cover-customizer .sheet-size {
+    display: none;
+  }
+  .calm-editor .card-picker {
+    height: 100%;
+  }
+  .calm-editor .editor-shell.cards-open .canvas-stage {
+    bottom: 0;
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    min-height: 0;
+  }
+  .calm-editor .cover-customizer .customizer-heading {
+    display: flex;
+    grid-row: 1;
+    grid-column: 2;
+    justify-content: end;
+  }
+  .calm-editor .cover-customizer .customizer-heading h2 {
+    display: none;
+  }
+  .calm-editor .cover-customizer .customizer-tabs {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+    padding: 2px;
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer,
+  .calm-editor .editor-shell.styling-card > .cover-customizer {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    padding: 8px 12px;
+    gap: 4px 8px;
+  }
+  .calm-editor .styling-card .frame-scope,
+  .calm-editor .styling-card #pick-style-card {
+    grid-row: 2;
+  }
+  .calm-editor .customizer-design-body,
+  .calm-editor .styling-card .customizer-design-body {
+    grid-row: 3;
+  }
+  .calm-editor .customizer-actions,
+  .calm-editor .styling-card .customizer-actions {
+    grid-row: 4;
+  }
+  .calm-editor .editor-shell.customizing:not(.picking-style-card) .canvas-panel > .page-navigation {
+    right: calc(64% + 8px) !important;
+  }
+}
+
+@media (max-width: 499px) and (max-height: 600px) {
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.styling-card {
+    --cards-sheet-height: 100%;
+    --custom-sheet-height: 100%;
+  }
+  .calm-editor .editor-shell:has(.sheet-expanded) {
+    --cards-sheet-height: 100%;
+    --custom-sheet-height: 100%;
+  }
+  .calm-editor .sheet-size {
+    display: none;
+  }
+  .calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+    bottom: 0;
+  }
+}
+
+@keyframes phone-panel-in {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 </style>
@@ -14385,7 +14597,9 @@ body.editor-page.calm-editor {
   const dock = document.querySelector(".editor-dock"),
     toast = document.querySelector(".editor-feedback");
   const narrow = matchMedia("(max-width: 1100px)");
-  const phone = matchMedia("(max-width: 700px)");
+  const phone = matchMedia(
+    "(max-width: 700px), (max-width: 1024px) and (max-height: 500px)",
+  );
   const preference = "pokedex.editor.cards-open.v2";
   let cardsOpen = false,
     wasCustomizing = false,
@@ -14636,6 +14850,27 @@ body.editor-page.calm-editor {
     head.append(heading);
     head.append(close);
     panel.prepend(head);
+  }
+  for (const panel of [cards, custom]) {
+    const resize = document.createElement("button");
+    resize.type = "button";
+    resize.className = "sheet-size";
+    resize.setAttribute("aria-label", "Expand panel");
+    resize.setAttribute("aria-expanded", "false");
+    resize.setAttribute("aria-controls", panel.id);
+    resize.title = "Expand panel";
+    resize.innerHTML =
+      '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>';
+    panel.querySelector(".panel-heading, .customizer-heading").insertBefore(
+      resize, panel.querySelector("#cards-close, #customize-close"),
+    );
+    resize.addEventListener("click", () => {
+      const expanded = panel.classList.toggle("sheet-expanded");
+      resize.setAttribute("aria-expanded", String(expanded));
+      resize.setAttribute("aria-label", expanded ? "Reduce panel" : "Expand panel");
+      resize.title = resize.getAttribute("aria-label");
+      layout();
+    });
   }
   const floating = new Map();
   let floatingDrag = null;
@@ -14994,7 +15229,17 @@ body.editor-page.calm-editor {
     attributes: true,
     attributeFilter: ["hidden"],
   });
-  window.addEventListener("resize", layout);
+  function viewportLayout() {
+    const viewport = window.visualViewport;
+    document.body.style.setProperty(
+      "--editor-height",
+      (viewport?.scale === 1 ? viewport.height : innerHeight) + "px",
+    );
+    layout();
+  }
+  window.addEventListener("resize", viewportLayout);
+  window.visualViewport?.addEventListener("resize", viewportLayout);
+  viewportLayout();
   document.addEventListener("dragend", () => requestAnimationFrame(layout));
   document.addEventListener("drop", () =>
     requestAnimationFrame(() => {

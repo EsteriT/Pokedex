@@ -183,3 +183,21 @@
 .workspace-page .page-heading > div {
   min-width: 0;
 }
+
+@media (max-width: 620px) {
+  .workspace-page .workspace-tab-row {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .workspace-page .workspace-tab-row .tabs {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .workspace-page :is(.binder-entry-actions, .collection-entry-actions) {
+    width: 100%;
+    margin-left: 0;
+  }
+  .workspace-page :is(#create-binder, #collection-add) {
+    width: 100%;
+  }
+}

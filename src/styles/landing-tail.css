@@ -524,3 +524,10 @@ html[data-theme="dark"] .landing-page .collection-mark:disabled {
 html:has(.landing-page) {
   overflow-anchor: none;
 }
+
+/* The rotated viewer glow must not widen the phone layout viewport. */
+@media (max-width: 600px) {
+  .landing-page .share-spread::before {
+    inset: 0;
+  }
+}

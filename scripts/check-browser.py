@@ -767,6 +767,91 @@ def check_desktop_reliability(cdp, base, route):
     print('PASS:',route,'Desktop reliability: metadata-only copy/Save/reload, guarded saves/failures, safe styling scopes, keyboard navigation, dialog focus, pocket-design Undo, full persistent errors and Discover status',flush=True)
 
 
+def check_phone_layout(cdp, base, route):
+    ready="window.EditorLayout&&!document.documentElement.classList.contains('editor-loading')"
+    seed=urllib.parse.quote(json.dumps({'name':'Phone layout','rows':3,'columns':3,'pages':4,'cards':['166','167','168']}))
+    def click(selector):
+        p=cdp.evaluate("(()=>{let n=document.querySelector("+json.dumps(selector)+");n.scrollIntoView({block:'nearest',inline:'center'});let r=n.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return {x,y,hit:n.contains(document.elementFromPoint(x,y))}})()")
+        assert p.pop('hit'),(selector,'Control covered or outside viewport')
+        for event in ('mousePressed','mouseReleased'):
+            cdp.call('Input.dispatchMouseEvent',{'type':event,**p,'button':'left','clickCount':1})
+        time.sleep(.2)
+    def bounds(selector):
+        return cdp.evaluate("(()=>{let r=document.querySelector("+json.dumps(selector)+").getBoundingClientRect();return r.width>0&&r.left>=-1&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1})()")
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+    cdp.go(base+'/'+route+'?mobile-layout#'+seed,ready)
+    workspace=cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")
+    cdp.evaluate("localStorage.removeItem('pokedex.workspace.v1')")
+    for width,height in ((320,640),(390,844),(440,956),(844,390),(956,440)):
+        cdp.call('Emulation.setDeviceMetricsOverride',{'width':width,'height':height,'deviceScaleFactor':1,'mobile':True})
+        time.sleep(.15)
+        assert cdp.evaluate("getComputedStyle(document.querySelector('.editor-rail')).position==='fixed'&&document.getElementById('pages-toggle').parentElement.classList.contains('editor-rail')"),'Landscape must keep phone tools, not desktop sidebars'
+        for theme in ('light','dark'):
+            cdp.evaluate("document.documentElement.dataset.theme="+json.dumps(theme))
+            click('#cards-tool')
+            assert bounds('#cards-drawer') and bounds('.editor-rail'),(width,height,'Cards bounds')
+            assert cdp.evaluate("document.getElementById('card-results').clientHeight>=160"),'Cards need a useful scrolling artwork area'
+            if height>500:
+                assert cdp.evaluate("document.getElementById('binder-page').getBoundingClientRect().height>=90"),'Opening Cards must retain a useful preview'
+                before=cdp.evaluate("document.getElementById('cards-drawer').clientHeight")
+                click('#cards-drawer .sheet-size')
+                assert cdp.evaluate("document.getElementById('cards-drawer').clientHeight")>before,'Expand must increase sheet space'
+                click('#cards-drawer .sheet-size')
+            click('#cards-close')
+            click('#customize-binder')
+            assert bounds('#cover-customizer') and bounds('.customizer-actions'),(width,height,'Customizer actions bounds')
+            assert cdp.evaluate("document.querySelector('.customizer-design-body').clientHeight>=60"),(width,height,'Styling presets must remain usable',cdp.evaluate("document.querySelector('.customizer-design-body').clientHeight"))
+            if height>500:
+                click('#cover-customizer .sheet-size')
+                assert bounds('.customizer-actions')
+                click('#cover-customizer .sheet-size')
+            click('#next-page');click('#previous-page')
+            click('#pick-style-card')
+            assert cdp.evaluate("document.getElementById('cover-customizer').hidden"),'Target picker must uncover the binder'
+            click('.editor-pocket.has-content')
+            cdp.wait("!document.getElementById('cover-customizer').hidden&&document.getElementById('frame-scope').value==='selection'")
+            click('#cover-cancel')
+            click('#pages-toggle')
+            assert bounds('#pages-sidebar'),(width,height,cdp.evaluate("document.getElementById('pages-sidebar').getBoundingClientRect().toJSON()"))
+            click('#overflow-view')
+            assert cdp.evaluate("!document.getElementById('sidebar-overflow').hidden&&document.getElementById('page-list').closest('[hidden]')!==null"),'Pages and Overflow must stay separate views'
+            click('#pages-toggle')
+            click('.layout-settings > summary')
+            assert bounds('.layout-settings-body')
+            cdp.escape()
+    # Real touchscreen tap-to-place and viewport shrink/restore, without changing storage.
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+    cdp.call('Emulation.setTouchEmulationEnabled',{'enabled':True})
+    click('#cards-tool')
+    for selector in ('.catalogue-card','.editor-pocket:nth-child(4)'):
+        p=cdp.evaluate("(()=>{let n=document.querySelector("+json.dumps(selector)+");n.scrollIntoView({block:'nearest'});let r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()")
+        cdp.call('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[p]})
+        cdp.call('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
+        time.sleep(.15)
+    assert cdp.evaluate("document.getElementById('cards-drawer').hidden&&document.querySelectorAll('.editor-pocket')[3].classList.contains('has-content')"),'Tap a card then a pocket must place it'
+    cdp.call('Emulation.setTouchEmulationEnabled',{'enabled':False})
+    click('#undo');click('#cards-tool')
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':390,'height':420,'deviceScaleFactor':1,'mobile':True})
+    time.sleep(.15)
+    assert bounds('#cards-drawer') and bounds('.editor-rail'),'Controls must follow a reduced visual viewport'
+    click('#cards-close')
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+    time.sleep(.15)
+    click('#save')
+    binder=cdp.evaluate("BinderStore.read()[0].id")
+    preview=route.startswith('preview/')
+    pages=[('preview/Pokedex-landing-page.html' if preview else 'src/index.html',"!!document.querySelector('.hero')"),('preview/Pokedex-workspace.html' if preview else 'src/workspace.html',"!!window.BinderStore"),('preview/Pokedex-discover.html' if preview else 'src/discover.html',"!!document.querySelector('#card-grid button')"), (('preview/Pokedex-viewer.html' if preview else 'src/viewer.html')+'?binder='+binder,"!!document.querySelector('#viewer-cover-art .binder-cover-art')")]
+    for page,loaded in pages:
+        cdp.go(base+'/'+page,loaded)
+        for width,height in ((320,640),(390,844),(844,390)):
+            cdp.call('Emulation.setDeviceMetricsOverride',{'width':width,'height':height,'deviceScaleFactor':1,'mobile':True})
+            time.sleep(.15)
+            assert cdp.evaluate("document.documentElement.scrollWidth<=document.documentElement.clientWidth+1&&innerWidth<=document.documentElement.clientWidth+1"),(page,width,'Page causes horizontal overflow or automatic scaling')
+        assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
+    cdp.evaluate("localStorage.setItem('pokedex.workspace.v1',"+json.dumps(workspace)+")" if workspace is not None else "localStorage.removeItem('pokedex.workspace.v1')")
+    print('PASS:',route,'phone/landscape sheets, expansion, reachable styling/page controls, separate sidebar views, touchscreen placement, viewport resize and all-page horizontal bounds',flush=True)
+
+
 def main():
     binary = browser_binary()
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(QuietServer, directory=str(ROOT)))
@@ -789,6 +874,7 @@ def main():
             cdp.call("Emulation.setDeviceMetricsOverride", {"width": 1366, "height": 768, "deviceScaleFactor": 1, "mobile": False})
             base = f"http://127.0.0.1:{server.server_port}"
             for editor, workspace in (("src/editor.html", "src/workspace.html"), ("preview/Pokedex-editor.html", "preview/Pokedex-workspace.html")):
+                check_phone_layout(cdp, base, editor)
                 check_desktop_reliability(cdp, base, editor)
                 cdp.call('Emulation.setDeviceMetricsOverride',{'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
                 check_workshop_refinements(cdp, base, editor)

@@ -302,7 +302,7 @@
     message("");
   }
   function drag(node, source) {
-    node.draggable = true;
+    node.draggable = source.kind !== "pocket" || !selectMode;
     let touch = null,
       holdTimer;
     const clearTouch = () => {
@@ -313,7 +313,8 @@
       node.classList.remove("is-touch-dragging");
     };
     node.addEventListener("pointerdown", (e) => {
-      if (e.pointerType === "mouse" || source.kind !== "pocket") return;
+      if (selectMode || e.pointerType === "mouse" || source.kind !== "pocket")
+        return;
       touch = { id: e.pointerId, x: e.clientX, y: e.clientY, active: false };
       holdTimer = setTimeout(() => {
         if (!touch) return;
@@ -2029,9 +2030,9 @@
   $("select-pockets").addEventListener("click", () => {
     selectMode = !selectMode;
     pending = null;
-    selected = [];
+    if (!selectMode) selected = [];
     render();
-    message("");
+    message(selectMode ? "Select neighboring pockets, then Merge." : "");
   });
   $("move-to-page").addEventListener("click", () => {
     const p = currentPage(),
@@ -2269,7 +2270,10 @@
       `Merge ${selected.length} connected regions into one empty pocket. ${count} placed cards will move to overflow. Undo is available.`,
       () =>
         run(
-          () => state.merge(pageId, selected),
+          () => {
+            state.merge(pageId, selected);
+            selectMode = false;
+          },
           "Pockets merged; contents kept in overflow.",
         ),
     );

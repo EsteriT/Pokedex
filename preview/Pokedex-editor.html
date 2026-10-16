@@ -6628,7 +6628,7 @@ body.editor-page.calm-editor {
 .calm-editor .pages-collapsed .sidebar-views button {
   box-shadow: none;
 }
-.calm-editor .editor-shell:not(.has-selection) #select-pockets {
+.calm-editor .editor-shell:not(.has-selection):not(.merge-mode) #select-pockets {
   box-shadow: none;
   background: var(--surface);
 }
@@ -6790,6 +6790,15 @@ body.editor-page.calm-editor {
 .calm-editor .customizer-tabs button[aria-pressed="true"] {
   background: var(--soft);
   border-color: var(--accent);
+}
+.calm-editor #pocket-dialog .customizer-tabs {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+.calm-editor #pocket-dialog .customizer-tabs button {
+  flex: 0 0 auto;
+  min-width: max-content;
+  padding-inline: 12px;
 }
 @media (max-width: 700px) {
   .calm-editor .customizer-tabs button.workshop-icon {
@@ -12138,7 +12147,7 @@ body.editor-page.calm-editor {
     message("");
   }
   function drag(node, source) {
-    node.draggable = true;
+    node.draggable = source.kind !== "pocket" || !selectMode;
     let touch = null,
       holdTimer;
     const clearTouch = () => {
@@ -12149,7 +12158,8 @@ body.editor-page.calm-editor {
       node.classList.remove("is-touch-dragging");
     };
     node.addEventListener("pointerdown", (e) => {
-      if (e.pointerType === "mouse" || source.kind !== "pocket") return;
+      if (selectMode || e.pointerType === "mouse" || source.kind !== "pocket")
+        return;
       touch = { id: e.pointerId, x: e.clientX, y: e.clientY, active: false };
       holdTimer = setTimeout(() => {
         if (!touch) return;
@@ -13865,9 +13875,9 @@ body.editor-page.calm-editor {
   $("select-pockets").addEventListener("click", () => {
     selectMode = !selectMode;
     pending = null;
-    selected = [];
+    if (!selectMode) selected = [];
     render();
-    message("");
+    message(selectMode ? "Select neighboring pockets, then Merge." : "");
   });
   $("move-to-page").addEventListener("click", () => {
     const p = currentPage(),
@@ -14105,7 +14115,10 @@ body.editor-page.calm-editor {
       `Merge ${selected.length} connected regions into one empty pocket. ${count} placed cards will move to overflow. Undo is available.`,
       () =>
         run(
-          () => state.merge(pageId, selected),
+          () => {
+            state.merge(pageId, selected);
+            selectMode = false;
+          },
           "Pockets merged; contents kept in overflow.",
         ),
     );

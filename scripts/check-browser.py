@@ -478,10 +478,28 @@ def check_workshop(cdp, base, route):
     click('.editor-pocket:nth-child(1)');click('.editor-pocket:nth-child(2)')
     assert cdp.evaluate("document.querySelectorAll('.editor-pocket.is-selected').length===2&&document.querySelector('.editor-shell.has-selection')&&parseFloat(getComputedStyle(document.querySelectorAll('.editor-pocket')[2]).opacity)<.5"),'Ordinary clicks must accumulate visible selection and dim other cards'
     assert cdp.evaluate("!document.getElementById('merge').hidden===false&&document.getElementById('save').disabled"),'Ordinary card selection must not merge or edit cards'
-    click('#clear-selection');click('#select-pockets');click('.editor-pocket:nth-child(1)');click('.editor-pocket:nth-child(2)');click('#merge');click('#confirm-yes')
+    click('#select-pockets')
+    assert cdp.evaluate("document.querySelectorAll('.editor-pocket.is-selected').length===2&&!document.getElementById('merge').hidden&&[...document.querySelectorAll('.editor-pocket')].every(n=>!n.draggable)"),'Entering merge mode must retain the selected cards and select pockets without dragging them'
+    click('#merge');click('#confirm-yes')
     assert cdp.evaluate("document.querySelectorAll('.editor-pocket').length===8&&!document.getElementById('save').disabled"),'Merge mode must perform an undoable merge'
     click('#undo');click('#clear-selection')
     assert cdp.evaluate("document.querySelectorAll('.editor-pocket').length===9&&document.getElementById('save').disabled")
+    click('#select-pockets')
+    assert cdp.evaluate("document.getElementById('select-pockets').getAttribute('aria-pressed')==='true'"),'Merge mode must activate before selecting pockets'
+    assert cdp.evaluate("getComputedStyle(document.getElementById('select-pockets')).boxShadow!=='none'"),'Merge mode must stay visibly active before selecting pockets'
+    click('.editor-pocket:nth-child(7)');click('.editor-pocket:nth-child(8)')
+    assert cdp.evaluate("document.querySelectorAll('.editor-pocket.is-selected').length===2&&!document.getElementById('merge').disabled"),cdp.evaluate("({selected:[...document.querySelectorAll('.editor-pocket.is-selected')].map(n=>n.getAttribute('aria-label')),mode:document.getElementById('select-pockets').getAttribute('aria-pressed'),reason:document.getElementById('merge').title})")
+    click('#merge');click('#confirm-yes')
+    assert cdp.evaluate("document.querySelectorAll('.editor-pocket').length===8"),'Empty pockets must merge as well as occupied pockets'
+    click('#undo');click('#clear-selection');click('.editor-pocket:nth-child(1)');click('#pocket-content');click('#pocket-tab-placeholder')
+    for width in (1920,390,320):
+        cdp.call('Emulation.setDeviceMetricsOverride',{'width':width,'height':1080 if width==1920 else 844,'deviceScaleFactor':1,'mobile':False})
+        time.sleep(.15)
+        assert cdp.evaluate("(()=>{let n=document.getElementById('pocket-tab-placeholder'),r=n.getBoundingClientRect(),text=document.createRange();text.selectNodeContents(n);let t=text.getBoundingClientRect();return t.left>=r.left&&t.right<=r.right&&n.scrollWidth<=n.clientWidth&&document.documentElement.scrollWidth<=innerWidth})()"),'Placeholder label must fit its tab at desktop and phone widths'
+    click('#pocket-close')
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':1920,'height':1080,'deviceScaleFactor':1,'mobile':False})
+    time.sleep(.15)
+    cdp.escape()
     click('.editor-pocket:nth-child(1)');click('#move-to-page');click('#move-confirm');click('.editor-pocket:nth-child(5)')
     assert cdp.evaluate("!document.querySelectorAll('.editor-pocket')[0].classList.contains('has-content')&&document.querySelectorAll('.editor-pocket')[4].classList.contains('has-content')"),'Move icon must offer a keyboard/click alternative on the current page'
     click('#undo');click('#clear-selection')

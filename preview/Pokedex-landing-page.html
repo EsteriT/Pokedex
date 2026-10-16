@@ -6350,7 +6350,6 @@ html[data-theme="dark"]
         </label>
         <a class="cta" href="Pokedex-workspace.html">
           Explore Pokedex
-          <span>↗</span>
         </a>
       </nav>
     </header>
@@ -6366,7 +6365,6 @@ html[data-theme="dark"]
           <div class="hero-actions">
             <a class="cta" href="Pokedex-workspace.html">
               Create your binder
-              <span>↗</span>
             </a>
             <a class="text-link" href="#customize">Find your style</a>
           </div>
@@ -6783,7 +6781,6 @@ html[data-theme="dark"]
         <h2>Start your next binder.</h2>
         <a class="cta" href="Pokedex-workspace.html">
           Create your binder
-          <span>↗</span>
         </a>
       </section>
     </main>
@@ -10393,9 +10390,6 @@ window.CUSTOMIZE_ART = "data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAA
   link.href =
     document.getElementById("viewer-route").getAttribute("href") +
     "?binder=sample-blue";
-  const arrow = el("span", "", "↗");
-  arrow.setAttribute("aria-hidden", "true");
-  link.append(arrow);
   copy.append(modes, link);
   const upcoming = share.querySelector(".section-upcoming");
   if (upcoming) copy.append(upcoming);

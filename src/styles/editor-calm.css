@@ -3846,7 +3846,7 @@ body.editor-page.calm-editor {
 .calm-editor .pages-collapsed .sidebar-views button {
   box-shadow: none;
 }
-.calm-editor .editor-shell:not(.has-selection) #select-pockets {
+.calm-editor .editor-shell:not(.has-selection):not(.merge-mode) #select-pockets {
   box-shadow: none;
   background: var(--surface);
 }
@@ -4008,6 +4008,15 @@ body.editor-page.calm-editor {
 .calm-editor .customizer-tabs button[aria-pressed="true"] {
   background: var(--soft);
   border-color: var(--accent);
+}
+.calm-editor #pocket-dialog .customizer-tabs {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+.calm-editor #pocket-dialog .customizer-tabs button {
+  flex: 0 0 auto;
+  min-width: max-content;
+  padding-inline: 12px;
 }
 @media (max-width: 700px) {
   .calm-editor .customizer-tabs button.workshop-icon {

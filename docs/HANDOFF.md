@@ -108,3 +108,7 @@ Regression checks cover the exact Cover-to-style path on desktop/phones, both pa
 ## GitHub publishing
 
 The user authorized publication to `EsteriT/Pokedex`. The original MVP tag stays on `dcff24c`; publishing changes are separate. `npm run build:pages` creates the checked static artifact in `dist/`. The Pages workflow deploys pushes to `main`; see [DEPLOYMENT.md](DEPLOYMENT.md). Routine frontend work still does not authorize unrelated hosting or backend changes.
+
+## Post-MVP interaction fixes
+
+Landing CTA links omit decorative arrows, including Explore Pokedex and the sample viewer link. Entering pocket-merge mode retains an existing selection, keeps the rail button visibly active before selection, and disables placed-pocket dragging while picking merge targets. Exiting merge mode clears the selection. Text tabs in Design pocket size to their labels and wrap within narrow dialogs.

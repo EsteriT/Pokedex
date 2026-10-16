@@ -250,9 +250,6 @@
   link.href =
     document.getElementById("viewer-route").getAttribute("href") +
     "?binder=sample-blue";
-  const arrow = el("span", "", "↗");
-  arrow.setAttribute("aria-hidden", "true");
-  link.append(arrow);
   copy.append(modes, link);
   const upcoming = share.querySelector(".section-upcoming");
   if (upcoming) copy.append(upcoming);

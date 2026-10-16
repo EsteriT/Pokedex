@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Binder viewer — Pokedex</title>
+    <link rel="stylesheet" href="styles/workspace.css" />
+    <link rel="stylesheet" href="styles/app-header.css" />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/site-system.css" />
+    <link rel="stylesheet" href="styles/binder-covers.css" />
+    <link rel="stylesheet" href="styles/cover-consistency.css" />
+    <link rel="stylesheet" href="styles/viewer.css" />
+    <script src="scripts/theme.js"></script>
+  </head>
+  <body class="viewer-page">
+    <a class="skip-link" href="#viewer-main">Skip to binder</a>
+    <header class="viewer-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-ball" aria-hidden="true"></span>Pokedex</a
+      ><a class="button secondary" href="workspace.html">Back to workspace</a
+      ><select id="theme-choice" aria-label="Color theme">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="system">System</option>
+      </select>
+    </header>
+    <main id="viewer-main">
+      <div class="viewer-heading">
+        <div>
+          <h1 id="viewer-title">Binder viewer</h1>
+          <span id="viewer-source">Local preview</span>
+        </div>
+      </div>
+      <section id="viewer-error" class="viewer-empty" hidden>
+        <h2>Binder unavailable</h2>
+        <p id="viewer-error-message"></p>
+        <a class="button primary" href="workspace.html">Go to Workspace</a>
+      </section>
+      <section id="viewer-shell" aria-label="Read-only binder" hidden>
+        <div class="viewer-toolbar">
+          <div class="viewer-mode" role="group" aria-label="Page layout">
+            <button id="viewer-single" type="button" aria-pressed="true">
+              Single page
+            </button>
+            <button id="viewer-spread" type="button" aria-pressed="false">
+              Two pages
+            </button>
+          </div>
+          <button
+            id="viewer-fullscreen"
+            class="button secondary"
+            type="button"
+            hidden
+          >
+            Fullscreen
+          </button>
+        </div>
+        <div id="viewer-viewport" class="viewer-viewport">
+          <div id="viewer-cover" class="viewer-cover">
+            <div id="viewer-cover-art"></div>
+            <p id="viewer-cover-count"></p>
+            <button id="viewer-open" class="button primary" type="button">
+              Open binder
+            </button>
+          </div>
+          <div
+            id="viewer-page-art"
+            class="viewer-page-art"
+            role="group"
+            aria-label="Binder page"
+            hidden
+          ></div>
+        </div>
+        <div id="viewer-controls" class="viewer-controls" hidden>
+          <div class="viewer-navigation">
+            <button id="viewer-previous" class="button secondary" type="button">
+              Previous</button
+            ><label class="viewer-picker"
+              ><span class="sr-only">Choose binder page</span
+              ><select
+                id="viewer-page-picker"
+                aria-label="Choose binder page"
+              ></select></label
+            ><button id="viewer-next" class="button secondary" type="button">
+              Next
+            </button>
+          </div>
+          <div class="viewer-zoom">
+            <button id="viewer-fit" class="button secondary" type="button">
+              Fit page</button
+            ><label for="viewer-zoom"
+              >Zoom <output id="viewer-zoom-value">100%</output></label
+            ><input
+              id="viewer-zoom"
+              type="range"
+              min="1"
+              max="3"
+              step=".25"
+              value="1"
+              aria-label="Binder page zoom"
+            />
+          </div>
+        </div>
+      </section>
+      <p
+        id="viewer-status"
+        class="viewer-status sr-only"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </main>
+    <footer class="viewer-footer">
+      Browser-local preview · unlisted sharing comes later.<span
+        >Independent Pokémon fan project · Card images:
+        <a href="https://tcgdex.dev" target="_blank" rel="noopener noreferrer"
+          >TCGdex</a
+        ></span
+      >
+    </footer>
+    <dialog id="viewer-inspect" aria-labelledby="viewer-inspect-title">
+      <div class="viewer-inspect-heading">
+        <h2 id="viewer-inspect-title"></h2>
+        <button
+          id="viewer-inspect-close"
+          class="button secondary"
+          type="button"
+          aria-label="Close card details"
+        >
+          ✕
+        </button>
+      </div>
+      <div id="viewer-inspect-art"></div>
+      <p id="viewer-inspect-meta"></p>
+    </dialog>
+    <script src="data/sample-cards.js"></script>
+    <script src="data/sample-card-details.js"></script>
+    <script src="data/sample-binders.js"></script>
+    <script src="scripts/binder-schema.js"></script>
+    <script src="scripts/binder-store.js"></script>
+    <script src="scripts/binder-covers.js"></script>
+    <script src="scripts/binder-visuals.js"></script>
+    <script src="scripts/binder-geometry.js"></script>
+    <script src="scripts/viewer.js"></script>
+  </body>
+</html>

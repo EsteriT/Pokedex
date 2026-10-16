@@ -1,0 +1,218 @@
+/* Landing consistency: equal roles share sizes; informative demos keep their own layouts. */
+.landing-page {
+  --action-bg: #c94b58;
+  --action-hover: #b83b49;
+  --chapter-padding: 56px;
+  --caption-size: 12px;
+}
+.landing-page
+  main
+  > section:is(
+    #arrange,
+    #customize,
+    #discover,
+    #collect,
+    #share,
+    .landing-faq,
+    .landing-coming-soon,
+    .closing
+  ) {
+  padding-block: var(--chapter-padding);
+  min-height: 0;
+}
+.landing-page
+  :is(#arrange, #customize, #discover, #collect, #share)
+  .chapter-head
+  h2 {
+  font-size: clamp(28px, 2.5vw, 36px);
+  line-height: 1.2;
+}
+.landing-page .section-upcoming {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 24px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.landing-page .section-upcoming strong {
+  margin: 0;
+}
+.landing-page .section-upcoming > span {
+  min-width: 0;
+}
+.landing-page .section-upcoming a {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.landing-page .cta,
+.landing-page .collection-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--action-bg);
+  color: #fff;
+}
+html[data-theme="dark"] .landing-page .cta,
+html[data-theme="dark"] .landing-page .collection-mark {
+  background: var(--action-bg);
+  color: #fff;
+  border-color: transparent;
+}
+.landing-page .cta:hover,
+.landing-page .collection-mark:hover:not(:disabled),
+html[data-theme="dark"] .landing-page .cta:hover,
+html[data-theme="dark"] .landing-page .collection-mark:hover:not(:disabled) {
+  background: var(--action-hover);
+  filter: none;
+}
+.landing-page .collection-mark:disabled,
+html[data-theme="dark"] .landing-page .collection-mark:disabled {
+  background: var(--soft);
+  color: var(--muted);
+  border-color: transparent;
+}
+.landing-page .share-view-modes button {
+  border-radius: 10px;
+  min-height: 44px;
+}
+.landing-page :is(.planned-badge, .landing-future) {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 4px 10px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+.landing-page .collection-item:first-child,
+.landing-page .collection-item:last-child {
+  transform: none;
+}
+.landing-page .collection-state {
+  margin-top: 12px;
+  font-size: 12px;
+}
+.landing-page
+  #customize
+  :is(
+    .customize-demo-toolbar,
+    .demo-strip,
+    .customize-back-label,
+    .customize-cover-label,
+    .customize-grid-label,
+    .customize-frame-label
+  ),
+.landing-page .discover-card small,
+.landing-page .discover-sample-note {
+  font-size: var(--caption-size);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.landing-page .discover-note {
+  font-size: var(--caption-size);
+  line-height: 1.5;
+}
+.landing-page #share .share-viewer-copy .section-upcoming {
+  margin-top: 32px;
+}
+@media (min-width: 1101px) and (max-height: 800px) {
+  .landing-page {
+    --chapter-padding: 32px;
+  }
+  .landing-page #arrange .arrange-stage {
+    height: 440px;
+  }
+  .landing-page #arrange .arrange-summary[role="button"] {
+    padding-block: 12px;
+  }
+  .landing-page #arrange .arrange-summary h3 {
+    font-size: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .landing-page {
+    --chapter-padding: 40px;
+  }
+  .landing-page .section-upcoming {
+    gap: 8px 12px;
+  }
+  .landing-page .section-upcoming a {
+    flex-basis: 100%;
+    padding-block: 8px;
+  }
+}
+
+.landing-page
+  .collection-item:not(.is-missing):not(.is-wanted)
+  .collection-state {
+  color: #28654d;
+}
+html[data-theme="dark"]
+  .landing-page
+  .collection-item:not(.is-missing):not(.is-wanted)
+  .collection-state {
+  color: #7ebf9d;
+}
+@media (min-width: 1101px) and (max-height: 800px) {
+  .landing-page .discover-results {
+    max-width: 480px;
+    min-height: 184px;
+  }
+  .landing-page .discover-studio {
+    padding-block: 8px;
+  }
+}
+
+/* Each desktop chapter has one screen, with compact content centered inside it. */
+@media (min-width: 1101px) {
+  .landing-page
+    main
+    > section:is(#arrange, #customize, #discover, #collect, #share) {
+    min-height: calc(100svh - 80px);
+  }
+  .landing-page main > section:is(#customize, #discover, #collect, #share) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .landing-page #arrange {
+    grid-template-rows: auto auto auto;
+    align-content: center;
+  }
+  .landing-page #arrange > .section-upcoming {
+    grid-column: 1/-1;
+    margin-top: 0;
+  }
+}
+/* The help layout and planned cards blend into the surrounding page. */
+.landing-page .landing-faq {
+  background: transparent;
+}
+.landing-page .future-card {
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 85%, var(--surface));
+  border-color: var(--line);
+  border-color: color-mix(in srgb, var(--bg) 55%, var(--line));
+}
+.landing-page .faq-question > summary:hover {
+  background: color-mix(in srgb, var(--bg) 85%, var(--surface));
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .landing-page .future-card:hover {
+    box-shadow: 0 8px 20px #00000008;
+  }
+}

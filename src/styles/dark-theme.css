@@ -1,0 +1,183 @@
+.theme-control {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.theme-control select {
+  appearance: auto;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  max-width: 104px;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #191a1f;
+  --surface: #24262d;
+  --soft: #2e313a;
+  --ink: #eceef3;
+  --muted: #b0b6c4;
+  --line: #3a3e49;
+  --accent: #e27381;
+  --lavender: #b8afe0;
+  --paper-shadow: 0 12px 32px #0002;
+}
+html[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--ink);
+}
+html[data-theme="dark"] .topbar {
+  background: #191a1fee;
+}
+html[data-theme="dark"] .cta {
+  background: #c94b58;
+  color: #fff;
+}
+html[data-theme="dark"] .cta:hover {
+  background: #b83b49;
+}
+html[data-theme="dark"] .binder-slide {
+  background: #292c34;
+  border-color: #3c414e;
+  box-shadow: 0 20px 48px #0004;
+}
+html[data-theme="dark"] .binder-pocket {
+  background: #22252c;
+}
+html[data-theme="dark"] .binder-pocket.vacant {
+  border-color: #444957;
+}
+html[data-theme="dark"] .binder-controls button {
+  color: #b0b6c4;
+}
+html[data-theme="dark"] .binder-controls button:hover {
+  color: #eceef3;
+  background: #30333b;
+}
+html[data-theme="dark"] .binder-dot:before {
+  background: #788293;
+}
+html[data-theme="dark"] .binder-dot[aria-current="true"]:before {
+  background: #b8afe0;
+}
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .cs-card {
+  background: #292d36;
+  box-shadow: 0 4px 12px #0003;
+}
+html[data-theme="dark"] .mini-page {
+  background: #2c3039;
+  border-color: #4b5262;
+}
+html[data-theme="dark"] #arrange .arrange-stage {
+  background: var(--surface);
+}
+html[data-theme="dark"] #arrange .arrange-summary[role="button"] {
+  border-left-color: #424653;
+}
+html[data-theme="dark"] #arrange .arrange-summary.is-current {
+  border-left-color: #b8afe0;
+}
+html[data-theme="dark"] #arrange .arrange-summary h3 {
+  color: #b0b6c4;
+}
+html[data-theme="dark"] #arrange .arrange-summary.is-current h3 {
+  color: #eceef3;
+}
+html[data-theme="dark"] .arrange-demo-action {
+  background: #2e323c;
+  border-color: #515b6d;
+}
+html[data-theme="dark"] .arrange-page-label,
+html[data-theme="dark"] .arrange-tray > span,
+html[data-theme="dark"] .arrange-shortcuts {
+  color: #b0b6c4;
+}
+html[data-theme="dark"] .pocket {
+  background: #2b303a;
+  border-color: #7a869e;
+  color: #c0c8d8;
+}
+
+html[data-theme="dark"] .discover-search,
+html[data-theme="dark"] .discover-filters select {
+  background: var(--surface);
+  border-color: #515a6b;
+  color: #eceef3;
+}
+html[data-theme="dark"] .discover-search::placeholder {
+  color: #a3adbf;
+}
+html[data-theme="dark"] .discover-picker {
+  border-color: #626d82;
+  background: var(--surface);
+}
+html[data-theme="dark"] .discover-summary {
+  border-top-color: #414653;
+}
+html[data-theme="dark"] .discover-summary.is-current {
+  border-color: #b8afe0;
+}
+html[data-theme="dark"] .discover-sample-note {
+  color: #a4adbf;
+}
+html[data-theme="dark"] .collection-dashboard {
+  background: var(--surface);
+}
+html[data-theme="dark"] .collection-value small {
+  color: #a4adbf;
+}
+html[data-theme="dark"] .collection-bar {
+  background: #3a3e4a;
+}
+html[data-theme="dark"] .collection-mark {
+  background: #383241;
+  color: #e2dced;
+  border-color: #9d8db8;
+}
+html[data-theme="dark"] .collection-mark:hover:not(:disabled) {
+  background: #484051;
+}
+html[data-theme="dark"] .collection-mark:disabled {
+  background: #383241;
+  color: #e2dced;
+}
+
+html[data-theme="dark"] .footer {
+  background: #14151a;
+}
+html[data-theme="dark"] .footer .mark {
+  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
+}
+html[data-theme="dark"] .footer .mark:after {
+  background: #14151a;
+}
+html[data-theme="dark"] .legal {
+  border-color: #343844;
+  color: #b0b6c4;
+}
+html[data-theme="dark"] :focus-visible {
+  outline-color: #f09aa4 !important;
+}
+
+html[data-theme="dark"] .arrange-stage .arrange-selected {
+  outline-color: #c5b8e2;
+}
+@media (max-width: 580px) {
+  .topbar nav {
+    gap: 8px;
+  }
+  .theme-control select {
+    font-size: 11px;
+    max-width: 88px;
+  }
+  .topbar .brand {
+    font-size: 20px;
+    gap: 8px;
+  }
+}

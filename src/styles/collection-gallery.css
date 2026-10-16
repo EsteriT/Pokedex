@@ -1,0 +1,1139 @@
+/* Collection gallery: visual browsing with details and bulk tools on demand. */
+#collection-panel .collection-heading {
+  margin-top: 0;
+  align-items: flex-start;
+  gap: 24px;
+}
+#collection-panel .collection-summary {
+  gap: 12px 24px;
+  margin: 20px 0 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#collection-panel .collection-topbar {
+  margin-bottom: 20px;
+}
+#collection-panel .collection-switch {
+  border-radius: 12px;
+}
+#collection-panel .collection-switch button {
+  min-height: 44px;
+  border-radius: 8px;
+}
+#collection-panel .collection-actions button {
+  min-height: 44px;
+  font-size: 14px;
+}
+#collection-panel > .inventory-toolbar {
+  display: flex;
+  gap: 12px;
+}
+#collection-panel > .inventory-toolbar .search {
+  max-width: none;
+  min-width: 180px;
+}
+#collection-panel .collection-sort-label {
+  gap: 8px;
+}
+#collection-panel .collection-sort-label select {
+  min-height: 44px;
+  font-size: 14px;
+}
+#collection-panel .collection-filters {
+  width: fit-content;
+}
+#collection-panel .collection-filters > summary {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+#collection-panel .collection-filter-fields {
+  padding: 16px 0;
+  margin: 0;
+}
+.collection-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.collection-active-filters:empty {
+  display: none;
+}
+.collection-filter-chip {
+  min-height: 36px;
+  padding: 6px 12px;
+  background: var(--soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.collection-selection-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  margin: 0 0 20px;
+}
+.collection-selection-actions[hidden] {
+  display: none;
+}
+.collection-selection-actions > strong {
+  margin-right: auto;
+  font-size: 14px;
+}
+#collection-panel .collection-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 28px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+#collection-panel .collection-list:empty {
+  display: none;
+}
+#collection-panel .inventory-row {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  position: relative;
+}
+#collection-panel .inventory-card {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 8px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background 180ms,
+    border-color 180ms,
+    transform 180ms;
+}
+#collection-panel .inventory-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 245 / 337;
+  position: relative;
+  display: block;
+  border-radius: 10px;
+  background: var(--soft);
+}
+#collection-panel .inventory-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  border-radius: inherit;
+  box-shadow: 0 5px 18px #00000012;
+}
+#collection-panel .inventory-art img[hidden] {
+  display: none;
+}
+.inventory-art.art-unavailable::before {
+  content: "Image unavailable";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.inventory-quantity {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #0002;
+}
+#collection-panel .inventory-card-info {
+  gap: 4px;
+  padding: 0 2px;
+}
+#collection-panel .inventory-card-info strong {
+  font-size: 14px;
+  line-height: 1.4;
+}
+#collection-panel .inventory-card-info small {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#collection-panel .is-selected .inventory-card {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+#collection-panel .inventory-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.collection-empty-art {
+  font-size: 40px;
+  line-height: 1;
+  color: var(--accent);
+  margin: 20px 0;
+}
+#inventory-empty .button {
+  margin-top: 20px;
+}
+.inventory-dialog:not(.has-picker) {
+  width: min(880px, calc(100% - 40px));
+}
+
+.inventory-dialog:not(.has-picker) #inventory-preview {
+  width: 100%;
+  max-width: 280px;
+  margin: auto;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #collection-panel .inventory-card:hover {
+    transform: translateY(-4px);
+    background: var(--surface);
+  }
+}
+@media (max-width: 700px) {
+  #collection-panel .collection-heading {
+    flex-direction: column;
+    gap: 16px;
+  }
+  #collection-panel .collection-save-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #collection-panel .collection-summary {
+    margin-bottom: 24px;
+    gap: 8px 16px;
+  }
+  #collection-panel .collection-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+  #collection-panel .inventory-card {
+    padding: 4px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+  #collection-panel .inventory-card-info strong {
+    font-size: 13px;
+  }
+  #collection-panel .inventory-card-info small {
+    font-size: 11px;
+  }
+  #collection-panel > .inventory-toolbar .search {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  #collection-panel .collection-topbar {
+    gap: 12px;
+  }
+  #collection-panel .collection-actions {
+    gap: 8px;
+  }
+  .collection-filter-chip {
+    min-height: 44px;
+  }
+  .collection-selection-actions {
+    padding: 12px;
+  }
+  .collection-selection-actions > strong {
+    flex-basis: 100%;
+  }
+
+  .inventory-quantity {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  .inventory-dialog,
+  .inventory-dialog:not(.has-picker) {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 20px;
+  }
+
+  .inventory-dialog:not(.has-picker) #inventory-preview {
+    max-width: 220px;
+  }
+  .inventory-dialog input:not([type="checkbox"]),
+  .inventory-dialog select,
+  .inventory-dialog textarea {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #collection-panel .inventory-card {
+    transition: none;
+  }
+}
+
+#collection-panel > .inventory-toolbar {
+  position: relative;
+}
+#collection-panel .collection-filters {
+  position: static;
+  margin: 0;
+  flex-shrink: 0;
+}
+#collection-panel .collection-filters > summary,
+#collection-panel .collection-more > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#collection-panel .collection-filters[open] .collection-filter-fields {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 16px 40px #0002;
+}
+#collection-panel .collection-filter-fields label {
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+#collection-panel .collection-filter-fields [hidden] {
+  display: none;
+}
+#collection-panel .collection-filter-fields select {
+  width: 100%;
+}
+#collection-panel .collection-filter-fields #chase-filter-label {
+  flex-direction: row;
+  align-items: center;
+}
+.inventory-dialog:not(.has-picker) .collection-entry-layout {
+  display: block;
+}
+.inventory-dialog:not(.has-picker) .collection-entry-details {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px 32px;
+  align-items: start;
+}
+.inventory-dialog:not(.has-picker)
+  .collection-entry-details
+  > :not(.inventory-preview) {
+  grid-column: 2;
+}
+.inventory-dialog:not(.has-picker)
+  .collection-entry-details
+  #inventory-preview {
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  max-width: 280px;
+}
+.inventory-dialog:not(.has-picker) #inventory-preview img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 245/337;
+  object-fit: contain;
+}
+@media (max-width: 700px) {
+  #collection-panel .collection-filters[open] .collection-filter-fields {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  #collection-panel .collection-sort-label {
+    flex: 1;
+  }
+  #collection-panel .collection-sort-label select {
+    max-width: 160px;
+  }
+  .inventory-dialog:not(.has-picker) .collection-entry-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .inventory-dialog:not(.has-picker)
+    .collection-entry-details
+    > :not(.inventory-preview) {
+    grid-column: 1;
+  }
+  .inventory-dialog:not(.has-picker)
+    .collection-entry-details
+    #inventory-preview {
+    grid-row: auto;
+    max-width: 220px;
+  }
+}
+
+#collection-panel .button.secondary,
+#collection-panel .collection-more > summary,
+#collection-panel .collection-filters > summary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+/* Mobile collection flow: quiet summaries and a multi-card review step. */
+
+.collection-help > summary {
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collection-help {
+  margin: 8px 0 16px;
+}
+.collection-help p {
+  margin: 8px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+#collection-panel .collection-heading {
+  margin-bottom: 8px;
+}
+.collection-message:empty {
+  display: none;
+}
+.collection-message:not(:empty) {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.collection-bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+.collection-bulk-bar[hidden],
+.collection-bulk-review[hidden] {
+  display: none;
+}
+.collection-bulk-bar strong {
+  margin-right: auto;
+  font-size: 14px;
+}
+.inventory-dialog.batch-picker .collection-entry-layout {
+  display: block;
+}
+.inventory-dialog.batch-picker:not(.batch-reviewing) .collection-entry-details {
+  display: none;
+}
+.inventory-dialog.batch-picker .collection-card-grid {
+  max-height: none;
+  overflow: visible;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+.inventory-dialog.batch-picker .collection-entry-details .inventory-preview,
+.inventory-dialog.batch-picker .inventory-ownership-context,
+.inventory-dialog.batch-picker .inventory-quick-fields {
+  display: none;
+}
+.inventory-dialog.batch-picker .collection-entry-details {
+  padding-top: 20px;
+}
+.inventory-dialog.batch-picker .collection-picker-heading {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--surface);
+  padding: 12px 0;
+}
+.inventory-dialog.batch-picker .dialog-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 16px 0 max(8px, env(safe-area-inset-bottom));
+  margin-top: 20px;
+}
+.collection-bulk-review {
+  display: grid;
+  gap: 12px;
+}
+.collection-review-row {
+  display: grid;
+  grid-template-columns: 44px minmax(100px, 1fr) 80px 150px auto;
+  gap: 12px;
+
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.collection-review-art {
+  width: 44px;
+  aspect-ratio: 245/337;
+  background: var(--soft);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.collection-review-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.collection-review-name {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.collection-review-name strong {
+  font-size: 14px;
+}
+.collection-review-name small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.collection-review-row .field {
+  min-width: 0;
+  margin: 0;
+}
+.collection-review-row input,
+.collection-review-row select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+}
+.collection-review-row select {
+  padding-right: 36px;
+}
+@media (max-width: 700px) {
+  .collection-help > summary {
+    min-height: 44px;
+  }
+  .inventory-dialog {
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 100px;
+  }
+  .inventory-dialog.batch-picker .collection-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+  .inventory-dialog.batch-picker .collection-picker-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .inventory-dialog.batch-picker .collection-picker-heading > a {
+    margin: 0;
+  }
+  .collection-review-row {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+  .collection-review-art {
+    width: 40px;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .collection-review-name {
+    grid-column: 2 / -1;
+  }
+
+  .collection-review-row > button {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+  .collection-review-row input,
+  .collection-review-row select {
+    font-size: 16px;
+  }
+  .collection-bulk-bar {
+    gap: 8px;
+  }
+  .collection-bulk-bar .button {
+    font-size: 12px;
+    min-height: 44px;
+    padding: 10px;
+  }
+  .inventory-dialog .dialog-actions .button {
+    flex: 1;
+    min-height: 48px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 700px) {
+  .workspace-page #inventory-dialog {
+    max-width: none;
+
+    margin: 0;
+    border-radius: 0;
+  }
+  .collection-review-row {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .collection-review-row > label:nth-child(3) {
+    grid-column: 1;
+  }
+  .collection-review-row > label:nth-child(4) {
+    grid-column: 2;
+  }
+  .collection-review-row > button {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Actions occupy a dedicated row, never an overlay on card artwork. */
+.workspace-page #inventory-dialog {
+  height: min(860px, calc(100dvh - 48px));
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  overflow: hidden;
+}
+.workspace-page #inventory-dialog > .inventory-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.collection-dialog-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px;
+  scroll-padding-block: 16px;
+}
+.workspace-page #inventory-dialog > form > .dialog-actions {
+  position: static;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  gap: 12px;
+}
+.inventory-dialog.batch-picker .collection-picker-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  align-items: start;
+}
+.inventory-dialog.batch-picker .collection-picker-heading > label {
+  grid-column: 1;
+  margin: 0;
+}
+.inventory-dialog.batch-picker .collection-picker-heading > a {
+  grid-column: 1;
+  margin: 0;
+}
+.inventory-dialog.batch-picker .collection-picker-filters {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+.inventory-dialog.batch-picker .collection-pick-card {
+  padding: 10px;
+  border-radius: 12px;
+}
+.inventory-dialog.batch-picker .collection-card-grid {
+  padding: 4px;
+}
+@media (max-width: 700px) {
+  .workspace-page #inventory-dialog {
+    height: 100dvh;
+    max-height: 100dvh;
+    width: 100%;
+  }
+  .collection-dialog-content {
+    padding: 20px 16px;
+  }
+  .workspace-page #inventory-dialog > form > .dialog-actions {
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+  }
+  .inventory-dialog.batch-picker .collection-picker-heading {
+    gap: 8px 12px;
+  }
+  .inventory-dialog.batch-picker .collection-picker-filters {
+    align-self: start;
+    padding-top: 28px;
+  }
+}
+
+/* Single-card editing: artwork and essential fields share a compact canvas. */
+.inventory-detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.inventory-detail-eyebrow {
+  display: none;
+}
+.inventory-detail-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.inventory-detail-close:hover {
+  background: var(--bg);
+}
+.inventory-detail-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.workspace-page #inventory-dialog.record-detail {
+  width: min(860px, calc(100% - 48px));
+  height: fit-content;
+  max-height: calc(100dvh - 48px);
+}
+.workspace-page #inventory-dialog.record-detail > .inventory-form {
+  height: auto;
+  max-height: calc(100dvh - 48px);
+}
+.record-detail .collection-dialog-content {
+  flex: 0 1 auto;
+  padding: 28px;
+}
+.record-detail .inventory-detail-heading {
+  margin-bottom: 28px;
+}
+.record-detail .inventory-detail-eyebrow {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.record-detail #inventory-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.3;
+}
+.record-detail .collection-help {
+  display: none;
+}
+.record-detail .collection-entry-layout {
+  margin: 0;
+}
+.inventory-dialog.record-detail .collection-entry-details {
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px 32px;
+}
+.inventory-dialog.record-detail .collection-entry-details #inventory-preview {
+  grid-row: 1 / span 5;
+  margin: 0;
+  max-width: none;
+  gap: 8px;
+  align-self: start;
+}
+.inventory-dialog.record-detail #inventory-preview img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  margin: 0 0 8px;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px #0002;
+}
+.inventory-dialog.record-detail #inventory-preview strong {
+  font-size: 20px;
+  line-height: 1.35;
+}
+.inventory-dialog.record-detail #inventory-preview span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.record-detail .inventory-ownership-context {
+  grid-row: 2;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+.record-detail .inventory-kind-switch {
+  grid-row: 1;
+  width: 100%;
+  margin: 0;
+  display: flex;
+}
+.record-detail .inventory-kind-switch button {
+  flex: 1;
+  min-height: 44px;
+}
+.record-detail .inventory-quick-fields,
+.record-detail .inventory-record-core {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.record-detail .inventory-record-core[hidden] {
+  display: none;
+}
+.record-detail .inventory-record-core .inventory-two-fields {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.record-detail .field {
+  margin: 0;
+  gap: 8px;
+  font-size: 14px;
+}
+.record-detail .field input,
+.record-detail .field select {
+  min-height: 46px;
+  width: 100%;
+}
+.record-detail .inventory-more-details {
+  margin: 0;
+}
+.record-detail .inventory-more-details summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 46px;
+  padding: 12px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  font-size: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+.record-detail .inventory-more-details summary::-webkit-details-marker {
+  display: none;
+}
+.record-detail .inventory-more-details .field {
+  margin-top: 16px;
+}
+.record-detail .form-error:empty {
+  display: none;
+}
+.workspace-page #inventory-dialog.record-detail > form > .dialog-actions {
+  padding: 16px 28px;
+}
+.record-detail #inventory-delete {
+  margin-right: auto;
+  background: transparent;
+  color: var(--danger, #c94b58);
+  border: 1px solid var(--line);
+}
+@media (max-width: 700px) {
+  .workspace-page #inventory-dialog.record-detail {
+    width: calc(100% - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 16px;
+  }
+  .workspace-page #inventory-dialog.record-detail > .inventory-form {
+    max-height: calc(100dvh - 24px);
+  }
+  .record-detail .collection-dialog-content {
+    padding: 20px;
+  }
+  .record-detail .inventory-detail-heading {
+    margin-bottom: 20px;
+  }
+  .inventory-dialog.record-detail .collection-entry-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .inventory-dialog.record-detail
+    .collection-entry-details
+    > :not(.inventory-preview) {
+    grid-column: 1;
+  }
+  .inventory-dialog.record-detail .collection-entry-details #inventory-preview {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-row: 1;
+    gap: 4px 16px;
+    align-items: end;
+  }
+  .inventory-dialog.record-detail #inventory-preview img {
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    margin: 0;
+  }
+  .inventory-dialog.record-detail #inventory-preview strong {
+    grid-column: 2;
+    font-size: 18px;
+  }
+  .inventory-dialog.record-detail #inventory-preview span {
+    grid-column: 2;
+    align-self: start;
+  }
+  .record-detail .inventory-kind-switch {
+    grid-row: 2;
+  }
+  .record-detail .inventory-ownership-context {
+    grid-row: 3;
+  }
+  .workspace-page #inventory-dialog.record-detail > form > .dialog-actions {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .record-detail .dialog-actions .button {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+.record-detail .inventory-more-details summary {
+  background-image: none;
+}
+@media (max-width: 700px) {
+  .workspace-page #inventory-dialog.record-detail {
+    margin: auto;
+  }
+  .record-detail #inventory-apply {
+    flex: 1 0 100%;
+    order: -1;
+  }
+  .record-detail #inventory-delete,
+  .record-detail #inventory-cancel {
+    flex: 1;
+  }
+}
+
+/* Purpose stays readable below the artwork, rather than competing with it. */
+.collection-purpose-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  width: fit-content;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.collection-purpose-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.purpose-trade::before {
+  background: #699fba;
+}
+.purpose-sale::before {
+  background: var(--accent);
+}
+.purpose-chase::before {
+  background: #c69a42;
+}
+.collection-review-row {
+  grid-template-columns: 44px minmax(100px, 1fr) 76px 140px 160px auto;
+  align-items: end;
+}
+.collection-review-art,
+.collection-review-name {
+  align-self: center;
+}
+.collection-review-row > .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.collection-review-row > .button {
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 16px;
+  align-self: end;
+}
+.collection-review-row small {
+  font-size: 14px;
+}
+.inventory-purpose {
+  margin: 0;
+  gap: 8px;
+}
+.inventory-purpose select {
+  width: 100%;
+  min-height: 46px;
+}
+.batch-reviewing .inventory-purpose {
+  max-width: 360px;
+  margin: 0 0 16px;
+}
+.batch-reviewing .collection-help {
+  display: none;
+}
+.inventory-dialog.batch-picker .inventory-more-details > summary::before {
+  content: none;
+}
+.collection-bulk-edit {
+  width: min(480px, calc(100% - 32px));
+  padding: 24px;
+}
+.collection-bulk-edit h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+.collection-bulk-edit p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.collection-bulk-edit .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 24px 0;
+}
+.collection-bulk-edit select {
+  min-height: 46px;
+  width: 100%;
+}
+.collection-bulk-edit .dialog-actions {
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .collection-review-row {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+  .collection-review-art {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .collection-review-name {
+    grid-column: 2 / -1;
+    grid-row: 1;
+  }
+  .collection-review-row > label:nth-child(3) {
+    grid-column: 1 / 2;
+    grid-row: 2;
+  }
+  .collection-review-row > label:nth-child(4) {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+
+  .collection-review-row > .button {
+    grid-column: 3;
+    grid-row: 3;
+    justify-self: stretch;
+    padding-inline: 8px;
+  }
+  .collection-review-row > .field {
+    font-size: 14px;
+  }
+  .batch-reviewing .inventory-purpose {
+    max-width: none;
+  }
+}
+
+.collection-review-shared {
+  display: grid;
+  grid-template-columns: auto minmax(0, 360px);
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.collection-review-shared[hidden] {
+  display: none;
+}
+.collection-review-shared .inventory-kind-switch {
+  margin: 0;
+}
+.collection-review-shared .inventory-purpose {
+  margin: 0;
+  font-size: 14px;
+}
+.workspace-page #inventory-dialog.batch-reviewing {
+  height: fit-content;
+}
+.workspace-page #inventory-dialog.batch-reviewing > .inventory-form {
+  height: auto;
+  max-height: calc(100dvh - 48px);
+}
+.batch-reviewing .collection-dialog-content {
+  flex: 0 1 auto;
+}
+@media (max-width: 700px) {
+  .collection-review-shared {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .collection-review-shared .inventory-kind-switch {
+    width: 100%;
+    display: flex;
+  }
+  .collection-review-shared .inventory-kind-switch button {
+    flex: 1;
+  }
+  .workspace-page #inventory-dialog.batch-reviewing > .inventory-form {
+    max-height: 100dvh;
+  }
+}

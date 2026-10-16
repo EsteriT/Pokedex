@@ -1,0 +1,96 @@
+{
+  "origin": "C:\\Users\\thukh\\Documents\\Codex\\2026-10-11\\i-wna\\outputs\\pokedex-style-preview",
+  "files": [
+    {
+      "source": "finished.css",
+      "target": "src/styles/base.css",
+      "sha256": "09c5c85598cd59ada1f5429417bebff7e82256fff8533e95008d359aa95c06d6"
+    },
+    {
+      "source": "hero-carousel.css",
+      "target": "src/styles/hero-carousel.css",
+      "sha256": "18644accce8d8339abeb6e6223aac6831d4b1c4b15960e8cd76053c550d21fd1"
+    },
+    {
+      "source": "arrange.css",
+      "target": "src/styles/arrange.css",
+      "sha256": "929a77c528c628773f33b9bc3ea70009c9f507aaac0179a17fabfbfcc0594349"
+    },
+    {
+      "source": "spacing.css",
+      "target": "src/styles/layout-and-spacing.css",
+      "sha256": "28f362ff5f662fda970f34cc261b44086c91bc67256537c1513a191bab59f11e"
+    },
+    {
+      "source": "porcelain.css",
+      "target": "src/styles/light-theme.css",
+      "sha256": "c26d2f177232b5a36bb705b5e2dec115de3044ff9b02c1c0206295bae0664d9f"
+    },
+    {
+      "source": "dark-mode.css",
+      "target": "src/styles/dark-theme.css",
+      "sha256": "ff6c5116331beaaa1e1fd8d62302ec9aa2bfe11357a2ba904bc796ae563f0b91"
+    },
+    {
+      "source": "theme.js",
+      "target": "src/scripts/theme.js",
+      "sha256": "3c643a1b1cf04e92bd6175517e147a31e2edac4a7e0143b41bb87977e4c09273"
+    },
+    {
+      "source": "demo-motion.js",
+      "target": "src/scripts/demo-motion.js",
+      "sha256": "fbafea060e40fa7ebfeee866089c64d3c47ce563856b651506abed7dca0954ee"
+    },
+    {
+      "source": "finished.js",
+      "target": "src/scripts/customize-demos.js",
+      "sha256": "8299c5a5f4fc399c79a7676bdba699d174237eb43c7f499f9890f0bbcf3ed24c"
+    },
+    {
+      "source": "hero-carousel.js",
+      "target": "src/scripts/hero-carousel.js",
+      "sha256": "187b233d7287f61556f5f0ada1095f28fe2cc9df50585acd952a8d8875eb8337"
+    },
+    {
+      "source": "arrange.js",
+      "target": "src/scripts/arrange-demos.js",
+      "sha256": "6a81ac59da7f9efa3ad61b5d32f9de868909b55e7cd4e5d10cb69dde20df1bda"
+    },
+    {
+      "source": "discover.js",
+      "target": "src/scripts/discover-demo.js",
+      "sha256": "566e66d57666744787024530831b84786a42528b66d388bb2baed95a9602ab88"
+    },
+    {
+      "source": "collection-share.js",
+      "target": "src/scripts/collection-and-share-demos.js",
+      "sha256": "494bd43f8a177da27a8ecaf29bacc203ac303d6e8ac1202ad8792033a044f53f"
+    },
+    {
+      "source": "cards.js",
+      "target": "src/data/sample-cards.js",
+      "sha256": "675f937c321aee526e538271d9fb3008b2e493d944d6540f39c20595c46c2012"
+    },
+    {
+      "source": "hero-cards.js",
+      "target": "src/data/hero-binders.js",
+      "sha256": "07ac5b6738cee3b7c5b5ad05ddab273590cca4eab26c65f275e326d4a7f6ece1"
+    },
+    {
+      "source": "artwork-data.js",
+      "target": "src/data/embedded-ocean-artwork.js",
+      "sha256": "9c0410a4f5590db14d09f74eb759f3d65b3a1c76c8f7b7d7856a22f8469bcc05"
+    },
+    {
+      "source": "assets/customize-ocean.jpg",
+      "target": "assets/images/ocean-photo.jpg",
+      "sha256": "e7d32671bae618680cb97a95bd0507e18b08cd9aeb92e381bd13c5847c59e908"
+    },
+    {
+      "source": "assets/artwork-credit.txt",
+      "target": "assets/credits/ocean-photo.txt",
+      "sha256": "33983d292e03f141b7513f3839fe9600245a4a80ac8dcd28e9ec10c66bcb1b77"
+    }
+  ],
+  "description": "Historical import provenance. Hashes describe original imports, not current revisions."
+}

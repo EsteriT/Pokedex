@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>My binders — Pokedex</title>
+    <meta
+      name="description"
+      content="Your personal Pokémon binder workspace."
+    />
+    <link rel="stylesheet" href="styles/workspace.css" />
+    <link rel="stylesheet" href="styles/app-header.css" />
+    <link rel="stylesheet" href="styles/collection.css" />
+    <link rel="stylesheet" href="styles/binder-covers.css" />
+    <link rel="stylesheet" href="styles/workspace-binders.css" />
+    <link rel="stylesheet" href="styles/site-footer.css" />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/site-system.css" />
+    <link rel="stylesheet" href="styles/collection-gallery.css" />
+    <link rel="stylesheet" href="styles/cover-consistency.css" />
+    <link rel="stylesheet" href="styles/workspace-responsive.css" />
+    <link rel="stylesheet" href="styles/collection-workspace.css" />
+    <link rel="stylesheet" href="styles/collection-flow.css" />
+    <link rel="stylesheet" href="styles/app-shell.css" />
+    <script src="scripts/theme.js"></script>
+  </head>
+  <body class="workspace-page">
+    <a class="skip-link" href="#main">Skip to workspace</a>
+    <header class="site-header">
+      <div class="header-main">
+        <a class="brand" href="index.html">
+          <span class="brand-ball" aria-hidden="true"></span>
+          Pokedex
+        </a>
+        <nav class="app-nav" aria-label="Application navigation">
+          <a href="workspace.html" aria-current="page">Workspace</a>
+          <a href="discover.html">Discover</a>
+        </nav>
+      </div>
+      <div class="header-tools">
+        <select id="theme-choice" aria-label="Color theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+        <details class="account">
+          <summary aria-label="Sample account menu">
+            <span class="avatar" aria-hidden="true">P</span>
+            <span>Sample account</span>
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div class="account-panel">
+            <strong>Sample account</strong>
+            <p>
+              This is a frontend preview. Google sign-in will be connected
+              later.
+            </p>
+            <button id="reset-demo" type="button">Reset sample binders</button>
+          </div>
+        </details>
+      </div>
+    </header>
+    <main id="main" class="workspace">
+      <div class="workspace-tab-row">
+        <div class="tabs" role="tablist" aria-label="Workspace">
+          <button
+            id="binders-tab"
+            role="tab"
+            aria-selected="true"
+            aria-controls="binders-panel"
+            type="button"
+          >
+            My binders
+            <span id="tab-count">2</span>
+          </button>
+          <button
+            id="collection-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="collection-panel"
+            tabindex="-1"
+            type="button"
+          >
+            My collection
+          </button>
+        </div>
+        <div class="binder-entry-actions">
+          <button class="button primary" id="create-binder" type="button">
+            <span aria-hidden="true">＋</span>
+            Create binder
+          </button>
+        </div>
+        <div class="collection-entry-actions">
+          <button
+            id="collection-add"
+            class="button primary btn-primary"
+            type="button"
+          >
+            + Add cards
+          </button>
+        </div>
+      </div>
+      <section id="binders-panel" role="tabpanel" aria-labelledby="binders-tab">
+        <div class="page-heading">
+          <div>
+            <h1>
+              My binders
+              <span class="title-dot">.</span>
+            </h1>
+            <p class="preview-disclosure">
+              Binders stay on this browser. Use Save in the editor to keep card
+              changes.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="binder-search"
+              type="search"
+              placeholder="Find a binder"
+              aria-label="Search your binders"
+            />
+          </label>
+          <p id="limit-copy">2 of 3 binders</p>
+        </div>
+        <p class="limit-notice" id="limit-notice" hidden>
+          All three binder slots are in use. Delete a binder to create or
+          duplicate another.
+        </p>
+        <div id="binder-grid" class="binder-grid" aria-busy="true"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <span class="empty-icon" aria-hidden="true">▤</span>
+          <h2>No binders yet.</h2>
+          <p>Create your first binder to start arranging cards.</p>
+          <button class="button primary" id="empty-create" type="button">
+            Create your first binder
+          </button>
+        </div>
+        <div id="no-results" class="empty-state" hidden>
+          <h2>No binders found.</h2>
+          <p>Try another name, or clear your search.</p>
+          <button class="button secondary" id="clear-search" type="button">
+            Clear search
+          </button>
+        </div>
+        <div id="error-state" class="empty-state" hidden>
+          <h2>Your workspace couldn’t load.</h2>
+          <p>Your sample binders haven’t been changed.</p>
+          <button class="button secondary" id="retry" type="button">
+            Try again
+          </button>
+        </div>
+      </section>
+      <section
+        id="collection-panel"
+        role="tabpanel"
+        aria-labelledby="collection-tab"
+        hidden
+      >
+        <div class="collection-heading">
+          <div>
+            <h1>
+              My collection
+              <span class="title-dot">.</span>
+            </h1>
+            <div class="collection-summary" aria-label="Collection totals">
+              <div>
+                <strong id="owned-total">0</strong>
+                <span id="total-card-label">Total cards</span>
+              </div>
+              <div>
+                <strong id="printing-total">0</strong>
+                <span id="unique-card-label">Unique cards</span>
+              </div>
+              <div>
+                <strong id="sets-total">0</strong>
+                <span id="set-total-label">Sets</span>
+              </div>
+            </div>
+          </div>
+          <div class="collection-save-actions">
+            <span id="collection-save-status" role="status">
+              All changes saved
+            </span>
+            <button
+              id="collection-save"
+              class="button primary btn-primary"
+              type="button"
+              title="Saved on this browser"
+            >
+              Save collection
+            </button>
+          </div>
+        </div>
+
+        <div class="collection-topbar">
+          <div
+            class="collection-switch"
+            role="group"
+            aria-label="Inventory view"
+          >
+            <button id="collection-owned" type="button" aria-pressed="true">
+              Owned
+            </button>
+            <button id="collection-wanted" type="button" aria-pressed="false">
+              Wanted
+            </button>
+          </div>
+          <div class="collection-actions">
+            <button
+              id="collection-undo"
+              class="button secondary"
+              type="button"
+              disabled
+            >
+              Undo
+            </button>
+
+            <details class="collection-more">
+              <summary title="Redo, Backups, restore and reload">
+                Collection tools
+              </summary>
+              <div class="collection-more-panel">
+                <button
+                  id="collection-redo"
+                  class="button secondary"
+                  type="button"
+                  disabled
+                >
+                  Redo
+                </button>
+                <div class="collection-tools">
+                  <button
+                    id="collection-download"
+                    class="button secondary"
+                    type="button"
+                  >
+                    Download backup
+                  </button>
+                  <label class="collection-import-control">
+                    Restore backup
+                    <input
+                      id="collection-import"
+                      type="file"
+                      accept=".json,application/json"
+                    />
+                  </label>
+                  <button
+                    id="collection-reload"
+                    class="button secondary"
+                    type="button"
+                  >
+                    Reload saved collection
+                  </button>
+                  <details class="collection-help">
+                    <summary>About this preview</summary>
+                    <p>
+                      Sample catalogue. Save stores changes on this browser
+                      only. Download a backup to keep a copy. Live collection
+                      value is not connected.
+                    </p>
+                  </details>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+        <div class="inventory-toolbar">
+          <label class="search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="collection-search"
+              type="search"
+              placeholder="Find a card or set"
+              aria-label="Search inventory by card name, number, or set"
+            />
+          </label>
+          <label class="collection-sort-label">
+            Sort
+            <select id="collection-sort">
+              <option value="name">Name A–Z</option>
+              <option value="set">Set & card number</option>
+              <option value="quantity">Most copies</option>
+            </select>
+          </label>
+          <button
+            id="collection-select"
+            class="button secondary"
+            type="button"
+            aria-pressed="false"
+          >
+            Select cards
+          </button>
+        </div>
+        <details class="collection-filters">
+          <summary id="collection-filter-summary">Filters</summary>
+          <div class="inventory-toolbar collection-filter-fields">
+            <label>
+              Set
+              <select id="inventory-set-filter">
+                <option value="">All sets</option>
+              </select>
+            </label>
+            <label id="condition-filter-label">
+              Condition
+              <select id="inventory-condition-filter">
+                <option value="">All conditions</option>
+                <option value="unknown">Unknown</option>
+                <option value="nm">Near Mint</option>
+                <option value="lp">Lightly Played</option>
+                <option value="mp">Moderately Played</option>
+                <option value="hp">Heavily Played</option>
+                <option value="damaged">Damaged</option>
+              </select>
+            </label>
+            <label id="trade-filter-label">
+              Trade
+              <select id="inventory-trade-filter">
+                <option value="">All statuses</option>
+                <option value="keep">Keep</option>
+                <option value="trade">For trade</option>
+                <option value="sale">For sale</option>
+              </select>
+            </label>
+            <label id="chase-filter-label" hidden>
+              <input id="inventory-chase-filter" type="checkbox" />
+              Chase cards only
+            </label>
+            <button
+              id="collection-clear"
+              class="button secondary"
+              type="button"
+            >
+              Clear filters
+            </button>
+          </div>
+        </details>
+        <div
+          id="collection-active-filters"
+          class="collection-active-filters"
+          aria-label="Active filters"
+        ></div>
+        <div
+          id="collection-selection-actions"
+          class="collection-selection-actions"
+          hidden
+        >
+          <strong id="collection-selected-count"></strong>
+          <button
+            id="collection-select-all"
+            class="button secondary"
+            type="button"
+          >
+            Select all
+          </button>
+          <button
+            id="collection-remove-selected"
+            class="button danger"
+            type="button"
+          >
+            Remove selected
+          </button>
+          <button
+            id="collection-selection-cancel"
+            class="button secondary"
+            type="button"
+          >
+            Done
+          </button>
+        </div>
+        <p
+          id="inventory-results"
+          class="inventory-results"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <ul
+          id="collection-list"
+          class="collection-list"
+          aria-label="Inventory records"
+        ></ul>
+        <div id="inventory-empty" class="empty-state" hidden>
+          <h2 id="inventory-empty-title">No records</h2>
+          <div class="collection-empty-art" aria-hidden="true">♡</div>
+          <p id="inventory-empty-copy"></p>
+          <button
+            id="collection-empty-add"
+            class="button primary"
+            type="button"
+          >
+            Add card
+          </button>
+        </div>
+        <div
+          id="collection-message"
+          class="collection-message collection-toast"
+          role="status"
+          aria-live="polite"
+          hidden
+        >
+          <span id="collection-message-text"></span>
+          <button
+            id="collection-toast-undo"
+            class="button secondary btn-secondary"
+            type="button"
+            hidden
+          >
+            Undo
+          </button>
+          <button
+            id="collection-toast-redo"
+            class="button secondary btn-secondary"
+            type="button"
+            hidden
+          >
+            Redo
+          </button>
+        </div>
+      </section>
+    </main>
+    <footer class="workspace-footer">
+      <span>
+        Independent fan project. Pokémon © Nintendo / Creatures Inc. / GAME
+        FREAK inc. Not affiliated with the rights holders.
+      </span>
+      <span>
+        Card images:
+        <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a>
+        · Sample artwork:
+        <a
+          href="https://www.pokemon.com/us/news/pokemon-virtual-backgrounds"
+          target="_blank"
+          rel="noopener"
+        >
+          Pokémon
+        </a>
+      </span>
+      <a href="index.html#faq">FAQ</a>
+    </footer>
+    <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+    <dialog
+      id="edit-dialog"
+      aria-labelledby="form-title"
+      aria-describedby="form-description"
+    >
+      <form id="binder-form">
+        <div class="dialog-heading">
+          <span class="eyebrow" id="form-eyebrow">CREATE BINDER</span>
+          <button
+            class="icon-button close-dialog"
+            type="button"
+            aria-label="Close dialog"
+          >
+            <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <h2 id="form-title">Create a binder.</h2>
+        <p id="form-description">
+          Start with one page. Add more as your collection grows.
+        </p>
+        <label class="field">
+          Binder name
+          <input
+            id="binder-name"
+            required
+            maxlength="60"
+            autocomplete="off"
+            placeholder="e.g. My favorite full arts"
+          />
+        </label>
+        <div id="layout-fields" class="layout-fields">
+          <label class="field">
+            Rows
+            <input
+              id="binder-rows"
+              type="number"
+              min="1"
+              max="6"
+              step="1"
+              value="3"
+              required
+            />
+          </label>
+          <label class="field">
+            Columns
+            <input
+              id="binder-columns"
+              type="number"
+              min="1"
+              max="6"
+              step="1"
+              value="3"
+              required
+            />
+          </label>
+        </div>
+        <div id="creation-note" class="creation-note">
+          One starting page · up to 30 pages
+          <br />
+          Each page’s layout can be changed individually.
+        </div>
+        <p class="form-error" id="form-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button class="button secondary close-dialog" type="button">
+            Cancel
+          </button>
+          <button class="button primary" id="form-submit" type="submit">
+            Create binder
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="delete-dialog"
+      aria-labelledby="delete-title"
+      aria-describedby="delete-copy"
+    >
+      <div class="dialog-heading">
+        <span class="eyebrow">DELETE BINDER</span>
+        <button
+          class="icon-button close-dialog"
+          type="button"
+          aria-label="Close dialog"
+        >
+          <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </div>
+      <h2 id="delete-title">Remove this binder?</h2>
+      <p id="delete-copy"></p>
+      <p class="deletion-note">
+        This removes the digital binder permanently. Your physical card
+        inventory is unaffected. There is no Trash or Undo.
+      </p>
+      <div class="dialog-actions">
+        <button class="button secondary close-dialog" type="button">
+          Keep binder
+        </button>
+        <button class="button danger" id="confirm-delete" type="button">
+          Delete permanently
+        </button>
+      </div>
+    </dialog>
+
+    <dialog
+      id="inventory-dialog"
+      class="inventory-dialog"
+      aria-labelledby="inventory-title"
+    >
+      <form id="inventory-form" class="inventory-form">
+        <h2 id="inventory-title">Add cards</h2>
+        <details class="collection-help">
+          <summary>About saving</summary>
+          <p>
+            Adding updates this session. Click Save collection to keep your
+            changes on this browser.
+          </p>
+        </details>
+        <p id="inventory-record-context" class="sr-only"></p>
+        <div class="collection-entry-layout">
+          <section
+            id="inventory-picker-area"
+            aria-label="Choose a card printing"
+          >
+            <div class="collection-picker-heading">
+              <label class="field">
+                <span class="sr-only">Find a card</span>
+                <input
+                  id="inventory-card-search"
+                  type="search"
+                  placeholder="Find a card by name, set, or number"
+                />
+              </label>
+              <a
+                id="inventory-browse-discover"
+                href="discover.html"
+                target="_blank"
+                rel="noopener"
+              >
+                Browse Discover ↗
+              </a>
+            </div>
+            <select id="inventory-card" hidden>
+              <option value="">Choose a printing</option>
+            </select>
+            <p id="inventory-picker-results" role="status"></p>
+            <div
+              id="inventory-card-grid"
+              class="collection-card-grid"
+              role="group"
+              aria-label="Sample card printings"
+            ></div>
+            <p id="inventory-picker-empty" hidden>
+              No matching printings. Try another name, set, or number.
+            </p>
+          </section>
+          <div class="collection-entry-details">
+            <div id="inventory-preview" class="inventory-preview"></div>
+            <p
+              id="inventory-ownership-context"
+              class="inventory-ownership-context"
+              hidden
+            ></p>
+            <div
+              class="collection-switch inventory-kind-switch"
+              role="group"
+              aria-label="Record as"
+            >
+              <button
+                id="inventory-owned-choice"
+                type="button"
+                aria-pressed="true"
+              >
+                Owned
+              </button>
+              <button
+                id="inventory-wanted-choice"
+                type="button"
+                aria-pressed="false"
+              >
+                Wanted
+              </button>
+            </div>
+            <div class="inventory-quick-fields">
+              <label class="field">
+                Finish
+                <select id="inventory-finish">
+                  <option value="unknown">Optional</option>
+                </select>
+              </label>
+              <label class="field">
+                Quantity
+                <input
+                  id="inventory-quantity"
+                  type="number"
+                  min="1"
+                  max="999"
+                  step="1"
+                  value="1"
+                  required
+                />
+              </label>
+            </div>
+            <details id="inventory-more-details" class="inventory-more-details">
+              <summary>More details</summary>
+              <select id="inventory-kind" hidden>
+                <option value="owned">Owned</option>
+                <option value="wanted">Wanted</option>
+              </select>
+              <div id="owned-fields">
+                <label class="field">
+                  Card status
+                  <select id="inventory-status">
+                    <option value="">Optional</option>
+                    <option value="raw">Raw / ungraded</option>
+                    <option value="graded">Graded</option>
+                  </select>
+                </label>
+                <label id="inventory-condition-label" class="field">
+                  Condition
+                  <select id="inventory-condition">
+                    <option value="unknown">Optional</option>
+                    <option value="nm">Near Mint</option>
+                    <option value="lp">Lightly Played</option>
+                    <option value="mp">Moderately Played</option>
+                    <option value="hp">Heavily Played</option>
+                    <option value="damaged">Damaged</option>
+                  </select>
+                </label>
+                <div
+                  id="inventory-grading-fields"
+                  class="inventory-two-fields"
+                  hidden
+                >
+                  <label class="field">
+                    Grading company
+                    <select id="inventory-company">
+                      <option value="">Optional</option>
+                      <option>PSA</option>
+                      <option>BGS</option>
+                      <option>CGC</option>
+                      <option>Other</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    Grade / label
+                    <input
+                      id="inventory-grade"
+                      type="text"
+                      maxlength="20"
+                      placeholder="Optional"
+                    />
+                  </label>
+                </div>
+                <label class="field">
+                  Trade status
+                  <select id="inventory-trade">
+                    <option value="keep">Keep</option>
+                    <option value="trade">For trade</option>
+                    <option value="sale">For sale</option>
+                  </select>
+                </label>
+              </div>
+              <div id="wanted-fields" hidden>
+                <label class="inventory-check">
+                  <input id="inventory-chase" type="checkbox" />
+                  This is a chase card
+                </label>
+              </div>
+              <label class="field">
+                Notes
+                <span>Optional · up to 2,000 characters</span>
+                <textarea
+                  id="inventory-notes"
+                  placeholder="Optional"
+                  maxlength="2000"
+                  rows="3"
+                ></textarea>
+              </label>
+            </details>
+          </div>
+        </div>
+        <p
+          id="inventory-form-error"
+          class="form-error"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <div class="dialog-actions">
+          <button
+            id="inventory-delete"
+            class="button danger"
+            type="button"
+            hidden
+          >
+            Remove record
+          </button>
+          <button id="inventory-cancel" class="button secondary" type="button">
+            Cancel
+          </button>
+          <button id="inventory-apply" class="button primary" type="submit">
+            Add to Owned
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="collection-confirm"
+      aria-labelledby="collection-confirm-title"
+      aria-describedby="collection-confirm-copy"
+    >
+      <div class="inventory-detail-heading">
+        <h2 id="collection-confirm-title"></h2>
+        <button
+          id="collection-confirm-close"
+          class="inventory-detail-close"
+          type="button"
+          aria-label="Close confirmation"
+        >
+          ×
+        </button>
+      </div>
+      <p id="collection-confirm-copy"></p>
+      <div class="dialog-actions">
+        <button
+          id="collection-confirm-cancel"
+          class="button secondary"
+          type="button"
+        >
+          Cancel
+        </button>
+        <button id="collection-confirm-yes" class="button danger" type="button">
+          Confirm
+        </button>
+      </div>
+    </dialog>
+
+    <a id="viewer-route" href="viewer.html" hidden>Binder viewer</a>
+    <a id="editor-route" href="editor.html" hidden>Binder editor</a>
+    <script src="data/sample-cards.js"></script>
+    <script src="data/sample-card-details.js"></script>
+    <script src="data/sample-binders.js"></script>
+    <script src="scripts/binder-schema.js"></script>
+    <script src="scripts/binder-store.js"></script>
+    <script src="scripts/binder-geometry.js"></script>
+    <script src="scripts/binder-covers.js"></script>
+    <script src="scripts/binder-visuals.js"></script>
+    <script src="scripts/workspace.js"></script>
+    <script src="data/sample-collection.js"></script>
+    <script src="scripts/collection-state.js"></script>
+    <script src="scripts/collection-ui.js"></script>
+    <script src="scripts/collection-form.js"></script>
+    <script src="scripts/collection.js"></script>
+    <script src="scripts/ui-controls.js"></script>
+  </body>
+</html>

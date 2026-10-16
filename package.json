@@ -1,0 +1,15 @@
+{
+  "name": "pokedex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plain HTML, CSS and JavaScript Pokedex frontend prototypes",
+  "scripts": {
+    "build": "node scripts/build-preview.cjs",
+    "check": "node scripts/check-project.cjs",
+    "test": "node scripts/test-project.cjs",
+    "test:browser": "python scripts/check-browser.py"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

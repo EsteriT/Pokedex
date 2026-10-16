@@ -1,0 +1,219 @@
+html:has(> body:is(.workspace-page, .editor-page, .discover-page)) {
+  scrollbar-gutter: stable;
+}
+/* Identical application navigation geometry in Workspace and Binder editor. */
+:is(.workspace-page, .editor-page, .discover-page) {
+  --app-shell-width: 1480px;
+  --app-shell-gutter: 64px;
+}
+:is(.workspace-page, .editor-page, .discover-page) .site-header {
+  width: 100%;
+  max-width: var(--app-shell-width);
+  margin-inline: auto;
+  height: 80px;
+  min-height: 80px;
+  padding: 12px var(--app-shell-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+:is(.workspace-page, .editor-page, .discover-page) .header-main {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  min-width: 0;
+}
+:is(.workspace-page, .editor-page, .discover-page) .site-header .brand {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.8px;
+  gap: 12px;
+}
+:is(.workspace-page, .editor-page, .discover-page) .app-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+:is(.workspace-page, .editor-page, .discover-page) .app-nav a {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+}
+:is(.workspace-page, .editor-page, .discover-page)
+  .app-nav
+  a:is([aria-current="page"], [aria-current="location"]) {
+  background: var(--soft);
+  color: var(--ink);
+  font-weight: 600;
+  border-color: transparent;
+  box-shadow: inset 0 -2px var(--accent);
+}
+:is(.workspace-page, .editor-page, .discover-page) .header-tools {
+  gap: 24px;
+}
+:is(.workspace-page, .editor-page, .discover-page)
+  .site-header
+  .header-tools
+  select {
+  min-height: 44px;
+  width: 104px;
+  padding: 8px;
+  font-size: 14px;
+}
+:is(.workspace-page, .editor-page, .discover-page)
+  .site-header
+  .account
+  summary {
+  min-height: 44px;
+  font-size: 14px;
+  gap: 10px;
+}
+@media (max-width: 1100px) {
+  :is(.workspace-page, .editor-page, .discover-page) {
+    --app-shell-gutter: 32px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .site-header {
+    gap: 20px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .header-main {
+    gap: 24px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .header-tools {
+    gap: 16px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page)
+    .account
+    summary
+    > span:not(.avatar) {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  :is(.workspace-page, .editor-page, .discover-page) {
+    --app-shell-gutter: 16px;
+  }
+}
+@media (max-width: 620px) {
+  :is(.workspace-page, .editor-page, .discover-page) .site-header {
+    height: auto;
+    min-height: 76px;
+    padding-block: 12px 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .header-main {
+    display: contents;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .site-header .brand {
+    font-size: 22px;
+    gap: 10px;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .header-tools {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 8px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page)
+    .site-header
+    .header-tools
+    select {
+    width: 88px;
+  }
+  :is(.workspace-page, .editor-page, .discover-page) .app-nav {
+    grid-column: 1/-1;
+    grid-row: 2;
+    gap: 24px;
+  }
+}
+@media (max-width: 360px) {
+  :is(.workspace-page, .editor-page, .discover-page) .site-header .brand {
+    font-size: 20px;
+  }
+}
+
+/* Each header follows the content shell on its own page. */
+.editor-page {
+  --app-shell-width: 1920px;
+  --app-shell-gutter: 24px;
+}
+@media (max-width: 1100px) {
+  .editor-page {
+    --app-shell-gutter: 32px;
+  }
+}
+@media (max-width: 700px) {
+  .editor-page {
+    --app-shell-gutter: 16px;
+  }
+}
+
+/* Browse pages share the same container and selected states. */
+:is(.workspace-page, .discover-page) {
+  --text-caption: 14px;
+  --text-page: 28px;
+}
+:is(.workspace-page, .discover-page)
+  :is(.workspace, .discover-main, .workspace-footer, .app-footer) {
+  width: 100%;
+  max-width: var(--app-shell-width);
+  margin-inline: auto;
+  padding-inline: var(--app-shell-gutter);
+  box-sizing: border-box;
+}
+:is(.workspace-page, .discover-page) .tabs {
+  border: 0;
+  margin-bottom: 24px;
+}
+:is(.workspace-page, .discover-page) .tabs > button {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+:is(.workspace-page, .discover-page) .tabs > button[aria-selected="true"] {
+  background: var(--soft);
+  color: var(--ink);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-block: 16px;
+  margin-top: 32px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+.app-footer a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+:is(.workspace-page, .discover-page) :is(.workspace, .discover-main) {
+  padding-top: 24px;
+}
+.workspace-page .workspace-tab-row {
+  flex-wrap: wrap;
+}
+.workspace-page .binder-entry-actions {
+  margin-left: auto;
+}
+.discover-page
+  #inventory-dialog
+  :is(p, small, label, button, summary, input, select, textarea) {
+  font-size: 14px;
+}
+@media (max-width: 620px) {
+  .discover-page #inventory-dialog :is(input, select, textarea) {
+    font-size: 16px;
+  }
+}

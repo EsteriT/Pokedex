@@ -1,0 +1,235 @@
+.hero {
+  grid-template-columns: 42% minmax(0, 1fr);
+  gap: 3%;
+  overflow: hidden;
+}
+.hero-visual {
+  max-width: none;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+}
+.hero-visual:before {
+  inset: -20px;
+  background: radial-gradient(ellipse, #8e9ec311, transparent 70%);
+}
+.binder-carousel {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+.binder-wheel {
+  height: clamp(410px, 62svh, 620px);
+  position: relative;
+  perspective: 1200px;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.binder-wheel.dragging {
+  cursor: grabbing;
+}
+.binder-slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(235px, 24vw, 340px);
+  padding: 16px;
+  background: #232a36;
+  border: 1px solid #465167;
+  border-radius: 9px;
+  appearance: none;
+  cursor: inherit;
+  box-shadow: 0 18px 45px #0004;
+  transform: translate(-50%, -50%);
+
+  transform-origin: center;
+  will-change: transform;
+  opacity: 0;
+  pointer-events: none;
+  color: inherit;
+}
+.binder-slide[data-position="0"] {
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  filter: none;
+  z-index: 5;
+  pointer-events: auto;
+}
+.binder-slide[data-position="-1"] {
+  transform: translate(-112%, -50%) scale(0.67) rotateY(24deg);
+  opacity: 0.48;
+  filter: brightness(0.7);
+  z-index: 3;
+  pointer-events: auto;
+}
+.binder-slide[data-position="1"] {
+  transform: translate(12%, -50%) scale(0.67) rotateY(-24deg);
+  opacity: 0.48;
+  filter: brightness(0.7);
+  z-index: 3;
+  pointer-events: auto;
+}
+.binder-slide[data-position="-2"] {
+  transform: translate(-170%, -50%) scale(0.4) rotateY(35deg);
+  z-index: 1;
+}
+.binder-slide[data-position="2"],
+.binder-slide[data-position="3"] {
+  transform: translate(70%, -50%) scale(0.4) rotateY(-35deg);
+  z-index: 1;
+}
+.binder-page {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.binder-slide:has(.cross-page) {
+  width: clamp(220px, 20vw, 280px);
+}
+.binder-pocket {
+  aspect-ratio: 245/337;
+  min-width: 0;
+  background: #19222f;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.binder-pocket img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+.binder-pocket.vacant {
+  background: transparent;
+  border: 1px solid #38425260;
+}
+.binder-image-fallback {
+  display: none;
+}
+.image-missing img {
+  display: none;
+}
+.image-missing .binder-image-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: #c5d0e5;
+}
+
+.binder-name {
+  font-size: 17px;
+  letter-spacing: -0.2px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.binder-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 40px;
+}
+.binder-controls button {
+  appearance: none;
+  color: #cbd6ec;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font: inherit;
+}
+.binder-controls button:hover {
+  background: #333e52;
+  color: white;
+}
+.binder-controls button:focus-visible,
+.binder-slide:focus-visible {
+  outline: 2px solid #bdc8f7;
+  outline-offset: 4px;
+}
+.binder-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.binder-controls .binder-dot {
+  min-width: 18px;
+  width: 18px;
+  height: 28px;
+  padding: 0;
+}
+.binder-dot:before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: #65738e;
+  border-radius: 50%;
+  transition:
+    width 0.3s,
+    background 0.3s;
+}
+.binder-dot[aria-current="true"]:before {
+  width: 16px;
+  border-radius: 5px;
+  background: #c4cff5;
+}
+
+@media (max-width: 1050px) {
+  .hero {
+    grid-template-columns: 43% minmax(0, 1fr);
+    padding-left: 4vw;
+    padding-right: 3vw;
+  }
+  .binder-slide {
+    width: 250px;
+  }
+  .binder-slide:has(.cross-page) {
+    width: 215px;
+  }
+  .binder-wheel {
+    height: 440px;
+  }
+}
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-top: 48px;
+  }
+  .hero > div:first-child {
+    max-width: 600px;
+  }
+  .hero-visual {
+    padding-bottom: 32px;
+  }
+  .binder-wheel {
+    height: 430px;
+  }
+  .binder-slide {
+    width: 280px;
+  }
+  .binder-slide:has(.cross-page) {
+    width: 225px;
+  }
+}
+.binder-slide {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .binder-slide,
+  .binder-dot:before {
+    transition: none !important;
+  }
+}

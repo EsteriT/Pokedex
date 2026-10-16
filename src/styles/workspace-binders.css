@@ -1,0 +1,308 @@
+/* Minimal, cover-first My binders. */
+#binder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 240px));
+  gap: 32px;
+  align-items: start;
+  justify-content: start;
+  grid-auto-rows: auto;
+  min-height: 0;
+}
+#binder-grid .binder-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#binder-grid .binder-art.has-cover {
+  height: 320px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border-radius: 12px;
+  background: transparent;
+  text-decoration: none;
+}
+#binder-grid .binder-art.has-cover::before,
+#binder-grid .binder-art.has-cover::after {
+  display: none;
+}
+#binder-grid .binder-art.has-cover .binder-cover-art {
+  width: 230px;
+  max-width: 100%;
+  border-radius: 9px 15px 15px 9px;
+  transform: none;
+  box-shadow:
+    inset 1px 0 0 #ffffff35,
+    inset -4px 0 0 #0001,
+    0 4px 10px #0002;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+#binder-grid .cover-book-title strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#binder-grid .binder-info {
+  padding: 16px 0 0;
+}
+#binder-grid .binder-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+#binder-grid .binder-top h2 {
+  min-width: 0;
+  flex: 1;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+}
+#binder-grid .open-button {
+  display: block;
+  padding: 0;
+  min-height: 44px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: none;
+}
+#binder-grid .binder-meta {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+#binder-grid .meta-separator {
+  opacity: 0.5;
+}
+#binder-grid .card-menu summary {
+  width: 40px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 21px;
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
+}
+#binder-grid .card-menu summary:active {
+  transform: scale(0.94);
+}
+#binder-grid .card-menu[open] {
+  z-index: 8;
+}
+#binder-grid .menu-items {
+  top: 44px;
+}
+#binder-grid .menu-items button {
+  min-height: 44px;
+}
+#binder-grid .open-button:hover {
+  color: var(--accent);
+}
+#binder-grid .binder-art:focus-visible,
+#binder-grid .open-button:focus-visible,
+#binder-grid .card-menu summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+#binder-grid .binder-art:active .binder-cover-art {
+  transform: scale(0.985);
+  box-shadow:
+    inset 1px 0 0 #ffffff35,
+    inset -4px 0 0 #0001,
+    0 2px 5px #0002;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #binder-grid .binder-art:hover .binder-cover-art,
+  #binder-grid .binder-card:focus-within .binder-cover-art {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 1px 0 0 #ffffff35,
+      inset -4px 0 0 #0001,
+      0 9px 16px #0002;
+  }
+  #binder-grid .binder-art:active .binder-cover-art {
+    transform: translateY(-1px) scale(0.985);
+  }
+}
+
+@media (max-width: 620px) {
+  #binder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+  #binder-grid .binder-art.has-cover {
+    height: auto;
+    aspect-ratio: 3/4;
+  }
+  #binder-grid .binder-art.has-cover .binder-cover-art {
+    width: 100%;
+    border-radius: 6px 10px 10px 6px;
+  }
+
+  #binder-grid .cover-book-title strong {
+    -webkit-line-clamp: 2;
+  }
+  #binder-grid .binder-top h2 {
+    font-size: 14px;
+  }
+  #binder-grid .binder-info {
+    padding-top: 10px;
+  }
+  #binder-grid .binder-meta {
+    font-size: 14px;
+    gap: 5px;
+  }
+  #binder-grid .card-menu summary {
+    width: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #binder-grid .binder-art.has-cover .binder-cover-art,
+  #binder-grid .card-menu summary {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Primary binder destinations stay visible; the menu holds secondary actions. */
+#binder-grid .binder-card-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+#binder-grid .binder-card-actions a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--surface);
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
+}
+#binder-grid .binder-card-actions a:hover {
+  background: var(--soft);
+}
+#binder-grid .binder-card-actions a:active {
+  transform: scale(0.98);
+}
+#binder-grid .card-menu .menu-items {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  width: 208px;
+  border-radius: 12px;
+}
+#binder-grid .card-menu .menu-items button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+}
+#binder-grid .card-menu .menu-items button:hover:not(:disabled) {
+  background: var(--soft);
+}
+#binder-grid .card-menu .menu-items button:disabled {
+  opacity: 0.45;
+}
+#binder-grid .card-menu .menu-items .delete-action {
+  color: var(--accent);
+}
+#binder-grid .binder-menu-divider {
+  width: 100%;
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 480px) {
+  #binder-grid .binder-card-actions {
+    margin-top: 12px;
+  }
+  #binder-grid .binder-card-actions a {
+    padding-inline: 8px;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #binder-grid .binder-card-actions a {
+    transition: none;
+  }
+}
+
+#binder-grid .card-menu .menu-items {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+.binder-entry-actions {
+  display: none;
+}
+.workspace:has(#binders-panel:not([hidden])) .binder-entry-actions {
+  display: flex;
+}
+#binders-panel .page-heading {
+  margin-bottom: 24px;
+}
+#binders-panel .preview-disclosure {
+  max-width: 64ch;
+  color: var(--muted);
+  font-size: 14px;
+}
+#binders-panel .toolbar .search {
+  width: min(100%, 420px);
+  max-width: none;
+  min-height: 44px;
+}
+#binders-panel .toolbar .search input {
+  font-size: 16px;
+}
+#binders-panel .toolbar .search input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+#binders-panel :is(#limit-copy, .limit-notice) {
+  font-size: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  #binder-grid .binder-card-actions a:active {
+    transform: none;
+  }
+}

@@ -1,0 +1,4017 @@
+/* Calm editor: one canvas, quiet tools, existing application colors. */
+html:has(> body.calm-editor) {
+  scrollbar-gutter: auto;
+  overflow: hidden;
+}
+body.editor-page.calm-editor {
+  --calm-radius: 12px;
+  --calm-shadow: 0 8px 32px #0003;
+  --calm-small: 14px;
+  --calm-medium: 16px;
+  --calm-large: 20px;
+  display: grid;
+  grid-template-rows: 64px minmax(0, 1fr);
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  font-size: var(--calm-small);
+  line-height: 1.5;
+}
+.calm-editor [hidden] {
+  display: none !important;
+}
+.calm-editor :is(button, input, select, textarea, summary) {
+  font-family: inherit;
+  font-size: var(--calm-small);
+  font-weight: 400;
+}
+.calm-editor :is(p, small, label, span, output, summary) {
+  font-size: inherit;
+}
+.calm-editor :is(h1, h2, h3, strong) {
+  font-family: inherit;
+  font-size: var(--calm-medium);
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.calm-editor :is(h1, h2, h3, p) {
+  margin: 0;
+}
+.calm-editor button:not(.editor-pocket),
+.calm-editor button.action-button,
+.calm-editor summary {
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--calm-radius);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 400;
+  box-shadow: none;
+  cursor: pointer;
+}
+.calm-editor :is(button, summary, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.calm-editor :is(button, summary, a) {
+  transition:
+    background-color 160ms ease,
+    opacity 160ms ease;
+}
+.calm-editor :is(button, summary):hover:not(:disabled) {
+  background: var(--soft);
+}
+.calm-editor button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.calm-editor .ui-symbol,
+.calm-editor .history-tools svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.calm-editor .sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.calm-editor :is(input, select, textarea) {
+  min-width: 0;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.calm-editor input::placeholder,
+.calm-editor textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.calm-editor input[type="checkbox"] {
+  min-height: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.calm-editor input[type="range"] {
+  border: 0;
+  padding: 0;
+  accent-color: var(--ink);
+}
+.calm-editor input[type="color"] {
+  width: 48px;
+  min-height: 40px;
+  border: 0;
+  padding: 4px;
+}
+.calm-editor :is(.field, .panel-hint, .result-count, .customizer-copy, small) {
+  font-size: var(--calm-small);
+  color: var(--muted);
+  line-height: 1.5;
+}
+.calm-editor .field {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.calm-editor .text-danger,
+.calm-editor .button.danger,
+.calm-editor .studio-error {
+  color: var(--ink);
+}
+.calm-editor .text-danger {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.calm-editor :is(.floating-pill, .calm-drawer) {
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--calm-radius);
+  box-shadow: none;
+}
+.calm-editor * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) var(--surface);
+}
+.calm-editor *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.calm-editor *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.calm-editor *::-webkit-scrollbar-thumb {
+  border: 2px solid var(--surface);
+  border-radius: var(--calm-radius);
+  background: var(--line);
+}
+
+/* The only permanent divider is below the slim, unboxed top bar. */
+.calm-editor .calm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 64px;
+  min-height: 64px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.calm-editor .editor-identity {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  flex: 1;
+}
+.calm-editor .editor-return {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: none;
+}
+.calm-editor .workspace-back {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.calm-editor .workspace-back:hover {
+  color: var(--ink);
+}
+.calm-editor .site-header .brand {
+  min-width: 28px;
+  padding: 0;
+}
+.calm-editor .binder-name-button {
+  padding: 8px;
+  min-width: 64px;
+  max-width: 240px;
+  text-align: left;
+}
+.calm-editor #binder-title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--calm-medium);
+  font-weight: 600;
+}
+.calm-editor #page-title {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.calm-editor .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+}
+.calm-editor .save-actions {
+  width: auto;
+  flex: none;
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.calm-editor #save-status {
+  display: block;
+  white-space: nowrap;
+  font-size: var(--calm-small);
+  color: var(--muted) !important;
+}
+.calm-editor #save-status::before {
+  display: none;
+}
+.calm-editor #save {
+  padding: 8px 16px;
+  min-width: 64px;
+  min-height: 40px;
+  font-weight: 600;
+}
+.calm-editor #save.primary:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+.calm-editor #save:disabled {
+  background: var(--soft);
+  color: var(--muted);
+  opacity: 0.65;
+}
+.calm-editor #preview-binder {
+  width: auto;
+  margin: 0;
+  padding: 8px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+.calm-editor .account summary {
+  min-height: 40px;
+}
+.calm-editor .account-panel {
+  position: fixed;
+  border: 0;
+  border-radius: var(--calm-radius);
+  box-shadow: var(--calm-shadow);
+  background: var(--surface);
+  padding: 24px;
+  z-index: 100;
+}
+.calm-editor .account-panel p {
+  margin: 16px 0 0;
+  font-size: var(--calm-small);
+}
+
+/* Drawers push the desktop canvas; the rail never changes position. */
+.calm-editor .editor-main {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  padding: 24px;
+  overflow: hidden;
+}
+.calm-editor .editor-shell {
+  --cards-column: 0px;
+  --custom-column: 0px;
+  --pages-column: 232px;
+  display: grid;
+  grid-template-columns:
+    80px var(--cards-column) minmax(0, 1fr) var(--custom-column)
+    var(--pages-column);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+  align-items: stretch;
+  position: relative;
+}
+.calm-editor .editor-shell.cards-open {
+  --cards-column: 324px;
+}
+.calm-editor .editor-shell.customizing {
+  --custom-column: 424px;
+}
+.calm-editor .editor-rail {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+  align-content: start;
+  border-right: 1px solid var(--line);
+  width: 56px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  position: relative;
+  z-index: 30;
+}
+.calm-editor .rail-button,
+.calm-editor .editor-rail > details > summary {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  padding: 0;
+}
+.calm-editor .editor-rail :is([aria-expanded="true"], [aria-pressed="true"]),
+.calm-editor .editor-rail details[open] > summary {
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor #customize-label {
+  font-size: var(--calm-small);
+}
+.calm-editor .card-picker {
+  grid-column: 2;
+  grid-row: 1;
+  width: 300px;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  contain: none;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+  overflow: hidden;
+  z-index: 20;
+}
+.calm-editor .card-picker .panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.calm-editor .card-picker h2 {
+  flex: 1;
+  order: 1;
+}
+.calm-editor #cards-close {
+  order: 3;
+  flex: none;
+}
+.calm-editor .card-picker .panel-hint {
+  margin: 0;
+  font-size: var(--calm-small);
+}
+.calm-editor .editor-search {
+  display: block;
+}
+.calm-editor .editor-search input,
+.calm-editor .type-filter select {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: var(--bg);
+  color: var(--ink);
+  padding: 8px 12px;
+}
+.calm-editor .editor-search input {
+  margin: 0;
+  width: 100%;
+  font: inherit;
+  font-size: var(--calm-small);
+}
+.calm-editor .card-picker :is(input, select):hover {
+  border-color: var(--muted);
+}
+.calm-editor .card-picker :is(input, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.calm-editor .catalogue-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.calm-editor .type-filter {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--calm-small);
+  color: var(--muted);
+}
+.calm-editor .type-filter select {
+  min-width: 0;
+  width: 100%;
+  font-size: var(--calm-small);
+}
+.calm-editor .result-count {
+  margin: 0;
+}
+.calm-editor .card-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 16px 12px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  padding: 2px 4px 8px 2px;
+}
+.calm-editor .catalogue-card {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  align-self: start;
+  gap: 8px;
+  min-width: 0;
+  height: max-content;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.calm-editor .catalogue-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 245/337;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.calm-editor .catalogue-card strong {
+  display: block;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: var(--calm-small);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-line-clamp: unset;
+}
+.calm-editor .catalogue-card small {
+  display: block;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  font-size: var(--calm-small);
+  line-height: 1.5;
+}
+.calm-editor .catalogue-card.is-selected {
+  box-shadow: inset 0 -2px var(--accent);
+}
+
+/* Plain canvas and calm pocket slots. */
+.calm-editor .canvas-panel,
+.calm-editor .editor-shell.customizing > .canvas-panel {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.calm-editor .canvas-stage,
+.calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  min-height: 0;
+  width: auto;
+  height: auto;
+  padding: 24px 72px;
+  background: var(--bg);
+  overflow: auto;
+}
+.calm-editor .canvas-stage.is-fit {
+  overflow: hidden;
+}
+.calm-editor .binder-page-editor {
+  flex: none;
+  position: relative;
+  filter: none;
+}
+.calm-editor .editor-pocket {
+  min-height: 0;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  transition: filter 160ms ease;
+}
+.calm-editor .editor-pocket svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.calm-editor .editor-pocket.is-selected {
+  filter: none;
+}
+.calm-editor .editor-pocket:hover svg > path:last-child,
+.calm-editor .editor-pocket:focus-visible svg > path:last-child {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.calm-editor .editor-pocket.is-selected svg > path:last-child,
+.calm-editor .editor-pocket.is-drop-target svg > path:last-child,
+.calm-editor .editor-pocket.is-insert-path svg > path:last-child,
+.calm-editor .editor-pocket.can-place:hover svg > path:last-child {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.calm-editor .editor-pocket.is-insert-path svg > path:last-child {
+  stroke-dasharray: 5 3;
+}
+.calm-editor .editor-pocket.is-insert-overflow svg > path:last-child {
+  stroke-width: 4;
+}
+.calm-editor .editor-pocket[data-insert-label]::after {
+  content: attr(data-insert-label);
+  position: absolute;
+  inset: auto 4px 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+.calm-editor .insert-actions {
+  display: flex;
+  gap: 4px;
+}
+.calm-editor .insert-actions button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.calm-editor .insert-actions button[aria-pressed="true"] {
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .editor-pocket.is-merged:not(.has-content) svg > path:last-child {
+  stroke-dasharray: none;
+}
+.calm-editor .empty-plus {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--calm-large);
+  color: var(--muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.calm-editor .editor-pocket:is(:hover, :focus-visible) .empty-plus {
+  opacity: 1;
+}
+.calm-editor .editor-pocket.just-placed {
+  animation-duration: 160ms;
+}
+
+.calm-editor .selection-status button {
+  border: 0;
+  color: var(--ink);
+  padding: 8px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: var(--calm-small);
+}
+
+.calm-editor .tool-help {
+  flex-basis: 100%;
+  font-size: var(--calm-small);
+}
+
+.calm-editor .studio-action-note {
+  font-size: var(--calm-small);
+}
+
+/* Shared zoom, history and page-navigation controls. */
+
+.calm-editor .controls-pill > button,
+.calm-editor .history-tools button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.calm-editor .history-tools {
+  display: flex;
+  gap: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.calm-editor .history-tools span {
+  display: none;
+}
+.calm-editor .canvas-zoom {
+  position: static;
+}
+.calm-editor .canvas-zoom > summary {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  min-height: 40px;
+  padding: 0;
+  list-style: none;
+}
+.calm-editor .canvas-zoom > summary::after {
+  display: none;
+}
+.calm-editor .canvas-zoom > summary[aria-expanded="true"],
+.calm-editor #fit-page[aria-pressed="true"] {
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .editing-tips {
+  position: static;
+}
+
+.calm-editor .editing-tips > summary::after {
+  display: none;
+}
+
+.calm-editor .page-navigation {
+  display: flex;
+  gap: 8px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  flex: none;
+}
+.calm-editor .page-navigation .icon-button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.calm-editor .page-navigation svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+.calm-editor .page-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 16px 16px;
+  overscroll-behavior: contain;
+}
+.calm-editor .page-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: none;
+  width: 100%;
+  min-height: 168px;
+  height: auto;
+  padding: 8px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  font-size: 14px;
+}
+.calm-editor .page-button svg {
+  display: block;
+  width: 96px;
+  height: 132px;
+  max-width: 100%;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 8px;
+  background: var(--soft);
+  box-shadow: 0 3px 10px #0001;
+}
+.calm-editor .page-button span {
+  font-size: var(--calm-small);
+  line-height: 16px;
+}
+.calm-editor .page-button:is([aria-current="page"], .page-drop-target) {
+  box-shadow: inset 0 -2px var(--accent);
+  color: var(--ink);
+  background: none;
+}
+.calm-editor #add-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: none;
+  width: 100%;
+  min-height: 176px;
+  height: 176px;
+  border: 1px dashed var(--muted);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  padding: 16px;
+}
+.calm-editor .layout-settings {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  flex: none;
+}
+.calm-editor .layout-settings > summary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  list-style: none;
+  background-image: none !important;
+}
+.calm-editor .layout-settings > summary .ui-symbol {
+  display: block;
+  margin: 0;
+}
+.calm-editor .layout-settings > summary::after {
+  display: none;
+}
+
+/* Existing customization content, with a fixed preview and action row. */
+.calm-editor .editor-shell.customizing > .cover-customizer {
+  grid-column: 4;
+  grid-row: 1;
+  margin-left: 24px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+
+  max-height: none;
+  height: 100%;
+  min-height: 0;
+  padding: 24px;
+  overflow: hidden;
+}
+.calm-editor .customizer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  flex: none;
+}
+.calm-editor .customizer-heading h2 {
+  font-size: var(--calm-medium);
+}
+.calm-editor .customizer-heading .icon-button {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.calm-editor #cover-preview-art > :is(.binder-cover-art, svg) {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+}
+.calm-editor .cover-preview-caption {
+  min-width: 0;
+  text-align: left;
+  display: grid;
+  gap: 8px;
+  font-size: var(--calm-small);
+  overflow-wrap: anywhere;
+}
+.calm-editor .cover-preview-caption strong {
+  font-size: var(--calm-medium);
+  font-weight: 600;
+}
+.calm-editor .cover-preview-caption span {
+  color: var(--muted);
+}
+
+.calm-editor .customizer-tabs button {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px;
+  font-size: var(--calm-small);
+  color: var(--muted);
+}
+.calm-editor .customizer-tabs button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+
+.calm-editor .customizer-design-body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  padding-right: 8px;
+}
+.calm-editor .cover-setting-section {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.calm-editor .cover-setting-section > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  min-height: 40px;
+  list-style: none;
+  font-size: var(--calm-small);
+  font-weight: 600;
+}
+.calm-editor .cover-setting-section > summary::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  margin-right: 8px;
+}
+.calm-editor .cover-setting-section[open] > summary::after {
+  transform: rotate(225deg);
+}
+.calm-editor .cover-options,
+.calm-editor .frame-style-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 8px;
+  max-height: none;
+  overflow: visible;
+  padding: 16px 0;
+}
+.calm-editor .cover-option,
+.calm-editor .frame-style-option {
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 4px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-size: var(--calm-small);
+  text-align: center;
+  border: 0;
+  background: none;
+}
+.calm-editor .cover-option .binder-cover-art {
+  width: 64px;
+}
+.calm-editor .cover-option span {
+  font-size: var(--calm-small);
+}
+.calm-editor .cover-option::after {
+  display: none;
+}
+.calm-editor :is(.cover-option, .frame-style-option)[aria-pressed="true"] {
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+
+.calm-editor .preset-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.calm-editor .preset-color-dot[data-theme="poke"] {
+  background: #cf5965;
+}
+.calm-editor .preset-color-dot[data-theme="great"] {
+  background: #7395be;
+}
+.calm-editor .preset-color-dot[data-theme="ultra"] {
+  background: #d1bd83;
+}
+.calm-editor .preset-color-dot[data-theme="master"] {
+  background: #b6a3cf;
+}
+.calm-editor .preset-color-dot[data-theme="premier"] {
+  background: var(--ink);
+}
+.calm-editor .cover-title-controls,
+.calm-editor .cover-crop-controls {
+  display: grid;
+  gap: 16px;
+  padding: 16px 0;
+  border: 0;
+}
+.calm-editor .cover-text-group {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.calm-editor .cover-text-group legend {
+  padding: 0 0 8px;
+  font-size: var(--calm-small);
+  font-weight: 600;
+}
+.calm-editor .cover-color-quick {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.calm-editor .cover-color-quick #cover-title-contrast {
+  grid-column: 1/-1;
+  justify-self: start;
+}
+.calm-editor .cover-title-visible {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  font-size: var(--calm-small);
+}
+.calm-editor .custom-cover-body {
+  display: grid;
+  gap: 16px;
+  padding: 16px 0;
+  border: 0;
+}
+.calm-editor .custom-cover-controls {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.calm-editor .customizer-kicker {
+  margin: 16px 0 0;
+  font-size: var(--calm-small);
+  letter-spacing: 0;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.calm-editor .customizer-actions button {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+}
+.calm-editor #cover-selection-status {
+  margin: 8px 0 0;
+  font-size: var(--calm-small);
+  line-height: 1.5;
+  flex: none;
+}
+.calm-editor .customizer-copy[hidden],
+.calm-editor .studio-error:empty {
+  display: none;
+}
+
+/* Popovers use the same surface, radius and shadow; one opens at a time. */
+.calm-editor .calm-popover,
+.calm-editor .editor-more,
+.calm-editor .editing-tips,
+.calm-editor .canvas-zoom {
+  position: static;
+}
+.calm-editor summary {
+  list-style: none;
+}
+.calm-editor summary::-webkit-details-marker {
+  display: none;
+}
+.calm-editor
+  :is(
+    .editor-more-menu,
+    .layout-settings-body,
+    .credits-content,
+    .zoom-popover
+  ) {
+  position: fixed;
+  z-index: 80;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 112px);
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--calm-radius);
+  box-shadow: var(--calm-shadow);
+  font-size: var(--calm-small);
+  color: var(--muted);
+}
+.calm-editor .editor-more-menu {
+  display: grid;
+  gap: 8px;
+}
+.calm-editor .editor-more-menu h2,
+.calm-editor .layout-settings-body h2,
+.calm-editor .credits-content h2 {
+  color: var(--ink);
+}
+.calm-editor .editor-more-menu a,
+.calm-editor .editor-more-menu button,
+.calm-editor .import-control {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px;
+  color: var(--ink);
+  font-size: var(--calm-small);
+  width: 100%;
+  margin: 0;
+  border: 0;
+  background: none;
+}
+.calm-editor .editor-storage-note {
+  font-size: var(--calm-small);
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+}
+.calm-editor .import-control {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+.calm-editor .import-control input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.calm-editor .import-control:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.calm-editor .layout-settings-body {
+  display: grid;
+}
+.calm-editor .layout-settings-body .panel-hint {
+  margin: 0;
+}
+.calm-editor .layout-fields {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 8px;
+}
+.calm-editor .layout-settings-body form {
+  display: grid;
+  gap: 8px;
+}
+.calm-editor .layout-settings-body form button {
+  justify-self: start;
+  padding: 8px;
+}
+.calm-editor .page-actions {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+}
+.calm-editor .page-actions button,
+.calm-editor button#duplicate-page.action-button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 8px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+.calm-editor #delete-page {
+  padding: 8px;
+  justify-self: start;
+}
+.calm-editor .overflow-section {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  height: 100%;
+  min-height: 0;
+  padding: 0 12px 12px;
+  gap: 8px;
+}
+.calm-editor #empty-overflow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  padding: 0;
+  font-size: 14px;
+  color: var(--ink);
+}
+.calm-editor .overflow-items .catalogue-card :is(strong, small) {
+  display: none;
+}
+.calm-editor .overflow-items .catalogue-card {
+  min-width: 0;
+  padding: 4px;
+}
+.calm-editor .overflow-items .catalogue-card img {
+  width: 100%;
+  height: auto;
+  max-height: 132px;
+  object-fit: contain;
+}
+.calm-editor .overflow-empty {
+  grid-column: 1/-1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  font-size: var(--calm-small);
+}
+.calm-editor .zoom-popover {
+  display: grid;
+  gap: 8px;
+  width: 240px;
+}
+.calm-editor .zoom-popover #fit-page {
+  justify-self: start;
+  padding: 8px;
+}
+.calm-editor .editing-tips-content {
+  line-height: 1.5;
+  padding: 8px 0;
+}
+.calm-editor .credits-popover {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 25;
+}
+.calm-editor .credits-popover > summary {
+  min-height: 40px;
+  padding: 8px;
+  color: var(--muted);
+  font-size: var(--calm-small);
+}
+.calm-editor .credits-content {
+  display: grid;
+  gap: 16px;
+  width: 400px;
+}
+.calm-editor .credits-content > span {
+  font-size: var(--calm-small);
+}
+.calm-editor .credits-content a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.calm-editor #editor-message {
+  display: block;
+
+  flex: 1;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calm-editor dialog {
+  border: 0;
+  border-radius: var(--calm-radius);
+  box-shadow: var(--calm-shadow);
+  padding: 24px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.calm-editor dialog::backdrop {
+  background: #0007;
+  backdrop-filter: blur(4px);
+}
+.calm-editor dialog :is(p, label, span, small, summary, button) {
+  font-size: var(--calm-small);
+}
+.calm-editor .studio-dialog-heading h2 {
+  font-size: var(--calm-large);
+}
+.calm-editor .binder-view-dialog {
+  width: min(1120px, calc(100vw - 48px));
+  height: calc(100dvh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+}
+.calm-editor .binder-view-dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 24px;
+}
+.calm-editor .binder-view-dialog .studio-dialog-heading {
+  margin: 0;
+}
+.calm-editor .binder-view-stage {
+  height: auto;
+  min-height: 0;
+  padding: 24px;
+  background: var(--bg);
+  border-radius: 0;
+}
+.calm-editor .binder-view-nav {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+.calm-editor #view-next {
+  justify-self: end;
+}
+.calm-editor #view-previous {
+  justify-self: start;
+}
+.calm-editor #view-page-count {
+  font-size: var(--calm-small);
+}
+.calm-editor .binder-view-content > .binder-cover-art {
+  width: min(100%, calc((100dvh - 240px) * 0.75));
+  height: auto;
+  max-height: 100%;
+  align-self: center;
+}
+.calm-editor .pocket-design-dialog {
+  width: min(800px, calc(100vw - 48px));
+}
+
+.calm-editor .dialog-actions {
+  gap: 16px;
+}
+.calm-editor .duplicate-option {
+  border: 0;
+  border-radius: var(--calm-radius);
+  background: none;
+  padding: 16px;
+}
+.calm-editor .duplicate-option span,
+.calm-editor .inspect-meta,
+.calm-editor .inspect-zoom {
+  font-size: var(--calm-small);
+}
+@media (max-width: 1500px) {
+  .calm-editor .account summary > span:not(.avatar) {
+    display: none;
+  }
+  .calm-editor .editor-identity {
+    gap: 16px;
+  }
+  .calm-editor .topbar-actions {
+    gap: 8px;
+  }
+  .calm-editor .binder-name-button {
+    max-width: 180px;
+  }
+}
+@media (max-width: 1100px) {
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.customizing {
+    grid-template-columns: 80px minmax(0, 1fr) var(--pages-column);
+  }
+  .calm-editor .canvas-panel {
+    grid-column: 2;
+  }
+  .calm-editor .card-picker {
+    position: absolute;
+    z-index: 40;
+    left: 80px;
+    top: 0;
+    bottom: 0;
+    width: min(320px, calc(100% - 80px));
+    grid-column: auto;
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    grid-column: auto;
+    width: min(400px, calc(100% - 80px));
+    margin: 0;
+    z-index: 40;
+  }
+  .calm-editor .calm-topbar {
+    gap: 16px;
+  }
+  .calm-editor .binder-name-button {
+    max-width: 160px;
+  }
+}
+@media (max-width: 700px) {
+  body.editor-page.calm-editor {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .calm-editor .editor-main {
+    padding: 16px;
+  }
+  .calm-editor .calm-topbar {
+    height: auto;
+    min-height: 64px;
+    padding: 16px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    position: relative;
+  }
+  .calm-editor .editor-identity {
+    width: 100%;
+    flex: 1 1 100%;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    padding-right: 40px;
+  }
+  .calm-editor .editor-return {
+    gap: 16px;
+  }
+  .calm-editor .editor-return .brand {
+    display: none;
+  }
+  .calm-editor .binder-name-button {
+    min-width: 0;
+    max-width: 160px;
+    padding: 8px 0;
+    flex: 1;
+  }
+  .calm-editor .topbar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .calm-editor .topbar-actions .account {
+    position: absolute;
+  }
+
+  .calm-editor .save-actions {
+    gap: 0;
+  }
+  .calm-editor #page-title {
+    display: block;
+    min-width: 0;
+    font-size: 14px;
+  }
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.customizing {
+    grid-template-columns: 64px minmax(0, 1fr) var(--pages-column);
+  }
+  .calm-editor .editor-rail {
+    width: 48px;
+    padding: 4px;
+    gap: 8px;
+  }
+  .calm-editor .card-picker {
+    left: 64px;
+    width: calc(100% - 64px);
+    padding: 16px;
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    width: calc(100% - 64px);
+    padding: 16px;
+  }
+  .calm-editor .card-picker .panel-heading {
+    flex-wrap: wrap;
+  }
+  .calm-editor .catalogue-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .calm-editor .controls-pill .history-tools {
+    display: contents;
+  }
+
+  .calm-editor .page-navigation {
+    flex-wrap: wrap;
+  }
+  .calm-editor .cover-options,
+  .calm-editor .frame-style-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .calm-editor #cover-preview-stage {
+    gap: 16px;
+  }
+
+  .calm-editor .customizer-tabs button {
+    padding: 8px 4px;
+  }
+  .calm-editor .credits-popover {
+    bottom: 16px;
+    right: 16px;
+  }
+  .calm-editor .selection-status {
+    max-width: calc(100% - 32px);
+
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calm-editor *,
+  .calm-editor *::before,
+  .calm-editor *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.calm-editor details:not([open]) > :not(summary) {
+  display: none !important;
+}
+.calm-editor
+  .editor-shell.customizing
+  .canvas-panel
+  > .selection-status:not([hidden]) {
+  display: flex;
+}
+@media (max-width: 1100px) {
+  body.editor-page.calm-editor {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .calm-editor .calm-topbar {
+    height: auto;
+    flex-wrap: wrap;
+    position: relative;
+    gap: 8px 16px;
+  }
+  .calm-editor .editor-identity {
+    flex: 1 1 100%;
+    padding-right: 64px;
+  }
+  .calm-editor .topbar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .calm-editor .topbar-actions .account {
+    position: absolute;
+    right: 24px;
+    top: 8px;
+  }
+  .calm-editor #save-status {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .calm-editor .save-actions {
+    gap: 8px;
+  }
+  .calm-editor .editor-shell.customizing > .canvas-panel {
+    grid-column: 2;
+  }
+}
+@media (max-width: 700px) {
+  .calm-editor .topbar-actions .account {
+    right: 16px;
+    top: 16px;
+  }
+}
+
+.calm-editor .pocket-more-menu {
+  border: 1px solid var(--line);
+  border-radius: var(--calm-radius);
+  box-shadow: var(--calm-shadow);
+  padding: 8px;
+  background: var(--surface);
+  z-index: 80;
+  position: fixed;
+}
+
+.calm-editor .selection-status .pocket-more .pocket-more-menu > button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  white-space: normal;
+  font-size: var(--calm-small);
+}
+.calm-editor
+  .selection-status
+  .pocket-more
+  .pocket-more-menu
+  > button:is(:hover, :focus-visible) {
+  background: var(--soft);
+}
+
+.calm-editor #zoom-value {
+  font-size: var(--calm-small);
+  pointer-events: none;
+  width: 100%;
+  text-align: center;
+}
+
+/* The original controls now live in the Pages sidebar footer. */
+.calm-editor .editor-dock {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  z-index: 20;
+}
+.calm-editor .editor-dock .controls-pill,
+.calm-editor .editor-dock .page-strip {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  transform: none;
+}
+.calm-editor .editor-dock .controls-pill {
+  flex-wrap: wrap;
+}
+.calm-editor .editor-dock .page-strip {
+  flex: 0 1 auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.calm-editor .page-information {
+  display: flex;
+  position: absolute;
+  top: -16px;
+  left: 8px;
+  right: 8px;
+  z-index: 15;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 12px;
+  min-height: 24px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+.calm-editor .page-summary {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+  flex: none;
+  white-space: nowrap;
+}
+.calm-editor .binder-page-editor:not(.is-spread),
+.calm-editor .editor-sheet {
+  isolation: isolate;
+}
+.calm-editor .binder-page-editor:not(.is-spread):not(.is-cover-preview)::before,
+.calm-editor .editor-sheet::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  pointer-events: none;
+}
+
+.calm-editor #fit-page[aria-pressed="true"] {
+  box-shadow: inset 0 -2px var(--accent);
+  background: var(--soft);
+}
+.calm-editor.is-dragging .selection-status {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.calm-editor #feedback-undo {
+  min-width: 40px;
+  padding: 8px 0;
+  flex: none;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  pointer-events: auto;
+}
+
+.calm-editor .customizer-tabs {
+  display: flex;
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  flex: none;
+  margin: 8px 0;
+}
+.calm-editor #customizer-tab-hint {
+  margin: 0 0 16px;
+  flex: none;
+  margin-bottom: 8px;
+}
+.calm-editor .styling-card #customizer-tab-hint {
+  display: none;
+}
+.calm-editor .cover-customizer > .frame-scope {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin: 8px 0;
+}
+
+.calm-editor .frame-style-option .preset-color-dot {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+.calm-editor .customizer-actions {
+  position: static;
+  display: flex;
+  gap: 16px;
+  flex: none;
+  padding: 16px 0 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+@media (max-width: 700px) {
+  .calm-editor .frame-style-option svg {
+    width: 72px;
+    height: 99px;
+  }
+
+  .calm-editor .page-list {
+    min-width: 40px;
+  }
+
+  .calm-editor .layout-settings > summary {
+    width: 40px;
+  }
+  .calm-editor .cover-customizer > .frame-scope {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+}
+
+.calm-editor #cover-preview-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  flex: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  gap: 16px;
+  padding: 8px 0;
+  height: 144px;
+  min-height: 144px;
+  margin-block: 8px;
+}
+.calm-editor #cover-preview-art {
+  flex: none;
+  width: 80px;
+  max-height: 112px;
+}
+.calm-editor #frame-option-label {
+  display: none;
+}
+.calm-editor .frame-style-options {
+  padding: 0;
+  gap: 8px;
+}
+.calm-editor .frame-style-option {
+  gap: 4px;
+  padding: 4px 0;
+}
+.calm-editor .frame-style-option svg {
+  display: block;
+  max-width: 100%;
+  width: 48px;
+  height: 66px;
+}
+.calm-editor .frame-style-option > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 24px;
+  line-height: 1.2;
+  gap: 4px;
+}
+@media (max-width: 700px) {
+  .calm-editor #cover-preview-stage {
+    height: 112px;
+    min-height: 112px;
+  }
+  .calm-editor #cover-preview-art {
+    width: 64px;
+  }
+}
+
+.calm-editor #fit-page {
+  padding: 0;
+  white-space: nowrap;
+  min-height: 40px;
+  width: 40px;
+  min-width: 40px;
+  flex: none;
+  font-size: var(--calm-small);
+}
+
+.calm-editor .controls-pill #fit-page.action-button {
+  font-size: var(--calm-small);
+  border: 0;
+  padding: 0;
+}
+@media (max-width: 700px) {
+  .calm-editor .controls-pill .page-navigation {
+    order: -2;
+  }
+  .calm-editor .controls-pill #fit-page {
+    order: -1;
+    min-width: 40px;
+    width: 40px;
+  }
+}
+
+/* Notifications overlay the lower-right canvas, outside the Pages sidebar. */
+
+.calm-editor .editor-feedback {
+  position: fixed;
+  bottom: var(--toast-bottom, 192px);
+  left: var(--toast-center, 50%);
+  transform: translateX(-100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  min-width: 0;
+  max-width: min(90vw, var(--toast-room, 90vw));
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px #0002;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 75;
+  min-height: 40px;
+  padding: 0 4px 0 12px;
+}
+/* Keep the More chevron beside the ellipsis, inside the 40px target. */
+.calm-editor .editor-rail .editor-more > summary.disclosure-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+/* Utility panes reserve a column, rather than covering pockets. */
+.calm-editor .editor-shell.utility-open {
+  --custom-column: 0px;
+}
+.calm-editor .layout-settings-body {
+  padding: 12px;
+  gap: 4px;
+  overflow: auto;
+}
+.calm-editor .utility-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+.calm-editor .utility-heading h2 {
+  margin: 0;
+  flex: 1;
+  font-size: 16px;
+}
+.calm-editor .utility-close {
+  flex: none;
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.calm-editor .overflow-items {
+  display: grid;
+  max-height: none;
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+}
+/* Compact cover text fields: no oversized single-column rows or repeated legends. */
+.calm-editor #cover-text-settings .cover-title-controls {
+  gap: 8px;
+  padding: 8px 0;
+}
+.calm-editor #cover-text-settings .cover-text-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+}
+.calm-editor #cover-text-settings .cover-text-group:first-child {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+.calm-editor #cover-text-settings .cover-text-group legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  padding: 0;
+}
+.calm-editor #cover-text-settings .field {
+  gap: 4px;
+  margin: 0;
+}
+.calm-editor #cover-text-settings :is(input:not([type="checkbox"]), select) {
+  min-height: 40px;
+  height: 40px;
+  padding: 8px;
+}
+.calm-editor #cover-text-settings .cover-title-visible {
+  min-height: 40px;
+  align-self: end;
+  margin: 0;
+  white-space: nowrap;
+}
+.calm-editor .cover-color-field {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+}
+.calm-editor #cover-text-settings .cover-color-quick {
+  display: grid;
+  grid-template-columns: 48px;
+  gap: 4px;
+  flex: none;
+  width: 48px;
+  margin: 0;
+  white-space: nowrap;
+}
+.calm-editor #cover-text-settings #cover-title-color {
+  width: 48px;
+  height: 40px;
+  padding: 4px;
+}
+.calm-editor #cover-text-settings #cover-title-contrast {
+  min-height: 40px;
+  height: 40px;
+  padding: 8px 4px;
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .calm-editor .editor-shell.utility-open {
+    grid-template-columns: 64px minmax(0, 1fr) var(--pages-column);
+  }
+
+  .calm-editor .layout-settings-body {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .calm-editor #cover-text-settings .cover-text-group:last-child {
+    grid-template-columns: 1fr;
+  }
+  .calm-editor #cover-text-settings .cover-text-group:first-child {
+    grid-template-columns: 1fr;
+  }
+  .calm-editor .cover-color-field {
+    justify-content: start;
+  }
+}
+
+/* Compact pocket design and contextual tools. */
+.calm-editor .editor-rail .editor-more > summary.disclosure-button::after {
+  width: 10px;
+  height: 10px;
+  background-size: 10px 10px;
+  display: none;
+}
+.calm-editor .editor-rail .editor-more > summary .ui-symbol {
+  width: 20px;
+  height: 20px;
+}
+.calm-editor .editing-tips > summary {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  list-style: none;
+  font-size: 14px;
+  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px;
+  width: 100%;
+  height: auto;
+  text-align: left;
+  line-height: 1;
+}
+.calm-editor .editing-tips-content dl {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.calm-editor .editing-tips-content dt {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.calm-editor .editing-tips-content dd {
+  margin: 0;
+  line-height: 1.5;
+}
+.calm-editor .editor-more-menu > .credits-popover {
+  position: static;
+  max-width: 100%;
+}
+.calm-editor .editor-more-menu .credits-content {
+  position: static;
+  width: auto;
+  max-width: 100%;
+  max-height: none;
+  padding: 8px;
+  box-shadow: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.calm-editor .selection-status {
+  position: absolute;
+  left: auto;
+  right: 24px;
+  top: 24px;
+  transform: none;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: min(440px, calc(100% - 48px));
+  min-height: 0;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 6px 24px #0002;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+  padding: 4px;
+  gap: 4px;
+}
+.calm-editor .editor-shell.utility-open .selection-status {
+  visibility: hidden;
+  pointer-events: none;
+}
+.calm-editor .selection-status #selection-copy {
+  flex: 1 1 120px;
+  padding-inline: 8px;
+  color: var(--ink);
+}
+.calm-editor .selection-status[data-placing="true"] {
+  max-width: min(480px, calc(100% - 48px));
+}
+.calm-editor .selection-status :is(button, .pocket-more > summary) {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+}
+.calm-editor .selection-status :is(button, .pocket-more > summary):hover {
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.calm-editor .selection-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  flex-basis: auto;
+  flex-wrap: wrap;
+}
+.calm-editor .pocket-design-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  width: min(880px, calc(100vw - 32px));
+  height: min(660px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+  gap: 12px;
+  overflow: hidden;
+}
+.calm-editor .pocket-design-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: none;
+}
+.calm-editor .pocket-design-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.calm-editor .pocket-design-dialog > p {
+  margin: 0;
+  flex: none;
+}
+.calm-editor .pocket-design-dialog .form-error:empty {
+  display: none;
+}
+.calm-editor .pocket-design-layout {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.65fr) minmax(0, 1.35fr);
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  gap: 24px;
+  align-items: start;
+}
+.calm-editor .pocket-design-layout > div {
+  min-width: 0;
+}
+.calm-editor .pocket-design-preview {
+  height: min(330px, 45dvh);
+  display: grid;
+  place-items: center;
+  position: sticky;
+  top: 0;
+  padding: 12px;
+  background: var(--soft);
+  border-radius: var(--calm-radius);
+}
+.calm-editor .pocket-design-preview svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.calm-editor .pocket-design-dialog .dialog-actions {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.calm-editor #pocket-placeholder-controls {
+  display: grid;
+  gap: 12px;
+  padding-top: 12px;
+}
+.calm-editor .placeholder-style-options {
+  display: flex;
+  gap: 8px;
+}
+.calm-editor .placeholder-style-choice {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+}
+.calm-editor .placeholder-style-choice svg {
+  width: 32px;
+  height: 44px;
+}
+.calm-editor .placeholder-card-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.calm-editor .placeholder-card-choice {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 8px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  text-align: left;
+  font-size: 14px;
+}
+.calm-editor .placeholder-card-choice img {
+  grid-row: 1/3;
+  width: 36px;
+  height: 50px;
+  object-fit: contain;
+}
+.calm-editor .placeholder-card-choice :is(span, small) {
+  font-size: 14px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calm-editor .placeholder-card-choice small {
+  color: var(--muted);
+}
+
+.calm-editor #pocket-dialog :is(button, input, select) {
+  min-height: 40px;
+}
+.calm-editor #pocket-dialog button:hover {
+  background: var(--soft);
+}
+@media (max-width: 700px) {
+  .calm-editor .pocket-design-dialog[open] {
+    padding: 16px;
+    gap: 8px;
+  }
+  .calm-editor .pocket-design-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .calm-editor .pocket-design-preview {
+    position: static;
+    height: 120px;
+  }
+  .calm-editor .placeholder-card-options {
+    grid-template-columns: 1fr;
+  }
+  .calm-editor .selection-status {
+    left: 8px;
+  }
+  .calm-editor .selection-status[data-placing="true"] {
+    max-width: calc(100% - 16px);
+  }
+}
+
+.calm-editor .layout-settings-body {
+  left: 16px;
+  top: 80px;
+}
+.calm-editor
+  #pocket-dialog
+  :is(
+    .placeholder-card-choice,
+    .placeholder-style-choice,
+    #placeholder-clear-target
+  ) {
+  border: 1px solid var(--line);
+  background: var(--soft);
+  border-radius: 8px;
+}
+.calm-editor #pocket-dialog [aria-pressed="true"] {
+  box-shadow: inset 0 -2px var(--accent);
+  border-color: var(--accent);
+}
+.calm-editor #pocket-dialog #pocket-apply {
+  background: var(--accent);
+  color: #fff;
+}
+.calm-editor #pocket-dialog #pocket-cancel {
+  border: 1px solid var(--line);
+  background: var(--soft);
+}
+
+/* Editable facing pages; the page view is a display choice, not saved card data. */
+.calm-editor .page-view-control {
+  flex: none;
+  margin: 0;
+}
+.calm-editor #page-view {
+  width: 104px;
+  min-width: 0;
+  min-height: 40px;
+  height: 40px;
+  padding: 8px 24px 8px 8px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--ink);
+}
+.calm-editor .editor-sheet {
+  position: absolute;
+  outline: none;
+  border-radius: 4px;
+}
+.calm-editor .editor-sheet .sheet-label {
+  position: absolute;
+  left: 0;
+  top: -48px;
+  min-height: 40px;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 14px;
+  line-height: 40px;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 4px;
+}
+.calm-editor .editor-sheet .sheet-label[aria-pressed="true"] {
+  color: var(--ink);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .editor-sheet.empty-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--muted);
+}
+.calm-editor .empty-sheet button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 14px;
+}
+.calm-editor .page-button.in-spread {
+  background: transparent;
+}
+.calm-editor .is-spread .editor-pocket {
+  position: absolute;
+}
+@media (max-width: 700px) {
+  .calm-editor .editor-dock {
+    padding: 12px 8px;
+    gap: 8px;
+  }
+  .calm-editor .editor-dock .page-navigation {
+    gap: 4px;
+  }
+  .calm-editor .page-information {
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .calm-editor .customizer-tabs {
+    gap: 0;
+  }
+  .calm-editor .editor-dock .page-strip {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .calm-editor .editor-dock .page-list {
+    flex: 1 1 100%;
+    order: 1;
+    max-width: 100%;
+  }
+  .calm-editor #page-view {
+    width: 96px;
+    padding-left: 4px;
+    font-size: 14px;
+  }
+  .calm-editor .empty-sheet {
+    overflow: hidden;
+  }
+  .calm-editor .empty-sheet span {
+    text-align: center;
+  }
+}
+
+/* Binder-first Pages sidebar and side navigation. */
+.calm-editor .editor-shell.pages-collapsed {
+  --pages-column: 56px;
+}
+.calm-editor .pages-sidebar {
+  grid-column: 5;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  z-index: 22;
+}
+.calm-editor .sidebar-views {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0 8px 12px;
+}
+.calm-editor .sidebar-views button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  min-width: 40px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.calm-editor .sidebar-views button[aria-pressed="true"] {
+  background: var(--soft);
+  color: var(--ink);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .sidebar-views .ui-symbol {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.calm-editor .sidebar-count {
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.calm-editor .pages-collapsed .sidebar-views {
+  flex-direction: column;
+  padding: 0 8px 8px;
+}
+.calm-editor .pages-collapsed .sidebar-views button {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  flex: none;
+}
+.calm-editor #pages-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 40px;
+  min-width: 40px;
+  margin-left: 0;
+  padding: 0;
+  justify-content: center;
+  text-align: left;
+}
+.calm-editor .pages-body {
+  flex: 1;
+  min-height: 0;
+}
+.calm-editor .pages-controls {
+  flex: none;
+  border: 0;
+  padding: 6px;
+  border-radius: 0;
+  background: transparent;
+}
+.calm-editor .pages-collapsed #pages-toggle {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+}
+.calm-editor .pages-collapsed #pages-toggle svg {
+  transform: rotate(180deg);
+}
+.calm-editor #pages-sidebar .controls-pill {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+}
+.calm-editor #pages-sidebar .page-strip {
+  justify-content: center;
+  order: -1;
+  padding: 0;
+  border: 0;
+}
+.calm-editor .canvas-panel > .page-navigation {
+  position: absolute;
+  inset: 50% 8px auto;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  z-index: 16;
+  pointer-events: none;
+}
+.calm-editor .canvas-panel > .page-navigation button {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: auto;
+  box-shadow: none;
+}
+.calm-editor .page-button[aria-current="page"],
+.calm-editor .page-button.page-drop-target {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.calm-editor .page-button[aria-current="page"] svg,
+.calm-editor .page-button.page-drop-target svg {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.calm-editor .page-button[aria-current="page"] > span::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.calm-editor .editor-sheet.is-active::before {
+  border-color: var(--accent);
+}
+.calm-editor .add-page-symbol {
+  font-size: 32px;
+  line-height: 1;
+}
+.calm-editor .add-page-caption {
+  font-size: 14px;
+}
+.calm-editor .selection-status .selection-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.calm-editor .selection-status #to-overflow {
+  background: transparent;
+  border-color: transparent;
+  color: var(--danger, var(--accent));
+}
+.calm-editor #feedback-dismiss {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  pointer-events: auto;
+  flex: none;
+}
+.calm-editor #editor-message {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding-block: 8px;
+}
+.calm-editor #feedback-undo {
+  min-height: 40px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 400;
+}
+@media (max-width: 1100px) {
+  .calm-editor .editor-shell {
+    --pages-column: 56px;
+  }
+  .calm-editor .pages-sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 232px;
+    background: var(--surface);
+    box-shadow: none;
+  }
+  .calm-editor .pages-collapsed .pages-sidebar {
+    width: 56px;
+    box-shadow: none;
+  }
+}
+@media (max-width: 700px) {
+  .calm-editor .pages-sidebar {
+    width: min(232px, calc(100vw - 96px));
+  }
+  .calm-editor .canvas-stage,
+  .calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+    padding: 24px 8px;
+  }
+  .calm-editor .canvas-panel > .page-navigation {
+    inset-inline: 0;
+    top: auto;
+    bottom: 8px;
+    transform: none;
+  }
+  .calm-editor .canvas-panel > .page-navigation button {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+  .calm-editor .selection-status {
+    right: 8px;
+    max-width: calc(100% - 16px);
+    padding: 8px;
+  }
+  .calm-editor .selection-actions {
+    gap: 4px;
+  }
+  .calm-editor .pages-controls {
+    padding: 6px;
+  }
+  .calm-editor .topbar-actions {
+    flex-wrap: nowrap;
+  }
+  .calm-editor #save-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* Floating tools move from their handles; docked sidebars keep their layout. */
+.calm-editor .floating-grip-slot {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+.calm-editor button.floating-handle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+.calm-editor .floating-handle .ui-symbol {
+  width: 16px;
+  height: 16px;
+}
+.calm-editor .floating-moving {
+  z-index: 95 !important;
+}
+.calm-editor .floating-moving .floating-handle {
+  cursor: grabbing;
+}
+.calm-editor .selection-status #clear-selection {
+  background: transparent;
+  color: var(--muted);
+  width: 40px;
+  height: 40px;
+}
+.calm-editor .selection-status #selection-copy {
+  font-weight: 500;
+}
+.calm-editor .pages-sidebar .page-button:hover {
+  background: color-mix(in srgb, var(--soft) 45%, transparent);
+}
+
+.calm-editor .layout-settings-body .page-view-control {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.calm-editor .layout-settings-body .editing-tips {
+  margin-top: 0;
+}
+.calm-editor .layout-settings-body .editing-tips-content h2 {
+  display: none;
+}
+.calm-editor .zoom-steps {
+  display: flex;
+  justify-content: space-between;
+}
+.calm-editor .selection-status[data-placing="false"] #clear-selection {
+  display: none;
+}
+.calm-editor .selection-status .pocket-more > summary {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+.calm-editor .selection-status .pocket-more > summary::after {
+  display: none;
+}
+.calm-editor .selection-status #selection-copy.sr-only {
+  padding: 0;
+}
+
+/* Docked utility boundaries and bottom Overflow controls. */
+.calm-editor #cards-drawer {
+  border-right: 1px solid var(--line);
+}
+.calm-editor #cover-customizer {
+  border-left: 1px solid var(--line);
+}
+.calm-editor .editor-shell.customizing .selection-status {
+  display: none;
+}
+.calm-editor .styling-card .editor-pocket.has-content {
+  cursor: pointer;
+}
+.calm-editor #pick-style-card {
+  display: none;
+}
+.calm-editor #pick-style-card svg {
+  display: none;
+}
+.calm-editor #feedback-undo {
+  white-space: nowrap;
+}
+@media (max-width: 1100px) {
+  .calm-editor .styling-card #pick-style-card {
+    display: block;
+    flex: none;
+  }
+}
+
+.calm-editor .layout-settings-body #page-view {
+  width: 100%;
+}
+.calm-editor .layout-settings-body .field {
+  gap: 4px;
+}
+.calm-editor .layout-settings-body .panel-hint {
+  line-height: 1.4;
+}
+
+.calm-editor .editor-shell:not(.pages-collapsed) .pages-sidebar {
+  animation: binder-sidebar-slide 160ms ease-out;
+}
+@keyframes binder-sidebar-slide {
+  from {
+    opacity: 0.5;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calm-editor .editor-shell:not(.pages-collapsed) .pages-sidebar {
+    animation: none;
+  }
+}
+
+.calm-editor .arrange-picker-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: none;
+  justify-content: space-between;
+  gap: 8px;
+}
+.calm-editor .arrange-picker-tools button,
+.calm-editor #paste-copied-cards {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+}
+.calm-editor
+  .arrange-picker-tools
+  button:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  border-color: var(--accent);
+}
+.calm-editor .catalogue-card[aria-pressed="true"] {
+  position: relative;
+}
+.calm-editor .catalogue-card[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  line-height: 24px;
+}
+.calm-editor .arrange-picker-tools .primary,
+.calm-editor #paste-copied-cards {
+  background: var(--accent);
+  color: #fff;
+}
+.calm-editor .arrange-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 20px;
+}
+.calm-editor .arrange-dialog > :not(:first-child) {
+  margin-top: 16px;
+}
+.calm-editor .arrange-dialog .field {
+  display: grid;
+  gap: 8px;
+}
+.calm-editor .arrange-dialog .button {
+  display: inline-flex;
+  padding: 8px 12px;
+  min-height: 40px;
+  align-items: center;
+}
+.calm-editor .arrange-dialog .primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Phone editor: full-width canvas, bottom tools and mutually exclusive sheets. */
+.mobile-tool-label,
+.mobile-pages-icon,
+.mobile-preview-icon,
+.mobile-back-icon {
+  display: none;
+}
+@media (max-width: 700px) {
+  body.editor-page.calm-editor {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 56px minmax(0, 1fr);
+  }
+  .calm-editor .calm-topbar {
+    min-width: 0;
+    height: 56px;
+    min-height: 56px;
+    padding: 6px 8px;
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+  .calm-editor .editor-identity {
+    width: auto;
+    flex: 1 1 0;
+    padding: 0;
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+  .calm-editor .editor-return {
+    gap: 0;
+  }
+  .calm-editor .workspace-back {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+  }
+  .calm-editor .workspace-back > span,
+  .calm-editor #preview-binder > span {
+    display: none;
+  }
+  .calm-editor .mobile-back-icon,
+  .calm-editor .mobile-preview-icon {
+    display: block;
+  }
+  .calm-editor .binder-name-button {
+    max-width: none;
+    padding: 6px 0;
+    min-width: 0;
+  }
+  .calm-editor #binder-title {
+    font-size: 14px;
+  }
+  .calm-editor .topbar-actions {
+    display: grid;
+    grid-template-columns: 40px 60px 40px;
+    align-items: center;
+    flex: none;
+    gap: 8px;
+  }
+  .calm-editor .topbar-actions .account {
+    position: static;
+  }
+  .calm-editor .account summary {
+    width: 40px;
+    height: 44px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+  .calm-editor .account summary::after {
+    display: none;
+  }
+  .calm-editor .account summary > span:not(.avatar) {
+    display: none !important;
+  }
+  .calm-editor .account .avatar {
+    flex: none;
+    width: 32px;
+    height: 32px;
+  }
+  .calm-editor #save {
+    width: 60px;
+    min-width: 60px;
+    min-height: 44px;
+    padding: 8px;
+    border-radius: 10px;
+  }
+  .calm-editor #preview-binder {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    padding: 0;
+  }
+  .calm-editor #save-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .calm-editor .editor-main {
+    padding: 0 0 calc(64px + env(safe-area-inset-bottom));
+  }
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.customizing {
+    display: block;
+  }
+  .calm-editor .canvas-panel,
+  .calm-editor .editor-shell.customizing > .canvas-panel {
+    width: 100%;
+    height: 100%;
+  }
+  .calm-editor .canvas-stage,
+  .calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+    padding: 48px 16px 64px;
+  }
+  .calm-editor .canvas-panel > .page-information {
+    top: 8px;
+    gap: 0;
+  }
+  .calm-editor .editor-rail {
+    position: fixed;
+    top: auto;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    z-index: 60;
+  }
+  .calm-editor .editor-rail > button,
+  .calm-editor .editor-rail > details > summary,
+  .calm-editor .editor-shell #pages-toggle {
+    width: 48px;
+    min-width: 40px;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0;
+    border-radius: 8px;
+  }
+  .calm-editor .mobile-tool-label {
+    display: block;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .calm-editor .editor-rail .ui-symbol {
+    width: 20px;
+    height: 20px;
+  }
+  .calm-editor .pages-sidebar,
+  .calm-editor .pages-collapsed .pages-sidebar {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    height: min(75dvh, 600px);
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px 16px 0 0;
+    background: var(--surface);
+    z-index: 45;
+    box-shadow: 0 -8px 32px #0002;
+  }
+  .calm-editor .pages-collapsed .pages-sidebar {
+    height: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .calm-editor .editor-shell #pages-toggle {
+    position: static;
+    width: 48px;
+    height: 56px;
+    margin: 0;
+  }
+  .calm-editor #pages-toggle > svg:not(.mobile-pages-icon) {
+    display: none;
+  }
+  .calm-editor #pages-toggle .mobile-pages-icon {
+    display: block;
+    transform: none;
+  }
+  .calm-editor #pages-toggle[aria-expanded="true"] {
+    box-shadow: inset 0 -2px var(--accent);
+  }
+  .calm-editor .pages-collapsed .sidebar-views > button:not(#pages-toggle) {
+    display: none;
+  }
+  .calm-editor .sidebar-views {
+    padding: 0 0 8px;
+  }
+  .calm-editor #pages-sidebar .page-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 12px;
+  }
+  .calm-editor #pages-sidebar .page-button {
+    display: grid;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    align-content: start;
+    align-self: start;
+    min-height: 0;
+    height: max-content;
+    width: 100%;
+  }
+  .calm-editor #pages-sidebar .page-button svg {
+    width: 100%;
+    height: auto;
+    flex: none;
+    max-width: 120px;
+  }
+  .calm-editor .card-picker,
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    height: min(75dvh, 640px);
+    max-height: 100%;
+    margin: 0;
+    padding: 12px 16px;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px #0002;
+    z-index: 50;
+  }
+  .calm-editor .editor-shell {
+    --custom-sheet-height: min(62dvh, 560px);
+  }
+  .calm-editor .editor-shell.styling-card {
+    --custom-sheet-height: min(66dvh, 600px);
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    height: var(--custom-sheet-height);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .calm-editor .cover-customizer > * {
+    grid-column: 1 / -1;
+  }
+  .calm-editor .customizer-heading {
+    grid-row: 1;
+  }
+  .calm-editor .customizer-tabs {
+    grid-row: 2;
+  }
+  .calm-editor #customizer-tab-hint {
+    grid-row: 3;
+  }
+  .calm-editor .customizer-design-body {
+    grid-row: 4;
+  }
+  .calm-editor .customizer-actions {
+    grid-row: 5;
+  }
+  .calm-editor .styling-card > .cover-customizer {
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  }
+  .calm-editor .styling-card .frame-scope {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .calm-editor .styling-card #pick-style-card {
+    grid-column: 2;
+    grid-row: 3;
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    border-radius: 8px;
+    align-self: center;
+  }
+  .calm-editor #pick-style-card > span {
+    display: none;
+  }
+  .calm-editor #pick-style-card > svg {
+    display: block;
+  }
+  .calm-editor .styling-card #cover-selection-status {
+    grid-row: 5;
+  }
+  .calm-editor .styling-card .customizer-actions {
+    grid-row: 6;
+  }
+  .calm-editor
+    .editor-shell.customizing:not(.picking-style-card)
+    .canvas-panel
+    > .canvas-stage {
+    bottom: var(--custom-sheet-height);
+    padding: 8px 16px;
+  }
+  .calm-editor .customizer-tabs {
+    margin: 0;
+    padding: 3px;
+    gap: 2px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+  }
+  .calm-editor .customizer-tabs button {
+    padding: 6px 4px;
+    min-height: 40px;
+    border-radius: 8px;
+  }
+  .calm-editor #customizer-tab-hint {
+    margin: 0;
+    line-height: 1.4;
+  }
+  .calm-editor .cover-customizer > .frame-scope {
+    margin: 0;
+  }
+  .calm-editor .customizer-design-body {
+    padding: 0 4px 8px 0;
+  }
+  .calm-editor .cover-options,
+  .calm-editor .frame-style-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .calm-editor .cover-option,
+  .calm-editor .frame-style-option {
+    padding: 6px 2px;
+    gap: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .calm-editor :is(.cover-option, .frame-style-option)[aria-pressed="true"] {
+    border-color: var(--accent);
+  }
+  .calm-editor .cover-option .binder-cover-art {
+    width: 48px;
+  }
+  .calm-editor .frame-style-option svg {
+    width: 48px;
+    height: 66px;
+  }
+  .calm-editor .customizer-actions {
+    gap: 8px;
+    margin: 0;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--line);
+  }
+  .calm-editor .customizer-actions button {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+  }
+  .calm-editor .customizer-actions #cover-apply {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .calm-editor #cover-selection-status {
+    margin: 0;
+  }
+  .calm-editor .cover-customizer :is(input, select, textarea) {
+    font-size: 16px;
+  }
+  .calm-editor .catalogue-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .calm-editor .card-picker :is(input, select) {
+    font-size: 16px;
+  }
+  .calm-editor .card-picker h2 {
+    font-size: 16px;
+  }
+  .calm-editor .card-results {
+    gap: 12px;
+  }
+  .calm-editor .catalogue-card {
+    gap: 4px;
+  }
+  .calm-editor .cover-customizer #cover-preview-stage {
+    display: none;
+  }
+  .calm-editor .selection-status {
+    top: 56px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    padding: 4px;
+  }
+}
+
+@media (max-width: 700px) and (max-height: 500px) and (min-width: 500px) {
+  .calm-editor .card-picker {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(40px, 1fr);
+    gap: 8px 16px;
+    overflow-y: auto;
+  }
+  .calm-editor .card-picker > :not(.card-results) {
+    grid-column: 1;
+  }
+  .calm-editor .card-picker .panel-hint {
+    display: none;
+  }
+  .calm-editor .card-picker .card-results {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    height: 100%;
+    min-height: 120px;
+  }
+  .calm-editor .card-picker .arrange-picker-tools {
+    align-content: start;
+  }
+
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.styling-card {
+    --custom-sheet-height: 100%;
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    left: 36%;
+    width: 64%;
+    height: 100%;
+    max-height: 100%;
+  }
+  .calm-editor
+    .editor-shell.customizing:not(.picking-style-card)
+    .canvas-panel
+    > .canvas-stage {
+    right: 64%;
+    bottom: 0;
+    padding: 8px;
+  }
+  .calm-editor .cover-customizer .customizer-heading,
+  .calm-editor .cover-customizer #customizer-tab-hint,
+  .calm-editor .cover-customizer #cover-selection-status {
+    display: none;
+  }
+
+  .calm-editor .editor-shell.customizing > .cover-customizer,
+  .calm-editor .styling-card > .cover-customizer {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+  .calm-editor .customizer-tabs {
+    grid-row: 1;
+  }
+  .calm-editor .styling-card .frame-scope,
+  .calm-editor .styling-card #pick-style-card {
+    grid-row: 2;
+  }
+  .calm-editor .customizer-design-body {
+    grid-row: 2 / 4;
+  }
+  .calm-editor .styling-card .customizer-design-body {
+    grid-row: 3;
+  }
+  .calm-editor .customizer-actions,
+  .calm-editor .styling-card .customizer-actions {
+    grid-row: 4;
+  }
+  .calm-editor .frame-style-option svg {
+    width: 32px;
+    height: 44px;
+  }
+  .calm-editor .cover-option .binder-cover-art {
+    width: 32px;
+  }
+}
+
+/* Icon workshop: direct tools and a quiet, automatically fitted canvas. */
+.calm-editor .editor-rail {
+  gap: 6px;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding: 6px;
+}
+.calm-editor .editor-rail > :is(button, a),
+.calm-editor .editor-rail > details > summary {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.calm-editor .editor-rail > :is(button, a):is(:hover, :focus-visible),
+.calm-editor .editor-rail > details > summary:is(:hover, :focus-visible) {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.calm-editor .editor-rail #import-file {
+  display: none;
+}
+.calm-editor .workshop-icon {
+  display: inline-grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px;
+}
+.calm-editor .mobile-tool-label {
+  display: none;
+}
+.calm-editor .editor-rail > .layout-settings {
+  position: static;
+}
+.calm-editor .layout-settings-body :is(button, input, select) {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: var(--bg);
+  min-height: 40px;
+}
+.calm-editor #layout-apply {
+  background: var(--accent);
+  color: #fff;
+  width: 100%;
+  margin-top: 8px;
+}
+.calm-editor .layout-settings-body .page-actions {
+  gap: 8px;
+}
+.calm-editor .canvas-stage,
+.calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+  padding-top: 16px;
+}
+.calm-editor .editor-shell.customizing .canvas-panel > .page-navigation {
+  display: flex;
+}
+.calm-editor .canvas-panel > .page-navigation button,
+.calm-editor #add-page {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.calm-editor .canvas-panel > .page-navigation button:is(:hover, :focus-visible),
+.calm-editor #add-page:is(:hover, :focus-visible) {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+.calm-editor .has-selection .editor-pocket.has-content:not(.is-selected) {
+  opacity: 0.3;
+}
+.calm-editor .editor-pocket.is-selected {
+  opacity: 1;
+  filter: brightness(1.12) saturate(1.08);
+  z-index: 3;
+}
+.calm-editor .editor-pocket.is-selected::after {
+  content: "✓";
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  text-align: center;
+  font-size: 16px;
+}
+.calm-editor .editor-pocket.has-content {
+  cursor: grab;
+  touch-action: none;
+}
+.calm-editor .editor-pocket.is-touch-dragging {
+  opacity: 0.55;
+}
+.calm-editor .editor-pocket.is-touch-target {
+  outline: 4px solid var(--accent);
+}
+.calm-editor .merge-mode .editor-pocket {
+  cursor: crosshair;
+}
+.calm-editor .selection-status {
+  width: max-content;
+  max-width: min(520px, calc(100% - 16px));
+}
+.calm-editor .selection-actions {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.calm-editor .selection-status #selection-copy {
+  flex: none;
+  padding-inline: 8px;
+}
+.calm-editor .selection-status #selection-copy.sr-only {
+  flex: none;
+  padding: 0;
+}
+.calm-editor .selection-status .workshop-icon,
+.calm-editor .selection-status .selection-icon {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+}
+.calm-editor .selection-status .workshop-icon:hover {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+.calm-editor #style-clipboard-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.calm-editor .pages-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+.calm-editor #help-trigger,
+.calm-editor #theme-toggle {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.calm-editor .cover-customizer .workshop-icon {
+  width: 100%;
+}
+.calm-editor .customizer-tabs button {
+  display: grid;
+  place-items: center;
+}
+.calm-editor .customizer-actions button {
+  min-height: 44px;
+}
+.calm-editor .workshop-help {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(440px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 20px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+}
+.calm-editor .workshop-help[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.calm-editor .workshop-help::backdrop {
+  background: #0006;
+  backdrop-filter: blur(3px);
+}
+.calm-editor .workshop-help header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+}
+.calm-editor #help-search {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  flex: none;
+  min-height: 44px;
+  font-size: 16px;
+}
+.calm-editor #help-guides {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.calm-editor #help-guides details {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  flex: none;
+}
+.calm-editor #help-guides summary {
+  padding: 12px;
+  min-height: 44px;
+  font-weight: 600;
+}
+.calm-editor #help-guides p {
+  padding: 0 12px 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.calm-editor #help-credits .credits-popover {
+  position: static;
+}
+.calm-editor #help-credits .credits-content {
+  position: static;
+  max-height: 120px;
+  overflow: auto;
+  width: auto;
+}
+
+@media (max-width: 700px) {
+  .calm-editor .topbar-actions {
+    grid-template-columns: 40px 60px 40px;
+  }
+  .calm-editor .editor-rail {
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    justify-content: flex-start;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .calm-editor .editor-rail > :is(button, a),
+  .calm-editor .editor-rail > details > summary {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .calm-editor .editor-rail > details {
+    flex: none;
+  }
+  .calm-editor .editor-shell #pages-toggle {
+    position: sticky;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    background: var(--surface);
+  }
+  .calm-editor .pages-collapsed .pages-controls {
+    display: none;
+  }
+  .calm-editor .canvas-stage {
+    padding: 16px 16px 56px;
+  }
+  .calm-editor .selection-status {
+    top: 8px;
+  }
+  .calm-editor
+    .editor-shell.customizing:not(.picking-style-card)
+    .canvas-panel
+    > .page-navigation {
+    top: 12px !important;
+    bottom: auto !important;
+    left: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+  }
+  .calm-editor .cover-customizer .customizer-tabs .workshop-icon {
+    min-height: 40px;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1100px) and (max-height: 500px) {
+  .calm-editor .card-picker {
+    width: calc(100% - 80px);
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(40px, 1fr);
+    gap: 8px 16px;
+    overflow-y: auto;
+  }
+  .calm-editor .card-picker > :not(.card-results) {
+    grid-column: 1;
+  }
+  .calm-editor .card-picker .panel-hint {
+    display: none;
+  }
+  .calm-editor .card-picker .card-results {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    height: 100%;
+    min-height: 120px;
+  }
+}
+
+/* Workshop refinements: bounded controls and panels sharing the available canvas. */
+.calm-editor :is(button, summary, .workshop-icon) .ui-symbol {
+  display: block;
+  flex: none;
+  width: 17px;
+  height: 17px;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin: 0;
+}
+.calm-editor
+  :is(
+    .selection-status,
+    .page-actions,
+    .customizer-actions,
+    .sidebar-views,
+    .workshop-help header
+  )
+  button,
+.calm-editor #pick-style-card {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.calm-editor
+  :is(.selection-status, .page-actions, .customizer-actions, .sidebar-views)
+  button:hover,
+.calm-editor #pick-style-card:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.calm-editor .selection-status {
+  width: max-content;
+  min-width: 0;
+  max-width: calc(100% - 16px);
+  gap: 4px;
+  padding: 4px;
+}
+.calm-editor .selection-actions,
+.calm-editor .insert-actions {
+  flex: 0 1 auto;
+  width: max-content;
+  min-width: 0;
+  gap: 4px;
+  justify-content: flex-start;
+}
+.calm-editor
+  .selection-status
+  :is(button, .workshop-icon, .selection-icon, .floating-handle) {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+}
+.calm-editor .selection-status .ui-symbol {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.2;
+}
+.calm-editor .selection-status .floating-grip-slot {
+  flex: none;
+  width: auto;
+}
+.calm-editor .selection-status #to-overflow {
+  border-color: var(--line);
+}
+.calm-editor .selection-status #selection-copy:empty {
+  display: none;
+}
+.calm-editor .editor-feedback,
+.calm-editor .editor-feedback.is-error {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  min-width: 0;
+  max-width: min(360px, var(--toast-room));
+  padding: 6px 8px;
+  border-radius: 12px;
+}
+.calm-editor #editor-message.notification-copy {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  overflow: visible;
+  padding: 2px 4px;
+  line-height: 1.4;
+}
+.calm-editor .editor-feedback :is(#feedback-undo, #feedback-dismiss) {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.calm-editor .empty-plus {
+  opacity: 0.6;
+  font-size: 20px;
+}
+.calm-editor .cover-customizer :is(h2, strong, label, legend, p, span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.calm-editor .cover-customizer h2 {
+  font-size: 16px;
+}
+.calm-editor .cover-setting-section {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.calm-editor .cover-setting-section > summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 38px 10px 12px;
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.calm-editor .cover-setting-section > summary::-webkit-details-marker {
+  display: none;
+}
+.calm-editor .cover-setting-section > summary::marker {
+  content: "";
+}
+.calm-editor .cover-setting-section > summary::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 7px;
+  height: 7px;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+}
+.calm-editor .cover-setting-section[open] > summary::after {
+  transform: translateY(-20%) rotate(225deg);
+}
+.calm-editor .customizer-actions .workshop-icon {
+  width: 44px;
+  min-width: 44px;
+  height: 40px;
+}
+.calm-editor .customizer-actions {
+  justify-content: flex-end;
+  gap: 8px;
+}
+.calm-editor .customizer-actions #cover-apply {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.calm-editor .pages-collapsed .sidebar-views button {
+  box-shadow: none;
+}
+.calm-editor .editor-shell:not(.has-selection) #select-pockets {
+  box-shadow: none;
+  background: var(--surface);
+}
+@media (min-width: 701px) {
+  .calm-editor .editor-shell,
+  .calm-editor .editor-shell.customizing {
+    grid-template-columns: 80px var(--cards-column) minmax(0, 1fr) 0 var(
+        --pages-column
+      );
+    --custom-column: 0px;
+  }
+  .calm-editor .editor-shell.customizing {
+    --cards-column: clamp(280px, 30vw, 380px);
+  }
+  .calm-editor .editor-shell.utility-open {
+    --cards-column: 312px;
+  }
+  .calm-editor .editor-shell > .canvas-panel,
+  .calm-editor .editor-shell.customizing > .canvas-panel {
+    grid-column: 3;
+  }
+  .calm-editor .editor-shell > .card-picker,
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
+    width: calc(100% - 16px);
+    max-width: none;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 16px;
+    align-self: stretch;
+  }
+  .calm-editor .editor-shell > .pages-sidebar {
+    position: relative;
+    inset: auto;
+    grid-column: 5;
+    width: auto;
+  }
+  .calm-editor .editor-shell:not(.pages-collapsed) {
+    --pages-column: 232px;
+  }
+  .calm-editor .canvas-stage {
+    padding-inline: 64px;
+  }
+}
+@media (max-width: 700px) {
+  .calm-editor
+    .selection-status
+    :is(button, .workshop-icon, .selection-icon, .floating-handle) {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .calm-editor .customizer-actions {
+    display: flex;
+  }
+  .calm-editor .customizer-actions .workshop-icon {
+    width: 44px;
+  }
+  .calm-editor .editor-feedback :is(#feedback-undo, #feedback-dismiss) {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+@media (min-width: 701px) {
+  .calm-editor #pages-toggle > .mobile-pages-icon,
+  .calm-editor .workspace-back > .mobile-back-icon {
+    display: none;
+  }
+}
+@media (min-width: 1101px) {
+  .calm-editor #pick-style-card {
+    display: none;
+  }
+}
+@media (min-width: 701px) and (max-width: 1100px) and (max-height: 500px) {
+  .calm-editor .editor-shell.cards-open {
+    --cards-column: 396px;
+  }
+  .calm-editor .card-picker {
+    grid-template-columns: 164px minmax(0, 1fr);
+  }
+}
+
+.calm-editor #layout-apply {
+  width: 40px;
+  justify-self: end;
+}
+.calm-editor .layout-settings-body .page-actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+.calm-editor .layout-settings-body .page-actions button {
+  width: 40px;
+  height: 40px;
+}
+
+@media (min-width: 701px) and (max-width: 1100px) {
+  .calm-editor .canvas-stage {
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 700px) {
+  .calm-editor .editor-shell.cards-open .canvas-stage {
+    bottom: min(75dvh, 640px);
+    padding: 8px 16px;
+  }
+  .calm-editor .editor-shell.utility-open .canvas-stage {
+    bottom: var(--utility-height, min(55dvh, 380px));
+    padding: 8px 16px;
+  }
+  .calm-editor .layout-settings-body {
+    top: auto !important;
+    bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+    left: 16px !important;
+    width: calc(100vw - 32px) !important;
+    max-height: min(55dvh, 380px) !important;
+  }
+}
+
+.calm-editor button.icon-button {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.calm-editor button.icon-button:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.calm-editor .customizer-tabs {
+  width: max-content;
+  align-self: center;
+  padding: 4px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.calm-editor .customizer-tabs button.workshop-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.calm-editor .customizer-tabs button[aria-pressed="true"] {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+@media (max-width: 700px) {
+  .calm-editor .customizer-tabs button.workshop-icon {
+    width: 44px;
+    height: 44px;
+  }
+}

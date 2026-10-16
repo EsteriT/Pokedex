@@ -1,0 +1,42 @@
+/* Whitespace separates chapters; entrances move gently without changing layout. */
+.landing-page
+  main
+  > section:is(
+    #arrange,
+    #customize,
+    #discover,
+    #collect,
+    #share,
+    .landing-faq,
+    .closing
+  ) {
+  border-block: 0;
+  min-height: 0;
+  padding-block: clamp(80px, 8vw, 136px);
+}
+.landing-page .site-footer {
+  border-top: 0;
+}
+.landing-enter-pending {
+  opacity: 0;
+}
+@media (max-width: 600px) {
+  .landing-page
+    main
+    > section:is(
+      #arrange,
+      #customize,
+      #discover,
+      #collect,
+      #share,
+      .landing-faq,
+      .closing
+    ) {
+    padding-block: 64px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-enter-pending {
+    opacity: 1;
+  }
+}

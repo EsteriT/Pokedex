@@ -1,0 +1,132 @@
+/* Shared footer for the landing page and application pages. */
+.site-footer {
+  padding: 64px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 32px;
+  background: #edf1f6;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+.site-footer .brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.8px;
+  color: var(--ink);
+}
+.site-footer .mark {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
+}
+.site-footer .mark::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  left: 6px;
+  top: 6px;
+  background: #edf1f6;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+}
+.site-footer h3 {
+  margin: 0 0 16px;
+  font:
+    600 12px/1.6 "Segoe UI",
+    Arial,
+    sans-serif;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.site-footer p {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.site-footer a:not(.brand) {
+  display: block;
+  margin-bottom: 8px;
+}
+.site-footer .footer-explore {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  max-width: 240px;
+}
+.site-footer .footer-explore a {
+  margin: 0;
+}
+.site-footer .legal {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 16px;
+  padding-top: 24px;
+  border-top: 1px solid #dce2ec;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #596273;
+}
+.site-footer .legal a {
+  display: inline !important;
+  margin: 0 !important;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.site-footer a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+html[data-theme="dark"] .site-footer {
+  background: #14151a;
+}
+html[data-theme="dark"] .site-footer .mark {
+  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
+}
+html[data-theme="dark"] .site-footer .mark::after {
+  background: #14151a;
+}
+html[data-theme="dark"] .site-footer .legal {
+  border-color: #343844;
+  color: #b0b6c4;
+}
+@media (max-width: 1050px) {
+  .site-footer {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+@media (max-width: 800px) {
+  .site-footer {
+    padding: 48px 32px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .site-footer > div:first-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 580px) {
+  .site-footer {
+    padding: 48px 24px;
+  }
+  .site-footer .footer-explore {
+    grid-template-columns: 1fr;
+  }
+  .site-footer .legal {
+    display: block;
+  }
+  .site-footer .legal > span {
+    display: block;
+    margin-top: 8px;
+  }
+}

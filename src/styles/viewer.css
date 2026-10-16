@@ -1,0 +1,443 @@
+/* Read-only binder presentation; all spacing and control sizing are local to this page. */
+.viewer-page {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+}
+.viewer-page [hidden] {
+  display: none !important;
+}
+.viewer-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--line);
+}
+.viewer-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+  font-size: 24px;
+  font-weight: 700;
+}
+.viewer-header .brand-ball {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.viewer-page .button {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 13px;
+  padding: 10px 16px;
+}
+.viewer-page .button.secondary {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.viewer-header select,
+.viewer-picker select {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background-color: var(--surface);
+  color: var(--ink);
+  padding: 10px 40px 10px 12px;
+  font: inherit;
+  font-size: 13px;
+}
+.viewer-header select {
+  width: 110px;
+}
+#viewer-main {
+  width: 100%;
+  max-width: 1280px;
+  margin: auto;
+  padding: 24px 32px;
+  flex: 1;
+  min-width: 0;
+}
+.viewer-heading {
+  margin-bottom: 24px;
+}
+.viewer-heading h1 {
+  font-size: 28px;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+  margin-bottom: 8px;
+}
+#viewer-source {
+  color: var(--muted);
+  font-size: 12px;
+}
+#viewer-shell {
+  min-width: 0;
+}
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.viewer-mode {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.viewer-mode button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+.viewer-mode button[aria-pressed="true"] {
+  color: var(--surface);
+  background: var(--ink);
+}
+.viewer-viewport {
+  display: flex;
+  align-items: center;
+  height: clamp(320px, calc(100dvh - 360px), 720px);
+  position: relative;
+  overflow: auto;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    color-mix(in srgb, var(--soft) 90%, var(--surface)),
+    var(--bg)
+  );
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.viewer-viewport.is-zoomed {
+  touch-action: pan-x pan-y;
+}
+.viewer-viewport.showing-cover {
+  overflow: hidden;
+}
+.viewer-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: auto;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+#viewer-cover-art {
+  max-width: 100%;
+}
+#viewer-cover-art .binder-cover-art {
+  width: 100%;
+  box-shadow: 0 20px 36px #0003;
+}
+#viewer-cover-count {
+  font-size: 13px;
+  color: var(--muted);
+}
+.viewer-page-art {
+  position: relative;
+  margin: auto;
+  flex-shrink: 0;
+}
+.viewer-sheet {
+  position: absolute;
+  top: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--soft));
+  box-shadow:
+    0 12px 28px #0002,
+    inset 0 0 0 1px var(--line);
+}
+.viewer-sheet-pockets {
+  position: absolute;
+}
+.viewer-sheet-number {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+}
+.viewer-sheet.is-blank {
+  background: linear-gradient(110deg, var(--surface), var(--soft));
+}
+.viewer-spine {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  background: linear-gradient(90deg, #0001, transparent 45%, #0001);
+  pointer-events: none;
+}
+.viewer-spine span {
+  display: block;
+  width: 80%;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(#a2a6af, #5c6069);
+  box-shadow: 0 2px 3px #0003;
+}
+.viewer-pocket {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+}
+button.viewer-pocket {
+  cursor: zoom-in;
+  touch-action: manipulation;
+}
+.viewer-pocket svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+button.viewer-pocket:focus-visible {
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.viewer-navigation,
+.viewer-zoom {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+.viewer-picker select {
+  width: 190px;
+}
+.viewer-zoom label {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.viewer-zoom input {
+  width: 100px;
+  min-width: 0;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+.viewer-status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 16px;
+}
+.viewer-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 16px 24px 24px;
+  text-align: center;
+}
+.viewer-footer a {
+  color: inherit;
+}
+.viewer-empty {
+  text-align: center;
+  padding: 64px 24px;
+}
+.viewer-empty h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+.viewer-empty p {
+  max-width: 480px;
+  margin: 0 auto 24px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+#viewer-inspect {
+  width: min(560px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+}
+#viewer-inspect::backdrop {
+  background: #11151b99;
+  backdrop-filter: blur(8px);
+}
+.viewer-inspect-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.viewer-inspect-heading h2 {
+  font-size: 22px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+#viewer-inspect-close {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+#viewer-inspect-art {
+  text-align: center;
+}
+#viewer-inspect-art :is(img, svg) {
+  display: block;
+  width: min(340px, 100%);
+  height: auto;
+  max-height: 65dvh;
+  object-fit: contain;
+  margin: auto;
+}
+#viewer-inspect-meta {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+#viewer-main:fullscreen {
+  background: var(--bg);
+  max-width: none;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+#viewer-main:fullscreen #viewer-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#viewer-main:fullscreen .viewer-viewport {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+@media (max-width: 800px) {
+  .viewer-header {
+    padding: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .viewer-header .brand {
+    font-size: 22px;
+  }
+  .viewer-header > a.button {
+    order: 2;
+    width: 100%;
+  }
+  #viewer-main {
+    padding: 20px 16px;
+  }
+  .viewer-heading h1 {
+    font-size: 24px;
+  }
+  .viewer-mode button {
+    padding-inline: 14px;
+  }
+  .viewer-viewport {
+    height: clamp(280px, calc(100dvh - 420px), 620px);
+    border-radius: 16px;
+  }
+  .viewer-controls {
+    padding: 12px;
+    gap: 12px;
+  }
+  .viewer-navigation {
+    width: 100%;
+    gap: 8px;
+  }
+  .viewer-navigation .button {
+    padding-inline: 10px;
+    flex-shrink: 0;
+  }
+  .viewer-picker {
+    min-width: 0;
+    flex: 1;
+  }
+  .viewer-picker select {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+  .viewer-zoom {
+    width: 100%;
+    gap: 8px;
+  }
+  .viewer-zoom input {
+    flex: 1;
+  }
+  .viewer-header select {
+    font-size: 16px;
+  }
+  #viewer-inspect {
+    padding: 16px;
+  }
+  .viewer-inspect-heading h2 {
+    font-size: 20px;
+  }
+}
+@media (max-width: 360px) {
+  .viewer-mode button {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+  .viewer-toolbar {
+    gap: 8px;
+  }
+  .viewer-toolbar .button {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .viewer-page *,
+  .viewer-page *::before,
+  .viewer-page *::after {
+    scroll-behavior: auto !important;
+  }
+}

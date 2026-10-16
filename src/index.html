@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pokedex — Your collection. Your way.</title>
+    <meta
+      name="description"
+      content="A personal canvas for Pokémon cards. Arrange, customize, discover, collect, and share."
+    />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/hero-carousel.css" />
+    <link rel="stylesheet" href="styles/arrange.css" />
+    <link rel="stylesheet" href="styles/layout-and-spacing.css" />
+    <link rel="stylesheet" href="styles/light-theme.css" />
+    <link rel="stylesheet" href="styles/dark-theme.css" />
+    <link rel="stylesheet" href="styles/site-footer.css" />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/site-system.css" />
+    <link rel="stylesheet" href="styles/landing-responsive.css" />
+    <link rel="stylesheet" href="styles/landing-showcase.css" />
+    <link rel="stylesheet" href="styles/landing-motion.css" />
+    <link rel="stylesheet" href="styles/landing-tail.css" />
+    <link rel="stylesheet" href="styles/landing-support.css" />
+    <link rel="stylesheet" href="styles/landing-consistency.css" />
+    <link rel="stylesheet" href="styles/binder-covers.css" />
+    <link rel="stylesheet" href="styles/cover-consistency.css" />
+    <link rel="stylesheet" href="styles/customize-lessons.css" />
+    <script src="scripts/theme.js"></script>
+  </head>
+  <body class="landing-page">
+    <a class="landing-skip" href="#intro">Skip to content</a>
+    <header class="topbar">
+      <a class="brand" href="#intro">
+        <span class="mark" aria-hidden="true"></span>
+        Pokedex
+      </a>
+      <button
+        type="button"
+        class="landing-menu-toggle"
+        aria-expanded="false"
+        aria-controls="landing-navigation"
+        hidden
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+        Menu
+      </button>
+      <nav id="landing-navigation" aria-label="Main navigation">
+        <a href="#arrange">Arrange</a>
+        <a href="#customize">Customize</a>
+        <a href="#discover">Discover</a>
+        <a href="#collect">Collect</a>
+        <a href="#share">Share</a>
+        <label class="theme-control">
+          <select id="theme-choice" aria-label="Color theme">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="system">System</option>
+          </select>
+        </label>
+        <a class="cta" href="workspace.html">
+          Explore Pokedex
+          <span>↗</span>
+        </a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero" id="intro">
+        <div>
+          <h1>
+            Your collection.
+            <br />
+            <span>Your way.</span>
+          </h1>
+          <p>Build and personalize your Pokémon card binders online.</p>
+          <div class="hero-actions">
+            <a class="cta" href="workspace.html">
+              Create your binder
+              <span>↗</span>
+            </a>
+            <a class="text-link" href="#customize">Find your style</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div
+            class="binder-carousel"
+            id="binder-carousel"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Six sample Pokémon binders"
+          >
+            <div
+              class="binder-wheel"
+              aria-label="Drag left or right to browse binders"
+            ></div>
+            <div class="binder-controls">
+              <button
+                type="button"
+                data-direction="previous"
+                aria-label="Previous binder"
+              >
+                ←
+              </button>
+              <div class="binder-dots" aria-label="Choose a binder"></div>
+              <button
+                type="button"
+                data-direction="next"
+                aria-label="Next binder"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="chapter" id="arrange" aria-labelledby="arrange-title">
+        <div class="chapter-head">
+          <div><h2 id="arrange-title">A place for every card.</h2></div>
+        </div>
+        <div class="feature-grid" id="arrange-features"></div>
+        <p class="section-upcoming">
+          <strong>Coming soon</strong>
+          <span>Whole-set insertion and automatic arrangement.</span>
+          <a href="#future-arrange">See planned features</a>
+        </p>
+      </section>
+      <section class="chapter" id="customize" aria-labelledby="customize-title">
+        <div class="chapter-head">
+          <div>
+            <span class="eyebrow">Customize · Planned</span>
+            <h2 id="customize-title">Make the page yours.</h2>
+          </div>
+          <p>
+            Your cover, your layout, your artwork.
+            <br />
+            A canvas for whatever you imagine.
+          </p>
+        </div>
+        <div class="feature-grid" id="customize-features"></div>
+        <p class="section-upcoming">
+          <strong>Coming soon</strong>
+          <span>
+            More covers, uploaded card-style artwork and reusable designs.
+          </span>
+          <a href="#future-customize">See planned features</a>
+        </p>
+      </section>
+      <section class="chapter" id="discover" aria-labelledby="discover-title">
+        <div class="chapter-head">
+          <div>
+            <span class="eyebrow">Discover</span>
+            <h2 id="discover-title">Find what fits.</h2>
+          </div>
+          <p>
+            Follow a Pokémon, a color, or an artist.
+            <br />
+            Your next favorite is out there.
+          </p>
+        </div>
+        <div class="feature-grid" id="discover-features"></div>
+        <p class="section-upcoming">
+          <strong>Coming soon</strong>
+          <span>More sets, live prices and better color matching.</span>
+          <a href="#future-discover">See planned features</a>
+        </p>
+      </section>
+      <section class="chapter" id="collect" aria-labelledby="collect-title">
+        <div class="chapter-head">
+          <div>
+            <span class="eyebrow">Collect</span>
+            <h2 id="collect-title">Know your collection.</h2>
+          </div>
+          <p>
+            What you have. What you want.
+            <br />
+            All the details, kept together.
+          </p>
+        </div>
+        <div class="feature-grid" id="collect-features"></div>
+        <p class="section-upcoming">
+          <strong>Coming soon</strong>
+          <span>Set checklists, missing cards and collection value.</span>
+          <a href="#future-collect">See planned features</a>
+        </p>
+      </section>
+      <section class="chapter" id="share" aria-labelledby="share-title">
+        <div class="chapter-head">
+          <div>
+            <span class="eyebrow">Share · Planned</span>
+            <h2 id="share-title">Made to be seen.</h2>
+          </div>
+          <p>
+            Bring your pages into the real world.
+            <br />
+            Or share them with someone who gets it.
+          </p>
+        </div>
+        <div class="feature-grid" id="share-features"></div>
+        <p class="section-upcoming">
+          <strong>Coming soon</strong>
+          <span>Share links, image downloads and printing.</span>
+          <a href="#future-share">See planned features</a>
+        </p>
+      </section>
+      <section class="landing-faq" id="faq" aria-labelledby="faq-title">
+        <div class="support-heading">
+          <h2 id="faq-title">A few things to know.</h2>
+          <p>Quick answers before you start.</p>
+        </div>
+        <div class="faq-answers">
+          <details class="faq-question" open>
+            <summary>
+              <span>Is this a digital or physical binder?</span>
+            </summary>
+            <p>
+              A digital binder. Arrange cards online and track the cards you
+              own.
+            </p>
+          </details>
+          <details class="faq-question">
+            <summary><span>Can I keep my collection private?</span></summary>
+            <p>
+              Your saved binders stay in this browser. Account saves and private
+              sharing come later.
+            </p>
+          </details>
+          <details class="faq-question">
+            <summary><span>Can I print my designs?</span></summary>
+            <p>Not yet. Image exports, PDF and print layouts are planned.</p>
+          </details>
+        </div>
+      </section>
+      <section
+        class="landing-coming-soon"
+        id="coming-soon"
+        aria-labelledby="coming-soon-title"
+      >
+        <div class="support-heading">
+          <h2 id="coming-soon-title">Coming soon</h2>
+          <p>What’s next. No release dates yet.</p>
+        </div>
+        <div class="future-cards">
+          <article class="future-card">
+            <div class="future-card-top">
+              <svg class="support-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"
+                />
+              </svg>
+              <span class="planned-badge">Planned</span>
+            </div>
+            <h3>Better binders</h3>
+            <p>More ways to arrange and personalize your cards.</p>
+            <div class="future-card-details">
+              <details class="roadmap-category" id="future-arrange">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"
+                    />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Arrange</h3>
+                    <span>Sets, sorting and pages</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Add a whole set to a binder</li>
+                  <li>Sort by number, color or evolution</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-customize">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 20l4-1L20 7l-3-3L5 16z M14 7l3 3" />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Customize</h3>
+                    <span>Artwork and saved designs</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>More cover designs</li>
+                  <li>Upload sleeve and toploader artwork</li>
+                  <li>Drag artwork directly to fine-tune its placement</li>
+                  <li>Save designs to use again</li>
+                  <li>Preview designs at print size</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-accessibility">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4 M4 8l8 2 8-2 M12 10v6 M8 22l4-6 4 6"
+                    />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Accessibility</h3>
+                    <span>Easier for everyone</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Independent keyboard accessibility audit</li>
+                  <li>Screen reader testing across devices</li>
+                  <li>Independent contrast and motion audit</li>
+                  <li>Touch controls across devices</li>
+                </ul>
+              </details>
+            </div>
+          </article>
+          <article class="future-card">
+            <div class="future-card-top">
+              <svg class="support-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z M16 16l6 6" />
+              </svg>
+              <span class="planned-badge">Planned</span>
+            </div>
+            <h3>Smarter collecting</h3>
+            <p>More sets, useful checklists and real card prices.</p>
+            <div class="future-card-details">
+              <details class="roadmap-category" id="future-discover">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z M16 16l6 6"
+                    />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Discover</h3>
+                    <span>More cards and real prices</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>English cards from 2010 onward</li>
+                  <li>New sets added as they release</li>
+                  <li>
+                    Automatic artwork colour analysis across the full catalogue
+                  </li>
+                  <li>Prices by condition and grade</li>
+                  <li>View past prices</li>
+                  <li>Japanese cards</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-collect">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 4h16v16H4z M8 9l2 2 5-5 M8 16h8" />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Collect</h3>
+                    <span>Checklists and card values</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Choose your set checklist</li>
+                  <li>See which cards you are missing</li>
+                  <li>Track collection value</li>
+                  <li>View past collection values</li>
+                  <li>Identify graded copies by certification number</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-browsing">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 12h16 M12 4l8 8-8 8" />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Smooth browsing</h3>
+                    <span>Faster browsing</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Quick searches across large sets</li>
+                  <li>Continuous scrolling across the full catalogue</li>
+
+                  <li>Limits to keep the site running smoothly</li>
+                </ul>
+              </details>
+            </div>
+          </article>
+          <article class="future-card">
+            <div class="future-card-top">
+              <svg class="support-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M8 12l8-5 M8 12l8 5 M5 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M19 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M19 20a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
+                />
+              </svg>
+              <span class="planned-badge">Planned</span>
+            </div>
+            <h3>Share your collection</h3>
+            <p>Share links, download designs and save across devices.</p>
+            <div class="future-card-details">
+              <details class="roadmap-category" id="future-share">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M8 12l8-5 M8 12l8 5 M5 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M19 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M19 20a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
+                    />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>View & share</h3>
+                    <span>Links, downloads and printing</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Share a binder with a link</li>
+                  <li>Turn shared links off or replace them</li>
+                  <li>Update shared views when you save</li>
+                  <li>Download page images</li>
+                  <li>Download PDFs and print designs</li>
+                  <li>Report shared artwork</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-account">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M4 21v-2a8 8 0 0 1 16 0v2"
+                    />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Your account</h3>
+                    <span>Sign-in and saved collections</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Google sign-in</li>
+                  <li>Save across devices</li>
+                  <li>Account binder limits</li>
+                  <li>Recover conflicting saves</li>
+                  <li>Download all of your account data</li>
+                  <li>Delete your account</li>
+                </ul>
+              </details>
+              <details class="roadmap-category" id="future-help">
+                <summary>
+                  <svg
+                    class="support-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 3l8 3v6c0 4-8 9-8 9s-8-5-8-9V6z" />
+                  </svg>
+                  <span class="roadmap-category-copy">
+                    <h3>Help & privacy</h3>
+                    <span>Answers and privacy</span>
+                  </span>
+                </summary>
+                <ul>
+                  <li>Simple help guides</li>
+                  <li>Contact and reporting links</li>
+                  <li>Privacy and data information</li>
+                  <li>Explain browser and account saves</li>
+                </ul>
+              </details>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="closing">
+        <h2>Start your next binder.</h2>
+        <a class="cta" href="workspace.html">
+          Create your binder
+          <span>↗</span>
+        </a>
+      </section>
+    </main>
+    <footer class="footer compact-footer site-footer">
+      <div>
+        <a class="brand" href="#intro">
+          <span class="mark" aria-hidden="true"></span>
+          Pokedex
+        </a>
+        <p>Made for the joy of collecting.</p>
+      </div>
+      <div>
+        <h3>Explore</h3>
+        <div class="footer-explore">
+          <a href="#arrange">Arrange</a>
+          <a href="#customize">Customize</a>
+          <a href="#discover">Discover</a>
+          <a href="#collect">Collect</a>
+          <a href="#share">Share</a>
+        </div>
+      </div>
+      <div>
+        <h3>Help &amp; information</h3>
+        <a href="#faq">Frequently asked questions</a>
+        <a href="#coming-soon">Coming soon</a>
+      </div>
+      <div class="legal">
+        <span>
+          Independent fan project. Pokémon © Nintendo / Creatures Inc. / GAME
+          FREAK inc.
+          <br />
+          Not affiliated with the rights holders.
+        </span>
+        <span>
+          Card images:
+          <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a>
+          <br />
+          Sample artwork:
+          <a
+            href="https://www.pokemon.com/us/news/pokemon-virtual-backgrounds"
+            target="_blank"
+            rel="noopener"
+          >
+            Pokémon
+          </a>
+        </span>
+      </div>
+    </footer>
+    <script src="scripts/landing-navigation.js"></script>
+    <script src="scripts/demo-motion.js"></script>
+    <script src="data/sample-cards.js"></script>
+    <script src="scripts/binder-geometry.js"></script>
+    <script src="scripts/binder-covers.js"></script>
+    <script src="scripts/binder-visuals.js"></script>
+    <script src="data/sample-artwork.js"></script>
+    <script src="scripts/customize-demos.js"></script>
+    <script src="data/hero-binders.js"></script>
+    <script src="scripts/hero-carousel.js"></script>
+    <script src="scripts/arrange-demos.js"></script>
+    <script src="scripts/discover-demo.js"></script>
+    <script src="scripts/collection-and-share-demos.js"></script>
+    <script src="scripts/ui-controls.js"></script>
+    <script src="scripts/landing-transitions.js"></script>
+  </body>
+</html>

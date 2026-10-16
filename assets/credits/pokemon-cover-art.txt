@@ -1,0 +1,7 @@
+Grookey virtual background — © 2020 Pokémon.
+Downloaded 2026-10-14 from the official Pokémon virtual background collection:
+https://www.pokemon.com/us/news/pokemon-virtual-backgrounds
+Original image:
+https://mcdn.pokemon.com/pokemon-prod/raw/upload/v1/live/static-assets/content-assets/cms2/img/misc/virtual-backgrounds/pokemon/grookey.jpg
+Used as a local sample in this independent fan-project prototype. This is copyrighted Pokémon artwork, not CC0/public-domain artwork.
+The original image is retained unchanged; the preview uses CSS object-position to keep Grookey visible.

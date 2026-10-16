@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Explore Pokémon card printings, artwork, and sample price-checking controls."
+    />
+    <title>Discover — Pokedex</title>
+    <link rel="stylesheet" href="styles/workspace.css" />
+    <link rel="stylesheet" href="styles/app-header.css" />
+    <link rel="stylesheet" href="styles/collection.css" />
+    <link rel="stylesheet" href="styles/site-footer.css" />
+    <link rel="stylesheet" href="styles/fonts.css" />
+    <link rel="stylesheet" href="styles/site-system.css" />
+    <link rel="stylesheet" href="styles/discover.css" />
+    <link rel="stylesheet" href="styles/discover-responsive.css" />
+    <link rel="stylesheet" href="styles/discover-sets.css" />
+    <link rel="stylesheet" href="styles/app-shell.css" />
+    <script src="scripts/theme.js"></script>
+  </head>
+  <body class="discover-page">
+    <a class="skip-link" href="#main">Skip to Discover</a>
+    <header class="site-header">
+      <div class="header-main">
+        <a class="brand" href="index.html">
+          <span class="brand-ball" aria-hidden="true"></span>
+          Pokedex
+        </a>
+        <nav class="app-nav" aria-label="Application navigation">
+          <a href="workspace.html">Workspace</a>
+          <a href="discover.html" aria-current="page">Discover</a>
+        </nav>
+      </div>
+      <div class="header-tools">
+        <select id="theme-choice" aria-label="Color theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+        <details class="account">
+          <summary aria-label="Sample account menu">
+            <span class="avatar" aria-hidden="true">P</span>
+            <span>Sample account</span>
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div class="account-panel">
+            <strong>Sample account</strong>
+            <p>
+              This is a frontend preview. Google sign-in will be connected
+              later.
+            </p>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <main id="main" class="discover-main">
+      <div class="discover-heading">
+        <h1>
+          Discover
+          <span class="title-dot">.</span>
+        </h1>
+        <p id="catalogue-note">
+          Sample catalogue · full catalogue and live prices coming later.
+        </p>
+      </div>
+      <div id="discover-collection-bar" class="discover-collection-bar" hidden>
+        <span
+          id="discover-collection-status"
+          role="status"
+          aria-live="polite"
+        ></span>
+        <button
+          id="discover-collection-save"
+          class="button primary"
+          type="button"
+        >
+          Save collection
+        </button>
+        <button
+          id="discover-collection-undo"
+          class="button secondary"
+          type="button"
+        >
+          Undo
+        </button>
+        <button
+          id="discover-collection-download"
+          class="button secondary"
+          type="button"
+        >
+          Download edits
+        </button>
+        <a id="discover-workspace-collection" href="workspace.html">
+          My collection ↗
+        </a>
+      </div>
+      <div
+        class="discover-views tabs"
+        role="tablist"
+        aria-label="Browse catalogue"
+      >
+        <button
+          id="cards-tab"
+          type="button"
+          role="tab"
+          aria-controls="discover-cards-panel"
+          aria-selected="true"
+        >
+          Cards
+        </button>
+        <button
+          id="sets-tab"
+          type="button"
+          role="tab"
+          aria-controls="discover-sets-panel"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          Sets
+        </button>
+      </div>
+      <div
+        id="discover-cards-panel"
+        role="tabpanel"
+        aria-labelledby="cards-tab"
+      >
+        <button
+          id="back-to-sets"
+          class="button secondary back-to-sets"
+          type="button"
+          hidden
+        >
+          Back to sets
+        </button>
+        <div class="discover-toolbar">
+          <form id="search-form" class="discover-search" role="search">
+            <label class="search">
+              <span aria-hidden="true">⌕</span>
+              <input
+                id="card-query"
+                type="search"
+                placeholder="Search cards, numbers, or sets"
+                aria-label="Search cards by name, card number, or set"
+                maxlength="120"
+              />
+            </label>
+            <button class="button primary" type="submit">Search</button>
+          </form>
+          <details id="filters-panel" class="discover-filters">
+            <summary id="filters-title">
+              Filters
+              <span id="filter-count"></span>
+            </summary>
+            <form id="filters-form">
+              <div class="filter-fields">
+                <label class="field">
+                  Set
+                  <select id="set-filter">
+                    <option value="">All sets</option>
+                  </select>
+                </label>
+                <label class="field">
+                  Type
+                  <select id="type-filter">
+                    <option value="">All types</option>
+                  </select>
+                </label>
+                <label class="field">
+                  Rarity
+                  <select id="rarity-filter">
+                    <option value="">All rarities</option>
+                  </select>
+                </label>
+                <label class="field">
+                  Finish
+                  <select id="finish-filter">
+                    <option value="">All finishes</option>
+                  </select>
+                </label>
+              </div>
+              <button
+                id="clear-filters"
+                class="button secondary clear-filters"
+                type="button"
+                disabled
+              >
+                Clear search &amp; filters
+              </button>
+            </form>
+          </details>
+          <label>
+            Sort
+            <select id="sort-order">
+              <option value="name">Name A–Z</option>
+              <option value="set">Set, then name</option>
+              <option value="number">Set, then number</option>
+              <option value="color" hidden disabled>Closest color</option>
+            </select>
+          </label>
+        </div>
+        <div class="color-section">
+          <h3>Match a color</h3>
+          <label>
+            <input id="color-enabled" type="checkbox" />
+            Rank by color
+          </label>
+          <div class="color-swatches" role="group" aria-label="Color shortcuts">
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#7eac91"
+              style="--swatch: #7eac91"
+              aria-label="Match green"
+              title="Match green"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#5f9bc2"
+              style="--swatch: #5f9bc2"
+              aria-label="Match blue"
+              title="Match blue"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#cf5d6a"
+              style="--swatch: #cf5d6a"
+              aria-label="Match red"
+              title="Match red"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#b8afe0"
+              style="--swatch: #b8afe0"
+              aria-label="Match lavender"
+              title="Match lavender"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#e1bf62"
+              style="--swatch: #e1bf62"
+              aria-label="Match yellow"
+              title="Match yellow"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#525762"
+              style="--swatch: #525762"
+              aria-label="Match charcoal"
+              title="Match charcoal"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="color-swatch"
+              data-color="#ddd5bf"
+              style="--swatch: #ddd5bf"
+              aria-label="Match cream"
+              title="Match cream"
+              aria-pressed="false"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="color-control">
+            <input
+              id="chosen-color"
+              type="color"
+              value="#7eac91"
+              aria-label="Color to match"
+            />
+            <output id="color-value" for="chosen-color">#7EAC91</output>
+          </div>
+          <p>Curated sample palettes · artwork analysis coming later.</p>
+        </div>
+        <div class="discover-layout">
+          <section class="results-main" aria-labelledby="results-heading">
+            <div class="results-toolbar">
+              <h2 id="results-heading" tabindex="-1">
+                <span id="result-count" role="status" aria-live="polite">
+                  Loading cards…
+                </span>
+              </h2>
+            </div>
+            <div
+              id="active-filters"
+              class="active-filters"
+              aria-label="Active filters"
+            ></div>
+            <div id="results-state" class="discover-state" role="status">
+              Loading sample catalogue…
+            </div>
+            <button id="retry" class="button secondary" type="button" hidden>
+              Reload page
+            </button>
+            <div
+              id="card-grid"
+              class="discover-grid"
+              aria-label="Card search results"
+            ></div>
+            <div id="no-results" class="discover-state" hidden>
+              <h3>No matching cards</h3>
+              <p>
+                Try a different name or number, or remove a filter. This preview
+                contains a small sample catalogue.
+              </p>
+              <button
+                id="no-results-clear"
+                class="button secondary"
+                type="button"
+              >
+                Clear search &amp; filters
+              </button>
+            </div>
+            <div id="pagination" class="pagination">
+              <button
+                id="previous-results"
+                class="button secondary"
+                type="button"
+                disabled
+              >
+                Previous
+              </button>
+              <span id="page-status">Page 1</span>
+              <button id="next-results" class="button secondary" type="button">
+                Next
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+      <section
+        id="discover-sets-panel"
+        role="tabpanel"
+        aria-labelledby="sets-tab"
+        hidden
+      >
+        <div class="sets-toolbar">
+          <div>
+            <h2>Browse sets</h2>
+            <p>Explore sample cards. Full sets are coming later.</p>
+          </div>
+          <label class="search">
+            <input
+              id="set-query"
+              type="search"
+              maxlength="120"
+              placeholder="Find a set"
+              aria-label="Search available sample sets"
+            />
+          </label>
+        </div>
+        <p
+          id="sets-count"
+          class="sets-count"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <div id="sets-grid" class="sets-grid"></div>
+        <div id="sets-empty" class="sets-empty" hidden>
+          <p>No sample sets match your search.</p>
+          <button id="reset-set-search" class="button secondary" type="button">
+            Clear search
+          </button>
+        </div>
+        <div class="sets-future" aria-labelledby="future-sets-title">
+          <h3 id="future-sets-title">On the horizon</h3>
+          <div class="sets-future-grid">
+            <article class="future-set">
+              <span class="set-coming">Coming later</span>
+              <h4>More English sets</h4>
+              <p>The full catalogue of printings from 2010 onward.</p>
+            </article>
+            <article class="future-set">
+              <span class="set-coming">Coming later</span>
+              <h4>Japanese sets</h4>
+              <p>A future addition after the English catalogue.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <p
+        id="discover-message"
+        class="discover-message"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </main>
+    <footer class="app-footer">
+      <span>
+        Independent fan project. Pokémon © Nintendo / Creatures Inc. / GAME
+        FREAK inc. Not affiliated with the rights holders.
+      </span>
+      <span>
+        Card images:
+        <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a>
+        · Sample artwork:
+        <a
+          href="https://www.pokemon.com/us/news/pokemon-virtual-backgrounds"
+          target="_blank"
+          rel="noopener"
+        >
+          Pokémon
+        </a>
+      </span>
+      <a href="index.html#faq">FAQ</a>
+    </footer>
+    <dialog
+      id="details-dialog"
+      class="details-dialog"
+      aria-labelledby="detail-title"
+      aria-describedby="detail-set"
+    >
+      <div class="details-topbar">
+        <span>Card details</span>
+        <button
+          id="close-details"
+          class="icon-button"
+          type="button"
+          aria-label="Close card details"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 6L18 18M18 6L6 18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="detail-scroll">
+        <div class="detail-layout">
+          <button
+            id="view-image"
+            class="image-launch"
+            type="button"
+            aria-label="View larger card image with zoom"
+          >
+            <div id="detail-art"></div>
+            <span>View larger image ↗</span>
+          </button>
+          <div class="detail-info">
+            <h2 id="detail-title" tabindex="-1"></h2>
+            <p id="detail-set" class="detail-set"></p>
+            <dl id="card-facts" class="card-facts"></dl>
+            <label class="field">
+              Finish
+              <select id="detail-finish"></select>
+            </label>
+            <div class="detail-actions">
+              <button id="add-to-binder" class="button primary" type="button">
+                Add to binder
+              </button>
+              <button
+                id="add-to-collection"
+                class="button secondary"
+                type="button"
+              >
+                Add to collection
+              </button>
+              <button
+                id="detail-collection-save"
+                class="button primary"
+                type="button"
+                hidden
+              >
+                Save collection
+              </button>
+              <button
+                id="detail-collection-undo"
+                class="button secondary"
+                type="button"
+                hidden
+              >
+                Undo
+              </button>
+              <a id="open-workspace-collection" href="workspace.html">
+                Choose in My collection ↗
+              </a>
+              <a
+                id="provider-link"
+                href="https://tcgdex.dev/rest"
+                target="_blank"
+                rel="noopener"
+              >
+                TCGdex card data ↗
+              </a>
+            </div>
+            <details class="price-checker" aria-labelledby="price-title">
+              <summary class="price-heading disclosure-button">
+                <h3 id="price-title">Price checker</h3>
+                <span class="sample-badge">Fictional example · USD</span>
+              </summary>
+              <div class="price-fields">
+                <label>
+                  Card status
+                  <select id="price-mode">
+                    <option value="raw">Raw / ungraded</option>
+                    <option value="graded">Graded</option>
+                  </select>
+                </label>
+                <div id="raw-fields">
+                  <label>
+                    Condition
+                    <select id="card-condition">
+                      <option value="unknown">Unknown</option>
+                      <option value="nm">Near Mint</option>
+                      <option value="lp">Lightly Played</option>
+                      <option value="mp">Moderately Played</option>
+                      <option value="hp">Heavily Played</option>
+                      <option value="damaged">Damaged</option>
+                    </select>
+                  </label>
+                </div>
+                <div id="graded-fields" class="graded-fields" hidden>
+                  <label>
+                    Company
+                    <select id="grading-company">
+                      <option>PSA</option>
+                      <option>BGS</option>
+                      <option>CGC</option>
+                    </select>
+                  </label>
+                  <label>
+                    Grade
+                    <select id="card-grade">
+                      <option>8</option>
+                      <option selected>9</option>
+                      <option>10</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <p
+                id="price-value"
+                class="price-value"
+                role="status"
+                aria-live="polite"
+              >
+                No example selected
+              </p>
+              <p id="price-context" class="price-context"></p>
+              <p id="price-source" class="price-source"></p>
+            </details>
+            <p id="detail-message" class="detail-message"></p>
+          </div>
+        </div>
+        <section class="related-section" aria-labelledby="related-title">
+          <h3 id="related-title">Related printings</h3>
+          <p id="related-description"></p>
+          <div id="related-list" class="related-list"></div>
+        </section>
+      </div>
+    </dialog>
+    <dialog
+      id="image-dialog"
+      class="image-dialog"
+      aria-labelledby="image-title"
+    >
+      <div class="image-topbar">
+        <div>
+          <h2 id="image-title">Card image</h2>
+          <p id="image-printing"></p>
+        </div>
+        <button
+          id="close-image"
+          class="icon-button"
+          type="button"
+          aria-label="Close image viewer"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M6 6L18 18M18 6L6 18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="image-controls">
+        <button
+          id="image-zoom-out"
+          class="button secondary"
+          type="button"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+        <label for="image-zoom">Zoom</label>
+        <input
+          id="image-zoom"
+          type="range"
+          min="1"
+          max="3"
+          step="0.25"
+          value="1"
+        />
+        <output id="image-zoom-value" for="image-zoom">100%</output>
+        <button
+          id="image-zoom-in"
+          class="button secondary"
+          type="button"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        <button id="image-fit" class="button secondary" type="button">
+          Fit image
+        </button>
+      </div>
+      <div
+        id="image-viewport"
+        class="image-viewport"
+        tabindex="0"
+        role="region"
+        aria-label="Card image; scroll to explore when zoomed"
+      >
+        <img id="zoomed-image" alt="" />
+      </div>
+      <p
+        id="image-status"
+        class="image-status"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </dialog>
+    <dialog
+      id="placement-dialog"
+      aria-labelledby="placement-title"
+      aria-describedby="placement-card"
+    >
+      <h2 id="placement-title">Add to binder</h2>
+      <p id="placement-card" class="placement-copy"></p>
+      <div class="placement-fields">
+        <label class="field">
+          Binder
+          <select id="target-binder"></select>
+        </label>
+        <label class="field">
+          Page
+          <select id="target-page"></select>
+        </label>
+      </div>
+      <p class="placement-copy">
+        The editor opens with this card ready to place. Choose a pocket, then
+        Save. No binder changes happen here.
+      </p>
+      <a id="placement-workspace" href="workspace.html" hidden>
+        Create a binder in Workspace
+      </a>
+      <p id="placement-error" class="form-error" role="status"></p>
+      <div class="dialog-actions">
+        <button id="placement-cancel" class="button secondary" type="button">
+          Back
+        </button>
+        <button id="placement-confirm" class="button primary" type="button">
+          Open editor
+        </button>
+      </div>
+    </dialog>
+    <dialog
+      id="inventory-dialog"
+      class="inventory-dialog"
+      aria-labelledby="inventory-title"
+    >
+      <form id="inventory-form" class="inventory-form">
+        <h2 id="inventory-title">Add cards</h2>
+        <p>Changes stay in this session until you click Save collection.</p>
+        <p id="inventory-record-context"></p>
+        <div class="collection-entry-layout">
+          <section
+            id="inventory-picker-area"
+            aria-label="Choose a card printing"
+          >
+            <div class="collection-picker-heading">
+              <label class="field">
+                Find a printing
+                <input
+                  id="inventory-card-search"
+                  type="search"
+                  placeholder="Name, set, or number"
+                />
+              </label>
+              <a
+                id="inventory-browse-discover"
+                href="discover.html"
+                target="_blank"
+                rel="noopener"
+              >
+                Browse Discover ↗
+              </a>
+            </div>
+            <select id="inventory-card" hidden>
+              <option value="">Choose a printing</option>
+            </select>
+            <p id="inventory-picker-results" role="status"></p>
+            <div
+              id="inventory-card-grid"
+              class="collection-card-grid"
+              role="group"
+              aria-label="Sample card printings"
+            ></div>
+            <p id="inventory-picker-empty" hidden>
+              No matching printings. Try another name, set, or number.
+            </p>
+          </section>
+          <div class="collection-entry-details">
+            <div id="inventory-preview" class="inventory-preview"></div>
+            <p
+              id="inventory-ownership-context"
+              class="inventory-ownership-context"
+              hidden
+            ></p>
+            <div
+              class="collection-switch inventory-kind-switch"
+              role="group"
+              aria-label="Record as"
+            >
+              <button
+                id="inventory-owned-choice"
+                type="button"
+                aria-pressed="true"
+              >
+                Owned
+              </button>
+              <button
+                id="inventory-wanted-choice"
+                type="button"
+                aria-pressed="false"
+              >
+                Wanted
+              </button>
+            </div>
+            <div class="inventory-quick-fields">
+              <label class="field">
+                Finish
+                <select id="inventory-finish">
+                  <option value="unknown">Unknown</option>
+                </select>
+              </label>
+              <label class="field">
+                Quantity
+                <input
+                  id="inventory-quantity"
+                  type="number"
+                  min="1"
+                  max="999"
+                  step="1"
+                  value="1"
+                  required
+                />
+              </label>
+            </div>
+            <details id="inventory-more-details" class="inventory-more-details">
+              <summary>More details</summary>
+              <select id="inventory-kind" hidden>
+                <option value="owned">Owned</option>
+                <option value="wanted">Wanted</option>
+              </select>
+              <div id="owned-fields">
+                <label class="field">
+                  Card status
+                  <select id="inventory-status">
+                    <option value="raw">Raw / ungraded</option>
+                    <option value="graded">Graded</option>
+                  </select>
+                </label>
+                <label id="inventory-condition-label" class="field">
+                  Condition
+                  <select id="inventory-condition">
+                    <option value="unknown">Unknown</option>
+                    <option value="nm">Near Mint</option>
+                    <option value="lp">Lightly Played</option>
+                    <option value="mp">Moderately Played</option>
+                    <option value="hp">Heavily Played</option>
+                    <option value="damaged">Damaged</option>
+                  </select>
+                </label>
+                <div
+                  id="inventory-grading-fields"
+                  class="inventory-two-fields"
+                  hidden
+                >
+                  <label class="field">
+                    Grading company
+                    <select id="inventory-company">
+                      <option value="">Choose company</option>
+                      <option>PSA</option>
+                      <option>BGS</option>
+                      <option>CGC</option>
+                      <option>Other</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    Grade / label
+                    <input
+                      id="inventory-grade"
+                      type="text"
+                      maxlength="20"
+                      placeholder="e.g. 9, 9.5, Authenticated"
+                    />
+                  </label>
+                </div>
+                <label class="field">
+                  Trade status
+                  <select id="inventory-trade">
+                    <option value="keep">Keep</option>
+                    <option value="trade">For trade</option>
+                    <option value="sale">For sale</option>
+                  </select>
+                </label>
+              </div>
+              <div id="wanted-fields" hidden>
+                <label class="inventory-check">
+                  <input id="inventory-chase" type="checkbox" />
+                  This is a chase card
+                </label>
+              </div>
+              <label class="field">
+                Notes
+                <span>Optional · up to 2,000 characters</span>
+                <textarea
+                  id="inventory-notes"
+                  maxlength="2000"
+                  rows="3"
+                ></textarea>
+              </label>
+            </details>
+          </div>
+        </div>
+        <p
+          id="inventory-form-error"
+          class="form-error"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <div class="dialog-actions">
+          <button
+            id="inventory-delete"
+            class="button danger"
+            type="button"
+            hidden
+          >
+            Remove record
+          </button>
+          <button id="inventory-cancel" class="button secondary" type="button">
+            Cancel
+          </button>
+          <button id="inventory-apply" class="button primary" type="submit">
+            Add copies
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <a id="editor-route" href="editor.html" hidden>Binder editor</a>
+    <script src="data/sample-cards.js"></script>
+    <script src="data/sample-card-details.js"></script>
+    <script src="data/sample-binders.js"></script>
+    <script src="scripts/binder-schema.js"></script>
+    <script src="scripts/binder-store.js"></script>
+    <script src="scripts/discover-core.js"></script>
+    <script src="data/sample-collection.js"></script>
+    <script src="scripts/collection-state.js"></script>
+    <script src="scripts/collection-ui.js"></script>
+    <script src="scripts/collection-form.js"></script>
+    <script src="scripts/discover-collection.js"></script>
+    <script src="scripts/discover.js"></script>
+    <script src="scripts/discover-sets.js"></script>
+    <script src="scripts/ui-controls.js"></script>
+  </body>
+</html>

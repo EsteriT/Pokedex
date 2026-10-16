@@ -1,0 +1,481 @@
+/* Secondary design tools stay in contextual views. */
+.studio-preview-button {
+  width: 100%;
+  margin-bottom: 16px;
+  min-height: 44px;
+}
+.studio-action-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.studio-dialog {
+  width: min(700px, calc(100% - 32px));
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.studio-dialog::backdrop {
+  background: #11151b99;
+  backdrop-filter: blur(8px);
+}
+.studio-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.studio-dialog-heading h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  margin: 0;
+}
+.studio-close {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.studio-close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.duplicate-options {
+  display: grid;
+  gap: 12px;
+}
+.duplicate-option {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 12px;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.duplicate-option span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.duplicate-option:hover,
+.duplicate-option:focus-visible {
+  border-color: var(--accent);
+}
+.binder-view-dialog {
+  width: min(960px, calc(100% - 32px));
+}
+.binder-view-stage {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  height: min(64dvh, 650px);
+  padding: 24px;
+  background: radial-gradient(ellipse, var(--surface), var(--soft));
+  border-radius: 12px;
+  overflow: hidden;
+}
+.binder-view-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.binder-view-content > .binder-cover-art {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 3/4;
+  flex-shrink: 0;
+}
+.binder-view-content > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.binder-view-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+#view-page-count {
+  font-size: 12px;
+  text-align: center;
+}
+.inspect-area {
+  height: min(60dvh, 580px);
+  overflow: auto;
+  background: var(--soft);
+  border-radius: 12px;
+  padding: 24px;
+}
+.inspect-art {
+  height: 100%;
+  min-height: 250px;
+  display: flex;
+  justify-content: center;
+}
+.inspect-art svg {
+  min-height: 100%;
+  flex-shrink: 0;
+}
+.inspect-meta {
+  font-size: 12px;
+  margin: 16px 0;
+  color: var(--muted);
+}
+.inspect-zoom {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+}
+.inspect-zoom input {
+  flex: 1;
+}
+.custom-cover-controls {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.custom-cover-controls summary {
+  font-size: 13px;
+  cursor: pointer;
+}
+.custom-cover-body {
+  display: grid;
+  gap: 16px;
+  padding-top: 16px;
+}
+.studio-upload {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+.studio-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.studio-upload:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.cover-crop-controls,
+.cover-title-controls {
+  display: grid;
+  gap: 12px;
+}
+.cover-title-controls {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.cover-title-visible {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.studio-error {
+  color: var(--accent);
+  font-size: 12px;
+  margin: 0;
+}
+.studio-error:empty {
+  display: none;
+}
+.custom-cover-controls [hidden] {
+  display: none !important;
+}
+.cover-custom-image-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.cover-custom-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.binder-cover-art.has-custom-art {
+  background: #1d2531;
+}
+.has-custom-art .cover-stripe,
+.has-custom-art .cover-mark,
+.has-custom-art .cover-seal {
+  display: none;
+}
+.has-custom-art .cover-spine {
+  z-index: 2;
+  background: linear-gradient(90deg, #0005, #fff2);
+}
+.cover-book-title {
+  z-index: 3;
+  overflow-wrap: anywhere;
+}
+.cover-book-title[hidden] {
+  display: none !important;
+}
+.cover-book-title[data-position="top"] {
+  top: 12%;
+  bottom: auto;
+}
+.cover-book-title[data-position="center"] {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+.cover-book-title[data-position="bottom"] {
+  top: auto;
+  bottom: 10%;
+}
+.cover-book-title[data-size="small"] strong {
+  font-size: clamp(10px, 1.2vw, 14px);
+}
+.cover-book-title[data-size="medium"] strong {
+  font-size: clamp(12px, 1.5vw, 20px);
+}
+.cover-book-title[data-size="large"] strong {
+  font-size: clamp(16px, 2vw, 28px);
+}
+.has-custom-art .cover-book-title {
+  padding: 8px;
+  text-shadow: 0 1px 6px #0008;
+}
+.cover-preview-caption strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.cover-preview-caption {
+  max-width: 100%;
+}
+#cover-selection-status {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 16px 0 0;
+}
+.editor-pocket {
+  transition: filter 140ms ease;
+}
+.editor-pocket svg > path:last-child {
+  transition:
+    stroke 140ms ease,
+    stroke-width 140ms ease;
+}
+.editor-pocket:hover svg > path:last-child,
+.editor-pocket:focus-visible svg > path:last-child {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.editor-pocket.is-selected svg > path:last-child {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.editor-pocket.is-drop-target svg > path:last-child,
+.editor-pocket.can-place:hover svg > path:last-child {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.editor-pocket.is-merged:not(.has-content) svg > path:last-child {
+  stroke-dasharray: 8 4;
+}
+.editor-pocket.just-placed {
+  animation: pocket-settle 350ms ease-out;
+}
+@keyframes pocket-settle {
+  from {
+    opacity: 0.55;
+    filter: brightness(1.15);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: default;
+}
+@media (max-width: 700px) {
+  .studio-dialog {
+    padding: 16px;
+  }
+  .binder-view-stage {
+    height: 52dvh;
+    min-height: 260px;
+    padding: 16px;
+  }
+  .binder-view-nav {
+    gap: 8px;
+  }
+  .binder-view-nav .button {
+    font-size: 12px;
+    padding: 10px;
+  }
+  .studio-dialog-heading h2 {
+    font-size: 18px;
+  }
+  .inspect-area {
+    padding: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-pocket,
+  .editor-pocket svg > path:last-child {
+    transition: none;
+  }
+  .editor-pocket.just-placed {
+    animation: none;
+  }
+}
+
+.pocket-more {
+  position: relative;
+  font-size: 12px;
+}
+.pocket-more summary {
+  cursor: pointer;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  list-style: none;
+}
+.pocket-more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 12;
+  width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 8px 24px #0002;
+  display: grid;
+  gap: 4px;
+}
+.pocket-more-menu .tool-button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+.pocket-more-menu [hidden] {
+  display: none;
+}
+
+@media (min-width: 701px) {
+  .editor-shell.customizing > .canvas-panel {
+    height: min(760px, calc(100dvh - 128px));
+    min-height: 440px;
+  }
+  .editor-shell.customizing > .cover-customizer {
+    max-height: min(760px, calc(100dvh - 128px));
+    min-height: 440px;
+    overflow-y: auto;
+  }
+  .cover-customizer .customizer-actions {
+    position: sticky;
+    bottom: -24px;
+    background: var(--surface);
+    padding: 16px 0 24px;
+    z-index: 5;
+  }
+}
+.inspect-art {
+  margin: 0 auto;
+  flex: none;
+}
+.inspect-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.binder-view-stage {
+  position: relative;
+  perspective: 1200px;
+}
+.departing-cover {
+  position: absolute;
+  inset: 24px;
+  width: auto;
+  height: auto;
+  transform-origin: 25% center;
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .departing-cover {
+    inset: 16px;
+  }
+}
+
+#cover-selection-status {
+  display: block;
+}
+#cover-selection-status[hidden] {
+  display: none !important;
+}
+.cover-image-error {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: white;
+  font-size: 12px;
+}
+
+/* Scroll presets separately; the action row never overlaps artwork. */
+@media (min-width: 701px) {
+  .editor-shell.customizing > .cover-customizer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .customizer-heading,
+  .customizer-tabs,
+  .cover-customizer > .save-actions,
+  .customizer-actions {
+    flex-shrink: 0;
+  }
+  .customizer-design-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding-right: 4px;
+  }
+  .cover-customizer .customizer-actions {
+    position: static;
+    padding: 16px 0 0;
+    margin-top: 16px;
+  }
+}
+.customizer-design-body > #cover-design-controls > .customizer-kicker {
+  margin-top: 0;
+}
+.customizer-design-body > #frame-design-controls > .frame-scope {
+  margin-top: 0;
+}

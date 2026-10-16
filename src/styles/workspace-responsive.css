@@ -1,0 +1,185 @@
+/* Workspace refinement; other pages retain their approved layouts. */
+.workspace-page .card-menu .menu-items {
+  transform: translateX(var(--menu-shift, 0px));
+}
+.workspace-page #binder-grid .card-menu > summary {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+}
+.workspace-page .menu-items {
+  top: 48px;
+}
+.workspace-page .menu-items button {
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.workspace-page .account-panel button {
+  min-height: 44px;
+}
+@media (max-width: 1100px) {
+  .workspace-page .workspace {
+    padding: 32px;
+  }
+  .workspace-page .site-header {
+    padding-inline: 32px;
+    gap: 20px;
+  }
+  .workspace-page .header-main {
+    gap: 24px;
+  }
+  .workspace-page .header-tools {
+    gap: 16px;
+  }
+  .workspace-page .header-tools select {
+    min-height: 44px;
+  }
+  .workspace-page .account summary > span:not(.avatar) {
+    display: none;
+  }
+  .workspace-page #binder-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 24px;
+  }
+  .workspace-page #binder-grid .binder-art.has-cover {
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+  .workspace-page #binder-grid .binder-cover-art {
+    width: 100%;
+    max-width: 230px;
+  }
+  .workspace-page #binder-grid .binder-top h2 {
+    font-size: 16px;
+  }
+  .workspace-page #binder-grid .binder-meta {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .workspace-page #binder-grid .binder-top {
+    gap: 8px;
+  }
+}
+@media (max-width: 620px) {
+  .workspace-page .workspace {
+    padding: 24px 20px 32px;
+  }
+  .workspace-page .site-header {
+    padding: 12px 20px 0;
+    column-gap: 12px;
+  }
+  .workspace-page .site-header .brand {
+    font-size: 22px;
+    gap: 10px;
+  }
+  .workspace-page .header-tools {
+    gap: 8px;
+  }
+  .workspace-page .header-tools select {
+    min-height: 44px;
+    width: 88px;
+    font-size: 14px;
+  }
+  .workspace-page .account summary {
+    min-width: 44px;
+    justify-content: center;
+  }
+  .workspace-page .app-nav {
+    gap: 24px;
+  }
+  .workspace-page .tabs {
+    width: fit-content;
+    margin-bottom: 24px;
+  }
+  .workspace-page #binders-panel .page-heading {
+    margin-bottom: 24px;
+    gap: 16px;
+  }
+  .workspace-page #binders-panel .page-heading p {
+    font-size: 14px;
+    max-width: 480px;
+  }
+  .workspace-page #binders-panel .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .workspace-page #binders-panel .toolbar .search {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .workspace-page #binder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+  .workspace-page #binder-grid .binder-top h2 {
+    font-size: 14px;
+  }
+  .workspace-page #binder-grid .binder-info {
+    padding-top: 12px;
+  }
+  .workspace-page #binder-grid .binder-top {
+    gap: 4px;
+  }
+  .workspace-page #binder-grid .binder-meta {
+    font-size: 14px;
+  }
+  .workspace-page .menu-items {
+    min-width: 180px;
+    max-width: calc(100vw - 32px);
+  }
+  .workspace-page :is(#edit-dialog, #delete-dialog) {
+    width: calc(100% - 24px);
+    max-width: 560px;
+    max-height: calc(100dvh - 24px);
+    padding: 20px;
+    border-radius: 16px;
+    overflow-y: auto;
+  }
+  .workspace-page #edit-dialog input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .workspace-page .layout-fields {
+    gap: 12px;
+  }
+  .workspace-page :is(#edit-dialog, #delete-dialog) .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .workspace-page :is(#edit-dialog, #delete-dialog) .dialog-actions .button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px;
+  }
+}
+@media (max-width: 360px) {
+  .workspace-page .site-header {
+    padding-inline: 16px;
+    column-gap: 8px;
+  }
+  .workspace-page .workspace {
+    padding-inline: 16px;
+  }
+  .workspace-page .site-header .brand {
+    font-size: 20px;
+  }
+  .workspace-page #binder-grid {
+    gap: 24px 12px;
+  }
+}
+
+.workspace-page #create-binder {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 160px;
+}
+.workspace-page .page-heading > div {
+  min-width: 0;
+}

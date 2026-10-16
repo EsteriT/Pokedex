@@ -1,0 +1,92 @@
+/* One proportional drawing at every size: shelf, thumbnail, presets and viewer. */
+.binder-cover-art {
+  container-type: inline-size;
+}
+.binder-cover-art .cover-spine {
+  width: 6%;
+}
+.binder-cover-art .cover-stripe {
+  height: 3.5%;
+}
+.binder-cover-art .cover-seal {
+  width: 26.9%;
+  border-radius: 50%;
+}
+.binder-cover-art .cover-seal-core {
+  width: 65.7%;
+  border-width: 1.9cqw;
+  border-radius: 50%;
+}
+.binder-cover-art .cover-mark {
+  height: 26%;
+  font-size: 26.9cqw;
+}
+.binder-cover-art .cover-great {
+  height: 26%;
+}
+.cover-great .cover-mark::before,
+.cover-great .cover-mark::after {
+  width: 20%;
+  height: 100%;
+  border-radius: 3.8cqw;
+}
+.binder-cover-art.cover-ultra .cover-mark {
+  border-width: 5.4cqw;
+  border-radius: 7.7cqw 7.7cqw 0 0;
+}
+.binder-cover-art .cover-book-title {
+  left: 11.5%;
+  right: 7.7%;
+  gap: 3cqw;
+}
+.binder-cover-art .cover-book-title span {
+  font-size: 3.1cqw;
+  letter-spacing: 0.77cqw;
+}
+.binder-cover-art .cover-book-title strong {
+  font-size: 6.5cqw;
+}
+.binder-cover-art .cover-book-title[data-size="small"] strong {
+  font-size: 5.4cqw;
+}
+.binder-cover-art .cover-book-title[data-size="medium"] strong {
+  font-size: 7.7cqw;
+}
+.binder-cover-art .cover-book-title[data-size="large"] strong {
+  font-size: 10.8cqw;
+}
+.has-custom-art .cover-book-title {
+  padding: 3cqw;
+}
+
+.cover-color-quick {
+  margin: 0 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+.cover-color-quick input[type="color"] {
+  width: 48px;
+  height: 44px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.cover-color-quick .button {
+  font-size: 12px;
+  min-height: 44px;
+}
+
+.binder-cover-art:not(.has-custom-art) .cover-spine {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #0001 0 0.38cqw,
+      transparent 0.38cqw 1.54cqw
+    ),
+    linear-gradient(90deg, #0003, #fff1);
+}

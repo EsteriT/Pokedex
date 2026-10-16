@@ -1,0 +1,404 @@
+.editor-main {
+  padding: 28px 40px 40px;
+  max-width: 1800px;
+  width: 100%;
+  margin: auto;
+  flex: 1;
+}
+
+.save-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.save-actions span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tool-button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 8px 12px;
+  font-size: 12px;
+  min-height: 36px;
+}
+.tool-button:hover:not(:disabled) {
+  background: var(--soft);
+}
+.editor-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 230px;
+  gap: 20px;
+  align-items: start;
+}
+.card-picker,
+.canvas-panel {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.card-picker {
+  padding: 20px;
+  align-self: stretch;
+  contain: size;
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  min-height: 0;
+}
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.editor-shell h2 {
+  font:
+    600 15px/1.4 "Segoe UI",
+    sans-serif;
+  letter-spacing: -0.3px;
+}
+.sample-tag {
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--soft);
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.editor-search input,
+.type-filter select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 10px;
+  font-size: 12px;
+}
+.type-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  margin: 12px 0;
+}
+.result-count {
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.card-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-height: 0;
+  align-content: start;
+  overflow: auto;
+  padding: 4px;
+}
+.catalogue-card {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 4px;
+  text-align: left;
+  min-width: 0;
+}
+.catalogue-card:hover,
+.catalogue-card.is-selected {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.catalogue-card img {
+  width: 100%;
+  aspect-ratio: 245/337;
+  object-fit: contain;
+  border-radius: 5px;
+  display: block;
+}
+.catalogue-card strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 6px;
+}
+.catalogue-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+.panel-hint {
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+
+.selection-status {
+  padding: 12px 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 58px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+}
+.selection-status button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  text-decoration: underline;
+  flex-shrink: 0;
+}
+.canvas-stage {
+  height: 550px;
+  background: var(--soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+}
+.binder-page-editor {
+  position: relative;
+  flex-shrink: 0;
+}
+.editor-pocket {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  overflow: visible;
+}
+.editor-pocket svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.editor-pocket:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.editor-pocket.is-selected {
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+.editor-pocket.is-drop-target {
+  filter: drop-shadow(0 0 5px var(--accent));
+}
+.empty-plus {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.page-strip {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 20px;
+}
+.page-list {
+  display: flex;
+  gap: 6px;
+  overflow: auto;
+  padding: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.page-button {
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.page-button[aria-current="page"] {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+.add-page {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.page-actions button {
+  font-size: 10px;
+  padding: 6px;
+  min-height: 36px;
+}
+.text-danger {
+  color: var(--accent);
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+}
+.overflow-section .panel-heading {
+  margin-bottom: 4px;
+}
+.overflow-section .panel-heading > button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  min-height: 36px;
+}
+.overflow-section h2 span {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 5px;
+}
+.overflow-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 14px;
+}
+.overflow-empty {
+  grid-column: 1/-1;
+  padding: 16px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.editor-message {
+  font-size: 12px;
+  min-height: 24px;
+  margin-top: 16px;
+  color: var(--muted);
+}
+.editor-download {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  text-decoration: underline;
+}
+.empty-results {
+  grid-column: 1/-1;
+  font-size: 12px;
+  padding: 16px 0;
+}
+
+.save-status-dirty {
+  color: var(--accent) !important;
+}
+@media (max-width: 1150px) {
+  .editor-main {
+    padding: 24px;
+  }
+  .editor-shell {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+
+  .canvas-stage {
+    height: 510px;
+  }
+}
+@media (max-width: 700px) {
+  .editor-main {
+    padding: 20px;
+  }
+
+  .save-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .editor-shell {
+    grid-template-columns: 1fr;
+  }
+  .card-picker {
+    order: 2;
+    contain: none;
+    display: block;
+  }
+  .canvas-panel {
+    order: 1;
+  }
+
+  .card-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 300px;
+  }
+  .canvas-stage {
+    height: 430px;
+    padding: 20px;
+  }
+
+  .page-strip {
+    padding: 12px;
+  }
+
+  .selection-status {
+    padding: 12px;
+    font-size: 11px;
+  }
+}
+
+/* Editing controls remain reachable while the page scrolls. */
+
+.tool-help {
+  font-size: 12px;
+  color: var(--muted);
+}
+.editor-feedback {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.editor-feedback button {
+  flex-shrink: 0;
+}
+.tool-button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+.canvas-stage {
+  overflow: auto;
+  justify-content: safe center;
+  align-items: safe center;
+}
+.import-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.import-control input {
+  max-width: 240px;
+  font-size: 11px;
+}
+.editor-pocket {
+  scroll-margin-top: 260px;
+}

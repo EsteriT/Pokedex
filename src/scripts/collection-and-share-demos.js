@@ -248,9 +248,8 @@
   modes.append(single, double);
   const link = el("a", "cta share-open", "Open sample binder");
   link.href =
-    (location.pathname.includes("/preview/")
-      ? "Pokedex-viewer.html"
-      : "viewer.html") + "?binder=sample-blue";
+    document.getElementById("viewer-route").getAttribute("href") +
+    "?binder=sample-blue";
   const arrow = el("span", "", "↗");
   arrow.setAttribute("aria-hidden", "true");
   link.append(arrow);

@@ -6832,6 +6832,7 @@ html[data-theme="dark"]
         </span>
       </div>
     </footer>
+    <a id="viewer-route" href="Pokedex-viewer.html" hidden>Binder viewer</a>
     <script>/* Mobile navigation stays inline; desktop navigation remains always visible. */
 (() => {
   const toggle = document.querySelector(".landing-menu-toggle");
@@ -10390,9 +10391,8 @@ window.CUSTOMIZE_ART = "data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAA
   modes.append(single, double);
   const link = el("a", "cta share-open", "Open sample binder");
   link.href =
-    (location.pathname.includes("/preview/")
-      ? "Pokedex-viewer.html"
-      : "viewer.html") + "?binder=sample-blue";
+    document.getElementById("viewer-route").getAttribute("href") +
+    "?binder=sample-blue";
   const arrow = el("span", "", "↗");
   arrow.setAttribute("aria-hidden", "true");
   link.append(arrow);

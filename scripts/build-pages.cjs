@@ -16,6 +16,9 @@ fs.writeFileSync(path.join(output, ".nojekyll"), "");
 for (const name of ["index.html", ...pages.map(([, name]) => name)]) {
   const html = fs.readFileSync(path.join(output, name), "utf8");
   assert(!/<(?:script[^>]+src|link[^>]+rel="stylesheet")/.test(html), name);
+  if (name === "index.html" || name === landing) {
+    assert(/id="viewer-route" href="Pokedex-viewer.html"/.test(html), "Missing hosted sample viewer route");
+  }
   for (const [, ref] of html.matchAll(/(?:href|src)="([^"#]+)"/g)) {
     if (/^(?:[a-z]+:|#|\/\/)/i.test(ref)) continue;
     const url = new URL(ref, "https://example.test/Pokedex/" + name);

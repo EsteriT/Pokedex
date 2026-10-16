@@ -6543,6 +6543,19 @@ body.editor-page.calm-editor {
   overflow: visible;
   padding: 2px 4px;
   line-height: 1.4;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.calm-editor .editor-feedback.is-error {
+  border-color: var(--accent);
+}
+.calm-editor #editor-load-error {
+  max-width: 520px;
+  margin: 48px auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
 }
 .calm-editor .editor-feedback :is(#feedback-undo, #feedback-dismiss) {
   display: grid;
@@ -7453,6 +7466,7 @@ body.editor-page.calm-editor {
           <label class="field frame-scope">
             Apply to
             <select id="frame-scope">
+              <option value="" disabled>Choose cards or a page</option>
               <option value="selection">Selected cards</option>
               <option value="page">This page</option>
               <option value="binder">Entire binder</option>
@@ -10953,9 +10967,11 @@ body.editor-page.calm-editor {
         }
       });
       d.addEventListener("close", () => {
-        (lastFocus?.isConnected ? lastFocus : $("select-pockets")).focus({
-          preventScroll: true,
-        });
+        window.UIControls.restoreFocus(
+          lastFocus,
+          () => document.querySelector(".editor-pocket"),
+          $("select-pockets"),
+        );
       });
       return d;
     }
@@ -11627,7 +11643,11 @@ body.editor-page.calm-editor {
           const menu = focus?.closest("details");
           const target =
             menu && !menu.open ? menu.querySelector("summary") : focus;
-          if (target?.isConnected) target.focus({ preventScroll: true });
+          window.UIControls.restoreFocus(
+            target,
+            () => document.querySelector(".editor-pocket"),
+            $("select-pockets"),
+          );
         }),
       );
       return {
@@ -11902,22 +11922,54 @@ body.editor-page.calm-editor {
       }
     } catch {}
   }
+  let stored;
+  try {
+    stored = window.BinderStore.read().find((b) => b.id === seed.id);
+    if (seed.id && !stored)
+      throw Error("This binder is no longer available in this browser. Return to Workspace to choose a binder.");
+    if (stored && !stored.document)
+      seed = {
+        ...seed,
+        name: stored.name,
+        pages: stored.pages,
+        rows: stored.rows,
+        columns: stored.columns,
+        cards: stored.cards,
+      };
+  } catch (error) {
+    const panel = document.createElement("section"),
+      title = document.createElement("h1"),
+      explanation = document.createElement("p"),
+      back = document.createElement("a");
+    panel.id = "editor-load-error";
+    panel.setAttribute("role", "alert");
+    title.textContent = "Binder unavailable";
+    explanation.textContent = error.message;
+    back.href = document.querySelector(".workspace-back").href;
+    back.className = "button secondary";
+    back.textContent = "Back to Workspace";
+    panel.append(title, explanation, back);
+    $("editor-main").replaceChildren(panel);
+    document.querySelector(".editor-feedback").hidden = true;
+    $("theme-toggle").hidden = true;
+    $("rename-binder").disabled = true;
+    $("binder-title").textContent = "Binder unavailable";
+    $("save").disabled = true;
+    $("save-status").textContent = "Not loaded";
+    document.documentElement.classList.remove("editor-loading");
+    back.focus();
+    return;
+  }
   const state = window.BinderState.create(seed);
   let binderId = seed.id || crypto.randomUUID(),
     revision = null,
-    storageError = "",
     loadedDocument = false;
-  try {
-    const stored = window.BinderStore.read().find((b) => b.id === binderId);
-    if (stored) {
-      revision = stored.revision;
-      if (stored.document) {
-        state.load(stored.document);
-        loadedDocument = true;
-      }
+  if (stored) {
+    revision = stored.revision;
+    if (stored.document) {
+      state.load(stored.document);
+      loadedDocument = true;
     }
-  } catch (error) {
-    storageError = error.message;
   }
   let savedLocally = loadedDocument,
     selectMode = false,
@@ -11962,7 +12014,7 @@ body.editor-page.calm-editor {
     ignorePocketClickUntil = 0,
     confirmation = null,
     leaving = null,
-    modalFocus = null,
+    dialogFocus = new WeakMap(),
     leaveApproved = false,
     savedOnce = false,
     editVersion = 0,
@@ -12018,6 +12070,7 @@ body.editor-page.calm-editor {
   function resumeToast() {
     if (
       toast.hidden ||
+      toast.classList.contains("is-error") ||
       toastSuppressed ||
       toastHovered ||
       toast.contains(document.activeElement) ||
@@ -12068,6 +12121,7 @@ body.editor-page.calm-editor {
     $("editor-message").title = text;
     toast.hidden = !text;
     toast.classList.toggle("is-error", error);
+    toast.setAttribute("role", error ? "alert" : "status");
     toast.title = text;
     if ($("toast-indicator")) $("toast-indicator").title = text;
     syncToastAction();
@@ -12101,12 +12155,17 @@ body.editor-page.calm-editor {
       pending = null;
       render();
       if (text) message(text, false, changed ? action : null);
+      return true;
     } catch (error) {
       message(error.message, true);
+      return false;
     }
   }
   function openDialog(d) {
-    modalFocus = document.activeElement;
+    dialogFocus.set(d, {
+      node: document.activeElement,
+      region: selected[0],
+    });
     d.showModal();
   }
   [
@@ -12114,11 +12173,18 @@ body.editor-page.calm-editor {
     $("leave-dialog"),
     $("name-dialog"),
     $("pocket-dialog"),
+    $("move-dialog"),
   ].forEach((d) =>
     d.addEventListener("close", () => {
-      if (modalFocus?.isConnected) {
-        modalFocus.focus();
-      }
+      const focus = dialogFocus.get(d);
+      window.UIControls.restoreFocus(
+        focus?.node,
+        () => focus?.region && document.querySelector(
+          '.editor-pocket[data-region-id="' + CSS.escape(focus.region) + '"]',
+        ),
+        () => document.querySelector(".editor-pocket"),
+        $("select-pockets"),
+      );
     }),
   );
   function confirm(title, copy, action) {
@@ -12870,7 +12936,7 @@ body.editor-page.calm-editor {
               return;
             placeCard(source, p.id, r.id, dropDirection(e, b));
           } catch {
-            message("Choose a sample card from this editor.");
+            message("Choose a sample card from this editor.", true);
           }
         });
         sheet.append(b);
@@ -13143,6 +13209,7 @@ body.editor-page.calm-editor {
 
   function scopeCards() {
     const scope = $("frame-scope").value;
+    if (!scope) return [];
     return scope === "binder"
       ? [
           ...state.document.pages.flatMap((p) =>
@@ -13156,6 +13223,17 @@ body.editor-page.calm-editor {
           .filter(window.BinderVisuals.isCard);
   }
   function syncStyleScope() {
+    const scope = $("frame-scope"),
+      count = selectedCards().length,
+      pageAvailable = currentPage().regions.some((r) =>
+        window.BinderVisuals.isCard(r.content),
+      );
+    const option = scope.querySelector('[value="selection"]');
+    option.disabled = !count;
+    option.textContent = count ? "Selected cards (" + count + ")" : "Select cards";
+    scope.querySelector('[value="page"]').disabled = !pageAvailable;
+    if (!scope.value || scope.selectedOptions[0]?.disabled)
+      scope.value = pageAvailable ? "page" : "";
     const items = scopeCards();
     for (const k of ["sleeve", "toploader"]) {
       if (frameTouched[k]) {
@@ -13212,17 +13290,6 @@ body.editor-page.calm-editor {
       .classList.toggle("styling-card", !cover);
     $("cover-selection-status").hidden = cover;
     if (!cover) {
-      const scope = $("frame-scope");
-      const count = selectedCards().length;
-      const option = scope.querySelector('[value="selection"]');
-      option.disabled = !count;
-      option.textContent = count
-        ? "Selected cards (" + count + ")"
-        : "Select cards";
-      scope.querySelector('[value="page"]').disabled =
-        !currentPage().regions.some((r) =>
-          window.BinderVisuals.isCard(r.content),
-        );
       syncStyleScope();
     }
     $("edit-cover-preview").setAttribute(
@@ -13388,9 +13455,7 @@ body.editor-page.calm-editor {
     $("cover-customizer").hidden = true;
     $("cover-preview-stage").hidden = true;
     render();
-    (coverFocus?.isConnected ? coverFocus : $("customize-binder")).focus({
-      preventScroll: true,
-    });
+    window.UIControls.restoreFocus(coverFocus, $("customize-binder"));
   }
   $("customize-binder").addEventListener("click", () =>
     coverOpen && customTab !== "cover" ? closeCover() : openCover("sleeve"),
@@ -13665,14 +13730,12 @@ body.editor-page.calm-editor {
       if (!pocketTarget) throw Error("Select a pocket.");
       const value = pocketTab === "artwork" ? artDraft : placeholderDraft;
       if (!value) throw Error("Choose an image first.");
-      state.putContent(pocketTarget.pid, pocketTarget.rid, value);
+      const target = { ...pocketTarget };
+      if (!run(() => state.putContent(target.pid, target.rid, value), "Pocket design applied.")) {
+        $("pocket-design-error").textContent = $("editor-message").textContent;
+        return;
+      }
       $("pocket-dialog").close();
-      selected = [];
-      pending = null;
-      render();
-      message(
-        "Pocket design applied. Displaced items stay in Overflow. Save to keep it.",
-      );
     } catch (error) {
       $("pocket-design-error").textContent = error.message;
     }
@@ -13711,7 +13774,7 @@ body.editor-page.calm-editor {
       ? "Redo the last undone edit"
       : "Undo an edit before using Redo.";
     const needsSave = state.dirty || !savedLocally;
-    $("save").disabled = !needsSave;
+    $("save").disabled = coverOpen || !needsSave;
     $("save").classList.toggle("primary", needsSave);
     $("save").classList.toggle("secondary", !needsSave);
     $("save-status").textContent = needsSave
@@ -13837,6 +13900,8 @@ body.editor-page.calm-editor {
     run(() => state.redo(), "Change restored."),
   );
   function saveLocal() {
+    if (coverOpen || document.querySelector("dialog[open]") ||
+      (!state.dirty && savedLocally)) return;
     try {
       const entry = window.BinderStore.save(binderId, state.document, revision);
       revision = entry.revision;
@@ -13934,6 +13999,7 @@ body.editor-page.calm-editor {
         error instanceof SyntaxError
           ? "This is not a valid backup file."
           : error.message,
+        true,
       );
     }
   });
@@ -13964,7 +14030,7 @@ body.editor-page.calm-editor {
     if (
       ![rows, columns].every((n) => Number.isInteger(n) && n >= 1 && n <= 6)
     ) {
-      message("Choose whole numbers from 1 to 6.");
+      message("Choose whole numbers from 1 to 6.", true);
       return;
     }
     const affected = p.regions.filter((r) =>
@@ -14104,7 +14170,7 @@ body.editor-page.calm-editor {
   $("merge").addEventListener("click", () => {
     const reason = state.mergeReason(pageId, selected);
     if (reason) {
-      message(reason);
+      message(reason, true);
       return;
     }
     const count = currentPage().regions.filter(
@@ -14190,6 +14256,11 @@ body.editor-page.calm-editor {
     }
   });
   document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      saveLocal();
+      return;
+    }
     if (document.querySelector("dialog[open]")) return;
     if (coverOpen) {
       if (e.key === "Escape") {
@@ -14198,11 +14269,6 @@ body.editor-page.calm-editor {
       } else if (e.ctrlKey || e.metaKey) {
         if (["s", "z", "y"].includes(e.key.toLowerCase())) e.preventDefault();
       }
-      return;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-      e.preventDefault();
-      if (!document.querySelector("dialog[open]")) saveLocal();
       return;
     }
     if (
@@ -14287,7 +14353,6 @@ body.editor-page.calm-editor {
   });
 
   render();
-  if (storageError) message(storageError);
   if (seed.customize) openCover();
   if (seed.placeCard) {
     const finish = cards.get(seed.placeCard).variants?.[seed.finish]
@@ -14308,6 +14373,7 @@ body.editor-page.calm-editor {
   "use strict";
   const $ = (id) => document.getElementById(id);
   const shell = document.querySelector(".editor-shell");
+  if (!shell) return;
   const cards = $("cards-drawer"),
     canvas = document.querySelector(".canvas-panel");
   const stage = $("canvas-stage"),
@@ -15047,7 +15113,7 @@ body.editor-page.calm-editor {
         ...document.querySelectorAll(
           ".editor-rail > button,.editor-rail > a,.editor-rail > details > summary",
         ),
-      ];
+      ].filter(window.UIControls.canFocus);
       const index = buttons.indexOf(event.target);
       if (index < 0) return;
       let next;
@@ -15232,11 +15298,6 @@ body.editor-page.calm-editor {
   );
   document.addEventListener("keydown", (e) => {
     if (document.querySelector("dialog[open]")) return;
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-      e.preventDefault();
-      $("save").click();
-      return;
-    }
     if (
       /INPUT|SELECT|TEXTAREA/.test(e.target.tagName) ||
       rail.contains(e.target) ||
@@ -15247,7 +15308,8 @@ body.editor-page.calm-editor {
       return;
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
       e.preventDefault();
-      $(e.key === "ArrowLeft" ? "previous-page" : "next-page").click();
+      const next = $(e.key === "ArrowLeft" ? "previous-page" : "next-page");
+      if (next.dataset.add !== "true") next.click();
     }
   });
   window.EditorMobile = {
@@ -15285,6 +15347,24 @@ body.editor-page.calm-editor {
 </script>
     <script>(() => {
   "use strict";
+  const canFocus = (node) => !!(
+    node?.isConnected &&
+    node.matches("button,input,select,textarea,a[href],summary,[tabindex]") &&
+    !node.matches(":disabled") &&
+    !node.closest("[hidden],[inert],dialog:not([open])") &&
+    node.getClientRects().length &&
+    getComputedStyle(node).visibility !== "hidden"
+  );
+  function restoreFocus(preferred, ...fallbacks) {
+    requestAnimationFrame(() => {
+      if (document.querySelector("dialog[open]")) return;
+      const targets = [preferred, ...fallbacks].map((value) =>
+        typeof value === "function" ? value() : value,
+      );
+      targets.find(canFocus)?.focus({ preventScroll: true });
+    });
+  }
+  window.UIControls = { canFocus, restoreFocus };
   const actions =
     "button.tool-button,button.text-danger,#empty-overflow,#clear-selection,#reset-artwork-crop,#reset-cover-crop,#remove-cover-artwork,.card-menu .menu-items button,.editor-more-menu button,.collection-more-panel > button";
   const disclosures =

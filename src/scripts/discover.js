@@ -324,9 +324,10 @@
       "Image unavailable. Close the viewer and try again when your connection is restored.";
   });
   $("close-image").addEventListener("click", () => $("image-dialog").close());
-  $("image-dialog").addEventListener("close", () =>
-    $("view-image").focus({ preventScroll: true }),
-  );
+  $("image-dialog").addEventListener("close", () => {
+    if ($("details-dialog").open && !document.querySelector("#placement-dialog[open]"))
+      $("view-image").focus({ preventScroll: true });
+  });
   $("image-zoom").addEventListener("input", () => {
     imageZoom = Number($("image-zoom").value);
     updateImageZoom();
@@ -507,7 +508,7 @@
     $("details-dialog").close(),
   );
   $("details-dialog").addEventListener("close", () => {
-    if (detailFocus?.isConnected) detailFocus.focus({ preventScroll: true });
+    window.UIControls.restoreFocus(detailFocus, $("card-query"));
   });
   for (const id of [
     "price-mode",

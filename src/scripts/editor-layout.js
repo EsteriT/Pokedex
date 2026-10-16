@@ -2,6 +2,7 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const shell = document.querySelector(".editor-shell");
+  if (!shell) return;
   const cards = $("cards-drawer"),
     canvas = document.querySelector(".canvas-panel");
   const stage = $("canvas-stage"),
@@ -741,7 +742,7 @@
         ...document.querySelectorAll(
           ".editor-rail > button,.editor-rail > a,.editor-rail > details > summary",
         ),
-      ];
+      ].filter(window.UIControls.canFocus);
       const index = buttons.indexOf(event.target);
       if (index < 0) return;
       let next;
@@ -926,11 +927,6 @@
   );
   document.addEventListener("keydown", (e) => {
     if (document.querySelector("dialog[open]")) return;
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-      e.preventDefault();
-      $("save").click();
-      return;
-    }
     if (
       /INPUT|SELECT|TEXTAREA/.test(e.target.tagName) ||
       rail.contains(e.target) ||
@@ -941,7 +937,8 @@
       return;
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
       e.preventDefault();
-      $(e.key === "ArrowLeft" ? "previous-page" : "next-page").click();
+      const next = $(e.key === "ArrowLeft" ? "previous-page" : "next-page");
+      if (next.dataset.add !== "true") next.click();
     }
   });
   window.EditorMobile = {

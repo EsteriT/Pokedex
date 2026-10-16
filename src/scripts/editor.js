@@ -57,22 +57,54 @@
       }
     } catch {}
   }
+  let stored;
+  try {
+    stored = window.BinderStore.read().find((b) => b.id === seed.id);
+    if (seed.id && !stored)
+      throw Error("This binder is no longer available in this browser. Return to Workspace to choose a binder.");
+    if (stored && !stored.document)
+      seed = {
+        ...seed,
+        name: stored.name,
+        pages: stored.pages,
+        rows: stored.rows,
+        columns: stored.columns,
+        cards: stored.cards,
+      };
+  } catch (error) {
+    const panel = document.createElement("section"),
+      title = document.createElement("h1"),
+      explanation = document.createElement("p"),
+      back = document.createElement("a");
+    panel.id = "editor-load-error";
+    panel.setAttribute("role", "alert");
+    title.textContent = "Binder unavailable";
+    explanation.textContent = error.message;
+    back.href = document.querySelector(".workspace-back").href;
+    back.className = "button secondary";
+    back.textContent = "Back to Workspace";
+    panel.append(title, explanation, back);
+    $("editor-main").replaceChildren(panel);
+    document.querySelector(".editor-feedback").hidden = true;
+    $("theme-toggle").hidden = true;
+    $("rename-binder").disabled = true;
+    $("binder-title").textContent = "Binder unavailable";
+    $("save").disabled = true;
+    $("save-status").textContent = "Not loaded";
+    document.documentElement.classList.remove("editor-loading");
+    back.focus();
+    return;
+  }
   const state = window.BinderState.create(seed);
   let binderId = seed.id || crypto.randomUUID(),
     revision = null,
-    storageError = "",
     loadedDocument = false;
-  try {
-    const stored = window.BinderStore.read().find((b) => b.id === binderId);
-    if (stored) {
-      revision = stored.revision;
-      if (stored.document) {
-        state.load(stored.document);
-        loadedDocument = true;
-      }
+  if (stored) {
+    revision = stored.revision;
+    if (stored.document) {
+      state.load(stored.document);
+      loadedDocument = true;
     }
-  } catch (error) {
-    storageError = error.message;
   }
   let savedLocally = loadedDocument,
     selectMode = false,
@@ -117,7 +149,7 @@
     ignorePocketClickUntil = 0,
     confirmation = null,
     leaving = null,
-    modalFocus = null,
+    dialogFocus = new WeakMap(),
     leaveApproved = false,
     savedOnce = false,
     editVersion = 0,
@@ -173,6 +205,7 @@
   function resumeToast() {
     if (
       toast.hidden ||
+      toast.classList.contains("is-error") ||
       toastSuppressed ||
       toastHovered ||
       toast.contains(document.activeElement) ||
@@ -223,6 +256,7 @@
     $("editor-message").title = text;
     toast.hidden = !text;
     toast.classList.toggle("is-error", error);
+    toast.setAttribute("role", error ? "alert" : "status");
     toast.title = text;
     if ($("toast-indicator")) $("toast-indicator").title = text;
     syncToastAction();
@@ -256,12 +290,17 @@
       pending = null;
       render();
       if (text) message(text, false, changed ? action : null);
+      return true;
     } catch (error) {
       message(error.message, true);
+      return false;
     }
   }
   function openDialog(d) {
-    modalFocus = document.activeElement;
+    dialogFocus.set(d, {
+      node: document.activeElement,
+      region: selected[0],
+    });
     d.showModal();
   }
   [
@@ -269,11 +308,18 @@
     $("leave-dialog"),
     $("name-dialog"),
     $("pocket-dialog"),
+    $("move-dialog"),
   ].forEach((d) =>
     d.addEventListener("close", () => {
-      if (modalFocus?.isConnected) {
-        modalFocus.focus();
-      }
+      const focus = dialogFocus.get(d);
+      window.UIControls.restoreFocus(
+        focus?.node,
+        () => focus?.region && document.querySelector(
+          '.editor-pocket[data-region-id="' + CSS.escape(focus.region) + '"]',
+        ),
+        () => document.querySelector(".editor-pocket"),
+        $("select-pockets"),
+      );
     }),
   );
   function confirm(title, copy, action) {
@@ -1025,7 +1071,7 @@
               return;
             placeCard(source, p.id, r.id, dropDirection(e, b));
           } catch {
-            message("Choose a sample card from this editor.");
+            message("Choose a sample card from this editor.", true);
           }
         });
         sheet.append(b);
@@ -1298,6 +1344,7 @@
 
   function scopeCards() {
     const scope = $("frame-scope").value;
+    if (!scope) return [];
     return scope === "binder"
       ? [
           ...state.document.pages.flatMap((p) =>
@@ -1311,6 +1358,17 @@
           .filter(window.BinderVisuals.isCard);
   }
   function syncStyleScope() {
+    const scope = $("frame-scope"),
+      count = selectedCards().length,
+      pageAvailable = currentPage().regions.some((r) =>
+        window.BinderVisuals.isCard(r.content),
+      );
+    const option = scope.querySelector('[value="selection"]');
+    option.disabled = !count;
+    option.textContent = count ? "Selected cards (" + count + ")" : "Select cards";
+    scope.querySelector('[value="page"]').disabled = !pageAvailable;
+    if (!scope.value || scope.selectedOptions[0]?.disabled)
+      scope.value = pageAvailable ? "page" : "";
     const items = scopeCards();
     for (const k of ["sleeve", "toploader"]) {
       if (frameTouched[k]) {
@@ -1367,17 +1425,6 @@
       .classList.toggle("styling-card", !cover);
     $("cover-selection-status").hidden = cover;
     if (!cover) {
-      const scope = $("frame-scope");
-      const count = selectedCards().length;
-      const option = scope.querySelector('[value="selection"]');
-      option.disabled = !count;
-      option.textContent = count
-        ? "Selected cards (" + count + ")"
-        : "Select cards";
-      scope.querySelector('[value="page"]').disabled =
-        !currentPage().regions.some((r) =>
-          window.BinderVisuals.isCard(r.content),
-        );
       syncStyleScope();
     }
     $("edit-cover-preview").setAttribute(
@@ -1543,9 +1590,7 @@
     $("cover-customizer").hidden = true;
     $("cover-preview-stage").hidden = true;
     render();
-    (coverFocus?.isConnected ? coverFocus : $("customize-binder")).focus({
-      preventScroll: true,
-    });
+    window.UIControls.restoreFocus(coverFocus, $("customize-binder"));
   }
   $("customize-binder").addEventListener("click", () =>
     coverOpen && customTab !== "cover" ? closeCover() : openCover("sleeve"),
@@ -1820,14 +1865,12 @@
       if (!pocketTarget) throw Error("Select a pocket.");
       const value = pocketTab === "artwork" ? artDraft : placeholderDraft;
       if (!value) throw Error("Choose an image first.");
-      state.putContent(pocketTarget.pid, pocketTarget.rid, value);
+      const target = { ...pocketTarget };
+      if (!run(() => state.putContent(target.pid, target.rid, value), "Pocket design applied.")) {
+        $("pocket-design-error").textContent = $("editor-message").textContent;
+        return;
+      }
       $("pocket-dialog").close();
-      selected = [];
-      pending = null;
-      render();
-      message(
-        "Pocket design applied. Displaced items stay in Overflow. Save to keep it.",
-      );
     } catch (error) {
       $("pocket-design-error").textContent = error.message;
     }
@@ -1866,7 +1909,7 @@
       ? "Redo the last undone edit"
       : "Undo an edit before using Redo.";
     const needsSave = state.dirty || !savedLocally;
-    $("save").disabled = !needsSave;
+    $("save").disabled = coverOpen || !needsSave;
     $("save").classList.toggle("primary", needsSave);
     $("save").classList.toggle("secondary", !needsSave);
     $("save-status").textContent = needsSave
@@ -1992,6 +2035,8 @@
     run(() => state.redo(), "Change restored."),
   );
   function saveLocal() {
+    if (coverOpen || document.querySelector("dialog[open]") ||
+      (!state.dirty && savedLocally)) return;
     try {
       const entry = window.BinderStore.save(binderId, state.document, revision);
       revision = entry.revision;
@@ -2089,6 +2134,7 @@
         error instanceof SyntaxError
           ? "This is not a valid backup file."
           : error.message,
+        true,
       );
     }
   });
@@ -2119,7 +2165,7 @@
     if (
       ![rows, columns].every((n) => Number.isInteger(n) && n >= 1 && n <= 6)
     ) {
-      message("Choose whole numbers from 1 to 6.");
+      message("Choose whole numbers from 1 to 6.", true);
       return;
     }
     const affected = p.regions.filter((r) =>
@@ -2259,7 +2305,7 @@
   $("merge").addEventListener("click", () => {
     const reason = state.mergeReason(pageId, selected);
     if (reason) {
-      message(reason);
+      message(reason, true);
       return;
     }
     const count = currentPage().regions.filter(
@@ -2345,6 +2391,11 @@
     }
   });
   document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      saveLocal();
+      return;
+    }
     if (document.querySelector("dialog[open]")) return;
     if (coverOpen) {
       if (e.key === "Escape") {
@@ -2353,11 +2404,6 @@
       } else if (e.ctrlKey || e.metaKey) {
         if (["s", "z", "y"].includes(e.key.toLowerCase())) e.preventDefault();
       }
-      return;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-      e.preventDefault();
-      if (!document.querySelector("dialog[open]")) saveLocal();
       return;
     }
     if (
@@ -2442,7 +2488,6 @@
   });
 
   render();
-  if (storageError) message(storageError);
   if (seed.customize) openCover();
   if (seed.placeCard) {
     const finish = cards.get(seed.placeCard).variants?.[seed.finish]

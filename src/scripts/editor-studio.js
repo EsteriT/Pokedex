@@ -192,9 +192,11 @@
         }
       });
       d.addEventListener("close", () => {
-        (lastFocus?.isConnected ? lastFocus : $("select-pockets")).focus({
-          preventScroll: true,
-        });
+        window.UIControls.restoreFocus(
+          lastFocus,
+          () => document.querySelector(".editor-pocket"),
+          $("select-pockets"),
+        );
       });
       return d;
     }

@@ -670,6 +670,103 @@ def check_workshop_refinements(cdp, base, route):
     print('PASS:',route,'Cover-to-style navigation, both-page/both-sidebar centering, quiet collapsed state, empty pluses, native swap, shrinking draggable bars, three-second text toasts and artwork headers',flush=True)
 
 
+def check_desktop_reliability(cdp, base, route):
+    ready="window.EditorLayout&&window.UIControls&&!document.documentElement.classList.contains('editor-loading')"
+    def go(seed, suffix=''):
+        cdp.go(base+'/'+route+'?desktop-reliability'+suffix+'#'+urllib.parse.quote(json.dumps(seed)),ready)
+    def click(selector):
+        time.sleep(.08)
+        point=cdp.evaluate("(()=>{let n=document.querySelector("+json.dumps(selector)+");n.scrollIntoView({block:'nearest',inline:'nearest'});let r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()")
+        for event in ('mousePressed','mouseReleased'):
+            cdp.call('Input.dispatchMouseEvent',{'type':event,**point,'button':'left','clickCount':1})
+    def key(name, code, number, modifiers=0):
+        for event in ('keyDown','keyUp'):
+            cdp.call('Input.dispatchKeyEvent',{'type':event,'key':name,'code':code,'windowsVirtualKeyCode':number,'modifiers':modifiers})
+    cdp.call('Emulation.setDeviceMetricsOverride',{'width':1440,'height':1000,'deviceScaleFactor':1,'mobile':False})
+    go({'name':'Fixture setup','cards':[]})
+    cdp.evaluate("BinderStore.write([{id:'reliable-source',name:'Source',pages:2,rows:2,columns:2,cards:['166'],revision:0},{id:'reliable-target',name:'Destination',pages:4,rows:2,columns:3,cards:['167','168'],revision:0}])")
+    go({'id':'reliable-source'},'-source')
+    click('.editor-pocket.has-content');click('#copy-cards-binder');click('#open-copy-destination')
+    cdp.wait("document.getElementById('binder-title').textContent==='Destination'&&!!window.EditorLayout")
+    assert cdp.evaluate("document.querySelectorAll('.page-button').length===4&&document.querySelectorAll('.editor-pocket').length===6&&document.querySelectorAll('.editor-pocket.has-content').length===2"),'Copying into a metadata-only binder must restore its existing layout and cards'
+    cdp.evaluate('EditorLayout.setCards(true)')
+    click('#paste-copied-cards');click('#save')
+    saved=cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').document")
+    assert saved['name']=='Destination' and len(saved['pages'])==4 and [r['content']['cardId'] for r in saved['pages'][0]['regions'] if r['content']]==['167','168','166'],'Paste and Save must preserve destination metadata and original cards'
+    go({'id':'reliable-target'},'-reload')
+    assert cdp.evaluate("document.querySelectorAll('.editor-pocket.has-content').length===3"),'Copied destination must survive reload'
+    revision=cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').revision")
+    key('s','KeyS',83,2)
+    assert cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').revision")==revision,'Saving a clean binder must not increment its revision'
+    cdp.evaluate("document.querySelector('.layout-settings > summary').focus()")
+    key('ArrowDown','ArrowDown',40)
+    assert cdp.evaluate("document.activeElement.id==='preview-binder'"),'Rail navigation must skip disabled Undo/Redo'
+    key('End','End',35)
+    assert cdp.evaluate("UIControls.canFocus(document.activeElement)&&document.activeElement.id!=='return-results'"),'End must skip hidden toolbar links'
+    cdp.evaluate("[...document.querySelectorAll('.page-button')].at(-1).click();document.activeElement.blur()")
+    count=cdp.evaluate("document.querySelectorAll('.page-button').length")
+    key('ArrowRight','ArrowRight',39)
+    assert cdp.evaluate("document.querySelectorAll('.page-button').length")==count,'ArrowRight on the last page must not create a page'
+    click('#next-page')
+    assert cdp.evaluate("document.querySelectorAll('.page-button').length")==count+1,'The visible plus button must still add a page'
+    key('s','KeyS',83,2)
+    assert cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').revision")==revision+1,'One shortcut must perform exactly one save'
+    click('#next-page')
+    cdp.evaluate("window.realSave=BinderStore.save;window.saveAttempts=0;BinderStore.save=()=>{saveAttempts++;throw Error('Save failed. Your draft remains available. Try again after freeing storage.')} ")
+    key('s','KeyS',83,2)
+    assert cdp.evaluate("saveAttempts===1&&!document.getElementById('save').disabled&&document.querySelector('.editor-feedback.is-error')&&document.getElementById('editor-message').textContent==='Save failed. Your draft remains available. Try again after freeing storage.'"),'Failed saves must attempt once, keep the draft and show the complete error'
+    click('#edit-cover-preview');key('s','KeyS',83,2)
+    assert cdp.evaluate("saveAttempts===1&&document.getElementById('save').disabled"),'A customization draft must block both Save and its shortcut'
+    click('#cover-cancel')
+    time.sleep(3.2)
+    assert cdp.evaluate("!document.querySelector('.editor-feedback').hidden&&!!document.querySelector('.editor-feedback.is-error')"),'Errors must remain readable until dismissed'
+    click('#feedback-dismiss')
+    assert cdp.evaluate("document.querySelector('.editor-feedback').hidden"),'Errors must be dismissible'
+    cdp.evaluate("BinderStore.save=realSave;document.getElementById('save').click();let b=BinderStore.read().find(b=>b.id==='reliable-target');b.document.pages[1].regions[0].content={id:crypto.randomUUID(),cardId:'001'};BinderStore.save(b.id,b.document,b.revision)")
+    go({'id':'reliable-target'},'-styles')
+    original_page=cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').document.pages[0]")
+    click('.editor-pocket.has-content');click('#pocket-style');click('[data-frame-style=great]');click('#next-page')
+    assert cdp.evaluate("document.getElementById('frame-scope').value==='page'&&!document.getElementById('frame-scope').selectedOptions[0].disabled"),'A lost card selection must fall back to the populated current page'
+    click('#next-page')
+    assert cdp.evaluate("document.getElementById('frame-scope').value===''&&document.getElementById('cover-apply').disabled&&document.querySelector('[data-frame-style=great]').getAttribute('aria-pressed')==='true'"),'An empty page must require an explicit scope without dropping the style draft or broadening it to the binder'
+    click('#previous-page');click('#cover-apply');click('#save')
+    styled=cdp.evaluate("BinderStore.read().find(b=>b.id==='reliable-target').document")
+    assert styled['pages'][1]['regions'][0]['content']['frames']['sleeve']=='great' and styled['pages'][0]==original_page,'Only the newly chosen page must receive the style'
+    click('#previous-page');click('.editor-pocket:nth-child(4)');click('#pocket-content');click('#pocket-tab-placeholder');click('#pocket-apply')
+    cdp.wait("!document.getElementById('pocket-dialog').open&&document.activeElement.classList.contains('editor-pocket')")
+    assert cdp.evaluate("!document.getElementById('feedback-undo').hidden&&document.getElementById('editor-message').textContent==='Pocket design applied.'"),'Pocket design must use shared edit tracking, toast Undo and visible focus restoration'
+    click('#feedback-undo')
+    assert cdp.evaluate("!document.querySelectorAll('.editor-pocket')[3].classList.contains('has-content')"),'Toast Undo must restore the pocket before applying its placeholder'
+    click('.editor-pocket.has-content');click('#move-to-page');cdp.escape()
+    cdp.wait("!document.getElementById('move-dialog').open&&document.activeElement!==document.body")
+    cdp.escape()
+    click('#select-pockets');click('.editor-pocket:nth-child(1)');click('.editor-pocket:nth-child(2)');click('#merge');click('#confirm-yes')
+    cdp.wait("!document.getElementById('confirm-dialog').open&&document.activeElement.classList.contains('editor-pocket')")
+    workspace=cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")
+    cdp.go(base+'/'+route+'?desktop-reliability-missing#'+urllib.parse.quote(json.dumps({'id':'missing-binder'})),"!!document.getElementById('editor-load-error')")
+    assert cdp.evaluate("document.getElementById('save').disabled&&!document.querySelector('.editor-pocket')&&document.querySelector('.editor-feedback').hidden&&document.getElementById('theme-toggle').hidden&&testErrors.length===0"),'Unknown IDs must show a persistent error without an editable blank replacement or uninitialized controls'
+    assert cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")==workspace,'Missing-binder errors must not modify saved storage'
+    cdp.evaluate("localStorage.setItem('pokedex.workspace.v1','broken-json')")
+    cdp.go(base+'/'+route+'?desktop-reliability-corrupt',"!!document.getElementById('editor-load-error')")
+    assert cdp.evaluate("document.getElementById('save').disabled&&localStorage.getItem('pokedex.workspace.v1')==='broken-json'&&testErrors.length===0"),'Unreadable storage must remain untouched and block saving'
+    cdp.evaluate("localStorage.setItem('pokedex.workspace.v1',"+json.dumps(workspace)+")")
+    discover='src/discover.html' if route.startswith('src/') else 'preview/Pokedex-discover.html'
+    cdp.go(base+'/'+discover,"window.DiscoverCollection&&window.UIControls&&!!document.querySelector('#card-grid button')")
+    click('#card-grid button')
+    cdp.evaluate("DiscoverCollection.open(CARDS[0])")
+    assert cdp.evaluate("document.getElementById('inventory-status').selectedIndex===0&&document.getElementById('inventory-status').selectedOptions[0].textContent==='Optional'"),'Discover must have a matching initial status option'
+    cdp.escape();cdp.wait("!document.getElementById('inventory-dialog').open")
+    cdp.evaluate("document.querySelectorAll('dialog[open]').forEach(d=>d.close())")
+    click('#card-grid button');click('#add-to-binder')
+    cdp.wait("document.getElementById('placement-dialog').open&&document.activeElement.id==='target-binder'")
+    time.sleep(.15)
+    assert cdp.evaluate("document.getElementById('placement-dialog').contains(document.activeElement)"),'Closing details must not steal focus from the new placement dialog'
+    click('#placement-cancel');cdp.wait("document.getElementById('details-dialog').open&&document.activeElement.id==='add-to-binder'")
+    click('#close-details');cdp.wait("!document.querySelector('dialog[open]')&&document.activeElement.matches('#card-grid button')")
+    assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
+    print('PASS:',route,'Desktop reliability: metadata-only copy/Save/reload, guarded saves/failures, safe styling scopes, keyboard navigation, dialog focus, pocket-design Undo, full persistent errors and Discover status',flush=True)
+
+
 def main():
     binary = browser_binary()
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(QuietServer, directory=str(ROOT)))
@@ -692,6 +789,7 @@ def main():
             cdp.call("Emulation.setDeviceMetricsOverride", {"width": 1366, "height": 768, "deviceScaleFactor": 1, "mobile": False})
             base = f"http://127.0.0.1:{server.server_port}"
             for editor, workspace in (("src/editor.html", "src/workspace.html"), ("preview/Pokedex-editor.html", "preview/Pokedex-workspace.html")):
+                check_desktop_reliability(cdp, base, editor)
                 cdp.call('Emulation.setDeviceMetricsOverride',{'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
                 check_workshop_refinements(cdp, base, editor)
                 check_workshop(cdp, base, editor)

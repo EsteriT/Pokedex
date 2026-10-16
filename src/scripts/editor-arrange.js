@@ -44,7 +44,11 @@
           const menu = focus?.closest("details");
           const target =
             menu && !menu.open ? menu.querySelector("summary") : focus;
-          if (target?.isConnected) target.focus({ preventScroll: true });
+          window.UIControls.restoreFocus(
+            target,
+            () => document.querySelector(".editor-pocket"),
+            $("select-pockets"),
+          );
         }),
       );
       return {

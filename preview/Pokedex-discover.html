@@ -4419,6 +4419,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
                 <label class="field">
                   Card status
                   <select id="inventory-status">
+                    <option value="">Optional</option>
                     <option value="raw">Raw / ungraded</option>
                     <option value="graded">Graded</option>
                   </select>
@@ -8412,9 +8413,10 @@ window.SAMPLE_COLLECTION = {
       "Image unavailable. Close the viewer and try again when your connection is restored.";
   });
   $("close-image").addEventListener("click", () => $("image-dialog").close());
-  $("image-dialog").addEventListener("close", () =>
-    $("view-image").focus({ preventScroll: true }),
-  );
+  $("image-dialog").addEventListener("close", () => {
+    if ($("details-dialog").open && !document.querySelector("#placement-dialog[open]"))
+      $("view-image").focus({ preventScroll: true });
+  });
   $("image-zoom").addEventListener("input", () => {
     imageZoom = Number($("image-zoom").value);
     updateImageZoom();
@@ -8595,7 +8597,7 @@ window.SAMPLE_COLLECTION = {
     $("details-dialog").close(),
   );
   $("details-dialog").addEventListener("close", () => {
-    if (detailFocus?.isConnected) detailFocus.focus({ preventScroll: true });
+    window.UIControls.restoreFocus(detailFocus, $("card-query"));
   });
   for (const id of [
     "price-mode",
@@ -8856,6 +8858,24 @@ window.SAMPLE_COLLECTION = {
 </script>
     <script>(() => {
   "use strict";
+  const canFocus = (node) => !!(
+    node?.isConnected &&
+    node.matches("button,input,select,textarea,a[href],summary,[tabindex]") &&
+    !node.matches(":disabled") &&
+    !node.closest("[hidden],[inert],dialog:not([open])") &&
+    node.getClientRects().length &&
+    getComputedStyle(node).visibility !== "hidden"
+  );
+  function restoreFocus(preferred, ...fallbacks) {
+    requestAnimationFrame(() => {
+      if (document.querySelector("dialog[open]")) return;
+      const targets = [preferred, ...fallbacks].map((value) =>
+        typeof value === "function" ? value() : value,
+      );
+      targets.find(canFocus)?.focus({ preventScroll: true });
+    });
+  }
+  window.UIControls = { canFocus, restoreFocus };
   const actions =
     "button.tool-button,button.text-danger,#empty-overflow,#clear-selection,#reset-artwork-crop,#reset-cover-crop,#remove-cover-artwork,.card-menu .menu-items button,.editor-more-menu button,.collection-more-panel > button";
   const disclosures =

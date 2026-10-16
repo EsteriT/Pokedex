@@ -112,3 +112,13 @@ The user authorized publication to `EsteriT/Pokedex`. The original MVP tag stays
 ## Post-MVP interaction fixes
 
 Landing CTA links omit decorative arrows, including Explore Pokedex and the sample viewer link. Entering pocket-merge mode retains an existing selection, keeps the rail button visibly active before selection, and disables placed-pocket dragging while picking merge targets. Exiting merge mode clears the selection. Text tabs in Design pocket size to their labels and wrap within narrow dialogs.
+
+## Desktop reliability fixes
+
+Metadata-only Workspace binders are restored before editor state is created, including cross-binder paste destinations. Missing IDs and unreadable storage show a persistent unavailable view with Save disabled; they never become editable replacement binders. Saved documents keep precedence over metadata.
+
+The editor owns the single Ctrl/Cmd+S handler. Clean documents, open dialogs and unapplied customization drafts cannot trigger a save. Failed saves preserve the draft and show the full error until dismissal; ordinary action notifications still disappear after three seconds. Pocket artwork and placeholders use shared edit tracking and notification Undo.
+
+Styling scopes are revalidated after page turns and selection changes. An unavailable selection falls back to a populated current page; empty pages require an explicit scope choice. Style drafts survive and the scope never automatically broadens to Entire binder. ArrowRight navigates existing pages only; the visible plus button still adds pages.
+
+Toolbar keys skip hidden/disabled controls. Dialog focus restores to a usable trigger or visible fallback after rendering and never steals focus from another modal. Discover uses the same optional initial card status as Workspace. These flows are covered by the desktop reliability browser regressions against source and previews. Mobile layout changes and image delivery optimization are separate work.

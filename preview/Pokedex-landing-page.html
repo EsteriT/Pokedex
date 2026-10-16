@@ -10414,6 +10414,24 @@ window.CUSTOMIZE_ART = "data:image/jpeg;base64,/9j/4QAYRXhpZgAASUkqAAgAAAAAAAAAA
 </script>
     <script>(() => {
   "use strict";
+  const canFocus = (node) => !!(
+    node?.isConnected &&
+    node.matches("button,input,select,textarea,a[href],summary,[tabindex]") &&
+    !node.matches(":disabled") &&
+    !node.closest("[hidden],[inert],dialog:not([open])") &&
+    node.getClientRects().length &&
+    getComputedStyle(node).visibility !== "hidden"
+  );
+  function restoreFocus(preferred, ...fallbacks) {
+    requestAnimationFrame(() => {
+      if (document.querySelector("dialog[open]")) return;
+      const targets = [preferred, ...fallbacks].map((value) =>
+        typeof value === "function" ? value() : value,
+      );
+      targets.find(canFocus)?.focus({ preventScroll: true });
+    });
+  }
+  window.UIControls = { canFocus, restoreFocus };
   const actions =
     "button.tool-button,button.text-danger,#empty-overflow,#clear-selection,#reset-artwork-crop,#reset-cover-crop,#remove-cover-artwork,.card-menu .menu-items button,.editor-more-menu button,.collection-more-panel > button";
   const disclosures =

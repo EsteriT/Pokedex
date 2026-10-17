@@ -48,7 +48,7 @@ python -m http.server 5500
 
 Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
 
-The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup and remaining acceptance gates.
+The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup, verified acceptance and beta limits.
 
 ### Develop & verify
 

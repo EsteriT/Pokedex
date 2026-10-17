@@ -8,7 +8,7 @@
 
 In the repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The included Pages workflow builds and verifies the frontend on pushes to `main`. You can also run it manually from **Actions → Deploy website → Run workflow**.
 
-The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. The authorized binder-cloud rollout adds Google sign-in and private Supabase persistence. See [the rollout record](HOSTED-ROLLOUT.md) for verified security checks and remaining acceptance.
+The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. The authorized binder-cloud rollout adds Google sign-in and private Supabase persistence. See [the rollout record](HOSTED-ROLLOUT.md) for verified security checks, completed hosted acceptance and beta limits.
 
 ## Preview the deployment locally
 

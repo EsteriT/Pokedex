@@ -2,6 +2,8 @@
 
 The user authorized the hosted rollout after the local foundation was audited, committed, merged and pushed. Target: **Pokedex**, Singapore (`pnuovoogfjzzlgmenhnq`). This record distinguishes the live database from the separately deployed static website.
 
+**Status: hosted binder-cloud foundation acceptance complete ? 2026-10-17.** All eight foundation stages are complete within the documented beta scope.
+
 ## Completed
 
 - Confirmed the project was healthy and had no application tables or migration history before rollout.
@@ -14,6 +16,10 @@ The user authorized the hosted rollout after the local foundation was audited, c
 - Prepared and built the GitHub Pages configuration using only the hosted API URL and modern publishable key. Google and administrator secrets are excluded from the website and workflow.
 - Published commit `83b0ede` to `main`. [Deploy website run 39025727131](https://github.com/EsteriT/Pokedex/actions/runs/39025727131) succeeded, including build, reference checks, model tests, embedded database tests and repository tests.
 - Fetched the live root/landing pages and verified Workspace navigation. All four live application pages embed the exact hosted public configuration, with no localhost backend URL. Rechecked Google-only provider flags and anonymous HTTP read/commit denial after publication.
+
+- User confirmed hosted Google sign-in/return, binder creation, card placement, Save and saved-card persistence after refresh on 2026-10-17. This is user-performed production acceptance, distinct from automated policy tests.
+
+- User also confirmed opening the same saved binder after signing in through another browser/profile, and uploading artwork then downloading/restoring a backup containing it. All requested hosted acceptance checks pass. These are user-confirmed results, not additional automated browser tests.
 
 ## Migration history
 
@@ -34,7 +40,7 @@ No warning/error findings were returned. Informational findings were:
 
 These checks do not measure production load. Beta limits remain three binders, 30 pages per binder, 2,000 overflow items and 60 reserved artwork objects per account. Collection records remain browser-local.
 
-## Provider configuration and remaining acceptance
+## Provider configuration and completed acceptance
 
 The user confirmed the following dashboard settings are saved. Public Auth settings verify Google enabled, Email disabled and anonymous sign-ins disabled. The authorize endpoint returns a Google redirect with the correct hosted callback and expected client ID. No private credentials were printed or included in the website.
 
@@ -42,7 +48,7 @@ The user confirmed the following dashboard settings are saved. Public Auth setti
 2. Supabase → Authentication → Sign In / Providers → Google: enable it and enter the existing client ID/secret privately. Disable the Email provider; anonymous sign-ins stay disabled. The beta login method is Google.
 3. Supabase → Authentication → URL Configuration: Site URL and allowed return URL must be exactly `https://esterit.github.io/Pokedex/Pokedex-workspace.html`. Do not use wildcard redirects.
 4. Public Auth settings, the generated Google authorize redirect, Actions deployment and live embedded configuration are verified.
-5. **Still required:** verify actual hosted Google login/return, create a binder, place a card, Save, reload, restore/download a portable artwork backup, sign out and reopen from another browser profile. The production provider flow is separate from the earlier successful local Google test.
+5. **Passed, user-confirmed on 2026-10-17:** actual hosted Google login/return; create/place/Save/refresh; opening the same binder from another browser/profile; and artwork upload plus portable backup download/restore. Local automated checks separately cover sign-out and cross-account isolation.
 
 The existing browser-local binders are not automatically migrated. After hosted sign-in, Account → Import a browser binder explicitly copies one selected binder and preserves its original.
 

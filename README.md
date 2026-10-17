@@ -32,7 +32,7 @@ Arrange your collection, customize every detail, and make a binder that feels li
 
 This is the **frontend MVP**, accepted on October 16, 2026. It includes **55 sample card printings**; prices are fictional interface examples.
 
-Your saved data stays in the current browser and website address. **Use Save to keep edits and Download backup to keep a portable copy.** Clearing site data can remove saved binders. There are no cloud accounts or cross-device sync yet. To move from localhost to the hosted website, download a backup locally and restore it on the website.
+The hosted cloud beta adds **Google sign-in and private account binders**. Use **Save** to keep edits and **Download backup** for a portable copy. Existing browser binders are imported explicitly; collection records stay browser-local. Unconfigured builds keep the original local prototype. Actual hosted login/Save acceptance is tracked in the [rollout record](docs/HOSTED-ROLLOUT.md).
 
 ### Run locally
 
@@ -48,7 +48,7 @@ python -m http.server 5500
 
 Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
 
-The binder backend is being developed on a separate feature branch. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) for local Supabase/Google setup and the remaining acceptance/deployment gates; cloud saving is not deployed yet.
+The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup and remaining acceptance gates.
 
 ### Develop & verify
 
@@ -80,7 +80,7 @@ docs/       Design decisions, architecture and project records
 - [Deployment](docs/DEPLOYMENT.md) — GitHub Pages setup and publishing.
 - [Design](docs/DESIGN.md) · [Architecture](docs/ARCHITECTURE.md) · [Current handoff](docs/HANDOFF.md).
 
-Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, authentication, cloud storage, public sharing and print/image export remain future work.
+Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, collection synchronization, public sharing and print/image export remain future work.
 
 ---
 

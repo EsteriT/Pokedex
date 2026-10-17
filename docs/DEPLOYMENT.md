@@ -8,7 +8,7 @@
 
 In the repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The included Pages workflow builds and verifies the frontend on pushes to `main`. You can also run it manually from **Actions → Deploy website → Run workflow**.
 
-The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. The accepted frontend release needs no server/database configuration. The optional binder-cloud foundation on the implementation branch has a separate [setup and approval gate](BACKEND-FOUNDATION.md); it is not deployed by these prototype instructions.
+The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. The authorized binder-cloud rollout adds Google sign-in and private Supabase persistence. See [the rollout record](HOSTED-ROLLOUT.md) for verified security checks and remaining acceptance.
 
 ## Preview the deployment locally
 
@@ -19,7 +19,7 @@ python -m http.server 5500 --directory dist
 
 Open [localhost:5500](http://localhost:5500/). The build uses the existing standalone previews, with embedded scripts, styles, fonts and cover artwork. The landing page is also copied to `index.html` for the root URL. Links stay relative so GitHub's `/Pokedex/` project path works.
 
-On the backend implementation branch, a configured local Supabase build is deliberately rejected by Pages packaging. Use an unconfigured prototype build or approved hosted HTTPS configuration; never publish localhost settings. The workflow currently supplies no cloud configuration.
+Pages packaging rejects local Supabase settings and inconsistent embedded configurations. Use an unconfigured prototype build or the approved hosted HTTPS configuration; never publish localhost settings. The workflow supplies the hosted public URL/publishable key in the build step. Google/admin secrets stay out of GitHub. Provider settings and the Google authorize redirect have been verified; actual deployed sign-in/Save acceptance is recorded separately in [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md).
 
 ## Publish an update
 
@@ -36,8 +36,8 @@ git push
 
 ## Data and release limits
 
-Each visitor saves in their own browser storage. Localhost and GitHub Pages are separate website addresses and have separate data. Download a backup from the old address and restore it on the new one to transfer a binder. A custom domain or different browser also needs this transfer.
+With the hosted configuration, signed-in users save private binders to their own Supabase account. Existing browser-local binders are copied only through the explicit account import action. Localhost and GitHub Pages have separate browser storage and Auth environments; a local Google session does not sign you into production.
 
-Keep portable backups: clearing site data or using private browsing can remove local records. Save is explicit; there is no cloud synchronization or automatic recovery draft.
+Keep portable backups. Save is explicit; there is no autosave or automatic recovery draft. Unsaved edits and browser-local collection records can be lost when site data is cleared. Unconfigured builds retain the original browser-local prototype.
 
-Card images use external hosts and need internet access. The catalogue and prices remain sample data. Hosting does not add accounts, live pricing or public binder sharing.
+Card images use external hosts and need internet access. The catalogue and prices remain sample data. Collection synchronization, live pricing and public binder sharing are not included.

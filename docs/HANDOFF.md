@@ -2,6 +2,12 @@
 
 This file describes the current implementation. [HISTORY.md](HISTORY.md) preserves earlier milestones; some older descriptions are superseded.
 
+## Hosted rollout — 2026-10-17
+
+After merging/pushing the audited foundation, the user explicitly authorized the hosted rollout. All three reviewed migrations are now applied to the healthy Pokedex project in Singapore. Hosted transaction assertions verify owner isolation, direct-write denial, typed document validation, stale-save/quota enforcement and private artwork reservations; test changes were rolled back. Anonymous HTTP binder reads/writes return 401/42501. Migration history versions and SQL fingerprints match Git. Hosted advisors return informational notices only: intentional default-deny private tables and unused indexes on the new deployment. See [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md).
+
+The hosted build configuration contains the intended project URL and modern publishable key, with no Google/admin secret. The user confirmed the exact Google callbacks and Workspace return settings are saved. Public Auth settings verify Google enabled, Email disabled and anonymous sign-ins disabled; the authorize endpoint redirects to Google with the correct Supabase callback. The Pages workflow now builds cloud-enabled pages. Actual deployed Google login and private Save/reopen/backup acceptance remain pending; a successful build alone does not prove that flow. Earlier sections below record historical implementation/audit snapshots.
+
 ## Binder backend implementation - 2026-10-17
 
 The user authorized the eight-stage binder backend milestone. Work is isolated on `feat/binder-cloud-foundation`; see [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md) for implementation, setup, verification scope and exact remaining gates. This supersedes earlier blanket statements that backend work is deferred, but does not authorize production changes. No hosted Supabase project has been linked or modified, and nothing has been pushed/deployed.

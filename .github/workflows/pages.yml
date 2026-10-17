@@ -27,7 +27,12 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - run: npm ci
-      - run: npm run build:pages
+      - name: Build hosted binder website
+        # These identify the public project. Google and administrator secrets stay in Supabase.
+        env:
+          POKEDEX_SUPABASE_URL: https://pnuovoogfjzzlgmenhnq.supabase.co
+          POKEDEX_SUPABASE_PUBLISHABLE_KEY: sb_publishable_oy_dcf2l-eKy1torgp-t6w_p6F_btzk
+        run: npm run build:pages
       - run: npm run check
       - run: npm test
       - run: npm run test:backend

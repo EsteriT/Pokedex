@@ -8,6 +8,7 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Frontend MVP](FRONTEND-MVP.md) | Accepted scope, milestone and known limits |
 | [Backend foundation](BACKEND-FOUNDATION.md) | Binder cloud implementation, local setup and outstanding acceptance gates |
 | [Backend audit](BACKEND-AUDIT.md) | Final security/bug fixes and pre-commit verification |
+| [Hosted rollout](HOSTED-ROLLOUT.md) | Applied production migrations, security checks and pending login/deployment gates |
 | [Deployment](DEPLOYMENT.md) | Build and publish with GitHub Pages |
 | [Current handoff](HANDOFF.md) | Implementation state and working conventions |
 | [Design](DESIGN.md) | Layout, interactions and visual decisions |

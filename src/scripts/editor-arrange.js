@@ -161,9 +161,9 @@
       () => {
         destinations.replaceChildren();
         try {
-          for (const b of window.BinderStore.read().filter(
-            (b) => b.id !== h.binderId(),
-          ))
+          for (const b of (window.BinderRepository || window.BinderStore)
+            .read()
+            .filter((b) => b.id !== h.binderId()))
             destinations.add(new Option(b.name, b.id));
           copyLink.hidden = !destinations.options.length;
           copyNote.textContent = destinations.options.length
@@ -203,7 +203,13 @@
         }));
         sessionStorage.setItem(
           clipboardKey,
-          JSON.stringify({ target: destinations.value, cards }),
+          JSON.stringify({
+            target: destinations.value,
+            cards,
+            owner: window.BinderRepository?.enabled
+              ? window.BinderRepository.user?.id
+              : "local",
+          }),
         );
         const url = new URL(location.href);
         url.search = "?paste=" + crypto.randomUUID();
@@ -235,12 +241,23 @@
     );
     paste.hidden = true;
     batch.after(paste);
+    window.addEventListener("pokedex-account-changed", () => {
+      copied = null;
+      paste.hidden = true;
+      try {
+        sessionStorage.removeItem(clipboardKey);
+      } catch {}
+    });
     try {
       const raw = sessionStorage.getItem(clipboardKey);
       if (raw && raw.length < 2000000) {
         const value = JSON.parse(raw);
         if (
           value.target === h.binderId() &&
+          value.owner ===
+            (window.BinderRepository?.enabled
+              ? window.BinderRepository.user?.id
+              : "local") &&
           Array.isArray(value.cards) &&
           value.cards.length &&
           value.cards.length <= 2000

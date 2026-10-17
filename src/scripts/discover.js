@@ -1,5 +1,6 @@
 (() => {
   "use strict";
+  const repository = window.BinderRepository || window.BinderStore;
   const $ = (id) => document.getElementById(id),
     catalogue = window.DiscoverCatalogue;
   const cards = window.CARDS || [];
@@ -325,7 +326,10 @@
   });
   $("close-image").addEventListener("click", () => $("image-dialog").close());
   $("image-dialog").addEventListener("close", () => {
-    if ($("details-dialog").open && !document.querySelector("#placement-dialog[open]"))
+    if (
+      $("details-dialog").open &&
+      !document.querySelector("#placement-dialog[open]")
+    )
       $("view-image").focus({ preventScroll: true });
   });
   $("image-zoom").addEventListener("input", () => {
@@ -373,9 +377,12 @@
     $("price-source").textContent =
       "Source: illustrative interface data · Updated: not connected";
   }
-  function openPlacement() {
+  async function openPlacement() {
     try {
-      const binders = window.BinderStore.read();
+      if (repository.enabled) await repository.ready;
+      const binders = repository.enabled
+        ? await repository.refresh()
+        : repository.read();
       $("placement-workspace").hidden = !!binders.length;
       if (!binders.length) {
         announce("Create a binder in Workspace first.");
@@ -404,9 +411,9 @@
   }
   function updatePages() {
     try {
-      const b = window.BinderStore.read().find(
-        (b) => b.id === $("target-binder").value,
-      );
+      const b = repository
+        .read()
+        .find((b) => b.id === $("target-binder").value);
       options(
         "target-page",
         b
@@ -426,9 +433,9 @@
   }
   function placeInEditor() {
     try {
-      const b = window.BinderStore.read().find(
-          (b) => b.id === $("target-binder").value,
-        ),
+      const b = repository
+          .read()
+          .find((b) => b.id === $("target-binder").value),
         index = Number($("target-page").value);
       if (
         !b ||

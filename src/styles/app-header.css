@@ -103,6 +103,66 @@
   font-size: 12px;
 }
 
+.cloud-account-panel strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.cloud-account-panel .button {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  min-height: 40px;
+  margin-block: 6px;
+}
+
+.cloud-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 24px;
+}
+.cloud-dialog > p,
+.calm-editor .cloud-dialog > p {
+  color: var(--muted);
+  margin: 8px 0 16px;
+}
+.cloud-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.cloud-import-options {
+  display: grid;
+  gap: 8px;
+}
+.cloud-dialog .button,
+.calm-editor .cloud-dialog .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.cloud-dialog .button:hover:not(:disabled) {
+  background: var(--soft);
+}
+.cloud-dialog .primary,
+.calm-editor .cloud-dialog .primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.cloud-dialog .primary:hover:not(:disabled),
+.calm-editor .cloud-dialog .primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(0.94);
+}
+
 /* Global application navigation; page controls belong below this header. */
 .header-main {
   display: flex;

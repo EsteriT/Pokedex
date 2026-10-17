@@ -240,7 +240,10 @@ def check_workspace_shelf(cdp, base, route):
     assert cdp.evaluate("!document.getElementById('no-results').hidden"),'Binder search empty state must remain available'
     cdp.evaluate("document.getElementById('clear-search').click();document.querySelectorAll('.card-menu')[2].open=true;[...document.querySelectorAll('.card-menu')[2].querySelectorAll('button')].find(b=>b.textContent==='Delete').click()")
     assert cdp.evaluate("document.getElementById('delete-dialog').open&&BinderStore.read().length===3"),'Delete must still require confirmation'
-    cdp.evaluate("document.getElementById('confirm-delete').click();document.getElementById('create-binder').click();document.getElementById('binder-name').value='Fresh binder';document.getElementById('binder-rows').value=2;document.getElementById('binder-columns').value=4;document.getElementById('form-submit').click()")
+    cdp.evaluate("document.getElementById('confirm-delete').click()")
+    cdp.wait("!document.getElementById('delete-dialog').open&&!document.getElementById('create-binder').disabled")
+    cdp.evaluate("document.getElementById('create-binder').click();document.getElementById('binder-name').value='Fresh binder';document.getElementById('binder-rows').value=2;document.getElementById('binder-columns').value=4;document.getElementById('form-submit').click()")
+    cdp.wait("!document.getElementById('edit-dialog').open")
     assert cdp.evaluate("(()=>{let b=BinderStore.read().at(-1);return b.name==='Fresh binder'&&b.pages===1&&b.rows===2&&b.columns===4})()"),'Creation must keep its real layout fields and local save'
     assert cdp.evaluate("[...document.querySelectorAll('.binder-card')].every(n=>n.querySelector('.view-binder-action').href.includes('binder=')&&n.querySelector('.edit-binder-action').hash)"),'Read-only View and editable destinations must stay distinct'
     cdp.evaluate("document.getElementById('collection-tab').click()")
@@ -852,12 +855,49 @@ def check_phone_layout(cdp, base, route):
     print('PASS:',route,'phone/landscape sheets, expansion, reachable styling/page controls, separate sidebar views, touchscreen placement, viewport resize and all-page horizontal bounds',flush=True)
 
 
+def check_cloud_contract(cdp, base, workspace, editor):
+    fixture=(ROOT/'scripts/fixtures/backend-browser.js').read_text(encoding='utf-8')
+    injection=cdp.call('Page.addScriptToEvaluateOnNewDocument',{'source':fixture})['identifier']
+    try:
+        cdp.call('Emulation.setDeviceMetricsOverride',{'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
+        cdp.go(base+'/'+workspace,"window.BinderRepository?.user&&document.querySelector('#limit-copy')?.textContent==='0 of 3 binders'")
+        original=cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")
+        cdp.evaluate("document.getElementById('create-binder').click();document.getElementById('binder-name').value='Cloud UI test';document.getElementById('form-submit').click()")
+        cdp.wait("document.querySelectorAll('#binder-grid .binder-card').length===1&&!document.getElementById('edit-dialog').open")
+        assert cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")==original,'Cloud create must leave local binders untouched'
+        cdp.evaluate("document.querySelector('.edit-binder-action').click()")
+        cdp.wait("window.EditorLayout&&document.getElementById('binder-title').textContent==='Cloud UI test'")
+        cdp.evaluate("document.getElementById('rename-binder').click();document.getElementById('new-name').value='Saved cloud title';document.getElementById('name-form').requestSubmit();document.getElementById('save').click()")
+        cdp.wait("document.getElementById('save').disabled&&!document.getElementById('save').hasAttribute('aria-busy')")
+        assert cdp.evaluate("JSON.parse(sessionStorage.getItem('pokedex.test-cloud'))[0].document.name==='Saved cloud title'"),'Cloud Save must use the repository'
+        previous_origin=cdp.evaluate('performance.timeOrigin')
+        cdp.call('Page.reload');cdp.wait("performance.timeOrigin!=="+str(previous_origin)+"&&window.EditorLayout&&document.getElementById('binder-title').textContent==='Saved cloud title'")
+        cdp.evaluate("let rows=JSON.parse(sessionStorage.getItem('pokedex.test-cloud'));rows[0].revision++;rows[0].document.name='Other device';sessionStorage.setItem('pokedex.test-cloud',JSON.stringify(rows));document.getElementById('rename-binder').click();document.getElementById('new-name').value='My conflicting draft';document.getElementById('name-form').requestSubmit();document.getElementById('save').click()")
+        cdp.wait("document.getElementById('cloud-save-conflict')?.open")
+        assert cdp.evaluate("(()=>{const r=document.getElementById('cloud-save-conflict').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight})()"),'Cloud conflict controls must fit the viewport'
+        screenshots=ROOT/'.scratch/screenshots';screenshots.mkdir(parents=True,exist_ok=True)
+        shot=cdp.call('Page.captureScreenshot',{'format':'png'})['data']
+        (screenshots/('cloud-conflict-'+('source' if editor.startswith('src/') else 'preview')+'.png')).write_bytes(base64.b64decode(shot))
+        assert cdp.evaluate("document.getElementById('binder-title').textContent==='My conflicting draft'"),'Conflict must preserve the draft'
+        cdp.evaluate("[...document.querySelectorAll('#cloud-save-conflict button')].find(b=>b.textContent==='Save as copy').click()")
+        cdp.wait("!document.getElementById('cloud-save-conflict').open&&JSON.parse(sessionStorage.getItem('pokedex.test-cloud')).length===2")
+        assert cdp.evaluate("document.getElementById('binder-title').textContent==='My conflicting draft (copy)'"),'Save as copy must retarget the editor'
+        assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
+        print('PASS:',editor,'simulated cloud UI contract: async bootstrap, create, manual Save/reload, conflict draft preservation, Save as copy and local isolation',flush=True)
+    finally:
+        cdp.call('Page.removeScriptToEvaluateOnNewDocument',{'identifier':injection})
+        cdp.go(base+'/'+workspace,"!!window.BinderStore&&!!document.querySelector('#create-binder')")
+        cdp.evaluate("sessionStorage.removeItem('pokedex.test-cloud')")
+
+
 def main():
     binary = browser_binary()
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(QuietServer, directory=str(ROOT)))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     cdp = None
-    with tempfile.TemporaryDirectory(prefix="pokedex-browser-check-") as profile:
+    scratch = ROOT / '.scratch'
+    scratch.mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="pokedex-browser-check-", dir=scratch) as profile:
         process = subprocess.Popen([binary, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--blink-settings=imagesEnabled=false", "--remote-debugging-port=0", "--user-data-dir=" + profile, "about:blank"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             deadline = time.monotonic() + 15
@@ -871,9 +911,15 @@ def main():
                         raise RuntimeError("Could not start the isolated headless browser.")
                     time.sleep(0.05)
             cdp = CDP(port)
+            # Frontend regressions must stay local even when the developer has
+            # configured real services. The cloud contract replaces this fixture.
+            cdp.call('Page.addScriptToEvaluateOnNewDocument',{'source':"Object.defineProperty(window,'POKEDEX_BACKEND',{configurable:true,get:()=>({}),set(){}});"})
             cdp.call("Emulation.setDeviceMetricsOverride", {"width": 1366, "height": 768, "deviceScaleFactor": 1, "mobile": False})
             base = f"http://127.0.0.1:{server.server_port}"
             for editor, workspace in (("src/editor.html", "src/workspace.html"), ("preview/Pokedex-editor.html", "preview/Pokedex-workspace.html")):
+                if os.environ.get('POKEDEX_BROWSER_SUITE') == 'cloud':
+                    check_cloud_contract(cdp, base, workspace, editor)
+                    continue
                 check_phone_layout(cdp, base, editor)
                 check_desktop_reliability(cdp, base, editor)
                 cdp.call('Emulation.setDeviceMetricsOverride',{'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
@@ -885,6 +931,7 @@ def main():
                 check_discover_gallery(cdp, base, "src/discover.html" if editor.startswith("src/") else "preview/Pokedex-discover.html")
                 check_workspace_shelf(cdp, base, workspace)
                 check_cleanup(cdp, base, editor, workspace)
+                check_cloud_contract(cdp, base, workspace, editor)
         finally:
             if cdp:
                 try:

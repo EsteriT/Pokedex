@@ -11,3 +11,7 @@
 *.png binary
 *.jpg binary
 *.ttf binary
+
+# Bundled vendor template literals may contain intentional trailing whitespace.
+# Review/edit source files; these HTML files are generated build artifacts.
+preview/*.html -whitespace

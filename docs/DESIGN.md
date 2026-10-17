@@ -16,6 +16,8 @@ Approved directional insertion: Add cards edge drops push along the current row 
 
 ## Direction
 
+Backend foundation integration keeps the approved workshop appearance. Configured builds replace the Sample account menu with Google sign-in, sign-out, explicit browser-binder import and old-unused-artwork cleanup. Cloud and browser workspaces remain separate. Save stays manual; async requests disable duplicate submission, and edits made during the request remain dirty. A compact accessible conflict dialog offers Keep editing, Reload saved version with discard confirmation, or Save as copy. Collection continues to say browser-local. Unconfigured builds retain the frontend prototype. See BACKEND-FOUNDATION.md for verification/deployment limits.
+
 A premium collector's studio: personal, creative, quietly playful, and easy to understand. Avoid a finance/trading-dashboard aesthetic. Cards and binder pages are the visual focus; collection value is supporting information.
 
 The earlier references were pkmnbindr.com and xbindr.com for clean explanations, restrained colors, and smooth feature previews. This design has its own section layouts and Ball themes.

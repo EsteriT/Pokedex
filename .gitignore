@@ -9,3 +9,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Local development artifacts
+/.scratch/
+/src/vendor/

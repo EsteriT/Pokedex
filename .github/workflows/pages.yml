@@ -26,9 +26,12 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
+      - run: npm ci
       - run: npm run build:pages
       - run: npm run check
       - run: npm test
+      - run: npm run test:backend
+      - run: npm run test:repository
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

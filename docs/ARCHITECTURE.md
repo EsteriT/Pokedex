@@ -1,6 +1,6 @@
 # Pokedex architecture — working draft
 
-Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). This document retains the product decisions and future integration plan; [HISTORY.md](HISTORY.md) records superseded prototype iterations.
+Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). The 2026-10-17 binder backend implementation is documented in [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md), including passing local service/browser tests and the remaining hosted deployment gates. Older proposals below are historical where they conflict with that contract. [HISTORY.md](HISTORY.md) records superseded prototype iterations.
 
 Updated: 2026-10-12. Companion: [DESIGN.md](DESIGN.md). This document plans responsibilities, data, and integration. It is not permission to build a backend or deploy.
 
@@ -8,7 +8,7 @@ Updated: 2026-10-12. Companion: [DESIGN.md](DESIGN.md). This document plans resp
 
 The **frontend** is the interface in the browser. The **backend** is the service that checks permissions, validates changes, stores data, and accesses providers when server credentials are needed. The **database** stores structured records. **Object storage** stores uploaded/exported files. An **API contract** specifies messages passed between frontend and backend. **Authentication** identifies someone; **authorization** determines what they may access.
 
-Current confirmed system: one static HTML/CSS/JavaScript landing-page prototype, sample card data, remotely hosted images, locally stored theme preference, and a dependency-free preview build. There is no account, database, backend, or real editor. Existing demo scripts illustrate behaviors and must not become the persistent application model by accident.
+Current implementation: five plain HTML/CSS/JavaScript pages with a working binder editor, browser-local collection, sample catalogue, and an optional private binder backend. Google sign-in, PostgreSQL document storage and private artwork Storage are implemented and tested locally. Hosted cloud rollout is pending approval. The preview build bundles the pinned browser SDK; unconfigured builds preserve browser-local saving. Existing landing demos remain separate from the persistent editor model.
 
 ## Decision status and guardrails
 

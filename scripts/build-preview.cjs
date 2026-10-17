@@ -45,7 +45,9 @@ for (const [entry, output] of pages) {
         );
       }
       new vm.Script(code, { filename: file });
-      return "<script>" + code + "</script>";
+      return (
+        "<script>" + code.replace(/<\/script/gi, "<\\/script") + "</script>"
+      );
     },
   );
   html = html.replace(

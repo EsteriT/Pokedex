@@ -1,5 +1,6 @@
-(() => {
+(async () => {
   "use strict";
+  if (window.BinderRepository?.enabled) await window.EditorReady;
   const $ = (id) => document.getElementById(id);
   const shell = document.querySelector(".editor-shell");
   if (!shell) return;
@@ -278,13 +279,19 @@
     resize.title = "Expand panel";
     resize.innerHTML =
       '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>';
-    panel.querySelector(".panel-heading, .customizer-heading").insertBefore(
-      resize, panel.querySelector("#cards-close, #customize-close"),
-    );
+    panel
+      .querySelector(".panel-heading, .customizer-heading")
+      .insertBefore(
+        resize,
+        panel.querySelector("#cards-close, #customize-close"),
+      );
     resize.addEventListener("click", () => {
       const expanded = panel.classList.toggle("sheet-expanded");
       resize.setAttribute("aria-expanded", String(expanded));
-      resize.setAttribute("aria-label", expanded ? "Reduce panel" : "Expand panel");
+      resize.setAttribute(
+        "aria-label",
+        expanded ? "Reduce panel" : "Expand panel",
+      );
       resize.title = resize.getAttribute("aria-label");
       layout();
     });

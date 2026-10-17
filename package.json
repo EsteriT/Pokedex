@@ -4,13 +4,28 @@
   "private": true,
   "description": "A browser-based Pokémon binder workshop with local saving, customization and collection tools.",
   "scripts": {
-    "build": "node scripts/build-preview.cjs",
+    "build": "node scripts/build-backend.cjs && node scripts/build-preview.cjs",
     "check": "node scripts/check-project.cjs",
     "test": "node scripts/test-project.cjs",
     "test:browser": "python scripts/check-browser.py",
-    "build:pages": "node scripts/build-pages.cjs"
+    "build:pages": "npm run build && node scripts/build-pages.cjs",
+    "test:backend": "node scripts/check-backend.cjs",
+    "test:repository": "node scripts/check-repository.cjs",
+    "backend:start": "node scripts/backend-local.cjs start",
+    "backend:stop": "node scripts/backend-local.cjs stop",
+    "backend:status": "node scripts/backend-local.cjs status",
+    "test:backend:live": "node scripts/check-backend-live.cjs",
+    "test:backend:browser": "node scripts/check-backend-live.cjs --browser"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "esbuild": "0.28.2",
+    "supabase": "2.121.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0"
   }
 }

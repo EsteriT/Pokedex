@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   "use strict";
+  const repository = window.BinderRepository || window.BinderStore;
+  if (repository.enabled) await repository.ready;
   const $ = (id) => document.getElementById(id);
   const binderId = new URLSearchParams(location.search).get("binder");
   const cards = new Map(
@@ -49,7 +51,9 @@
     $("viewer-error").hidden = false;
     $("viewer-error-message").textContent = message;
     $("viewer-title").textContent = "Binder viewer";
-    $("viewer-source").textContent = "Local preview";
+    $("viewer-source").textContent = repository.enabled
+      ? "Private binder"
+      : "Local preview";
     document.title = "Binder viewer — Pokedex";
     $("viewer-fullscreen").hidden = true;
     $("viewer-cover-art").replaceChildren();
@@ -58,12 +62,16 @@
   }
   function load() {
     try {
+      if (repository.enabled && !repository.user)
+        return unavailable(
+          "Sign in from Workspace to view your private cloud binder.",
+        );
       if (!binderId)
         return unavailable("Choose a binder from Workspace to view it.");
-      const binder = window.BinderStore.read().find((b) => b.id === binderId);
+      const binder = repository.read().find((b) => b.id === binderId);
       if (!binder)
         return unavailable(
-          "This binder is no longer available on this browser. Return to Workspace to choose another.",
+          "This binder is no longer available. Return to Workspace to choose another.",
         );
       doc = binder.document || sampleDocument(binder);
       index = Math.min(index, doc.pages.length - 1);
@@ -72,7 +80,9 @@
       $("viewer-title").textContent = doc.name;
       document.title = doc.name + " — Pokedex viewer";
       $("viewer-source").textContent = binder.document
-        ? "Saved on this browser"
+        ? repository.enabled
+          ? "Private cloud binder"
+          : "Saved on this browser"
         : "Sample binder";
       $("viewer-cover-art").replaceChildren(
         window.BinderCovers.create(doc.cover || "classic", doc.name, doc),
@@ -87,6 +97,9 @@
       unavailable(error.message);
     }
   }
+  window.addEventListener("pokedex-account-changed", () =>
+    unavailable("Account changed. Return to Workspace to sign in again."),
+  );
   function regionArt(region, width, height, cellWidth, cellHeight, gap) {
     const art = svg("svg", {
       viewBox: "0 0 " + width + " " + height,

@@ -1,5 +1,7 @@
-(() => {
+window.EditorReady = (async () => {
   "use strict";
+  const repository = window.BinderRepository || window.BinderStore;
+  if (repository.enabled) await repository.ready;
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   const $ = (id) => document.getElementById(id),
     cards = new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
@@ -59,9 +61,13 @@
   }
   let stored;
   try {
-    stored = window.BinderStore.read().find((b) => b.id === seed.id);
+    if (repository.enabled && !repository.user && seed.id)
+      throw Error("Sign in from Workspace to open your private cloud binder.");
+    stored = repository.read().find((b) => b.id === seed.id);
     if (seed.id && !stored)
-      throw Error("This binder is no longer available in this browser. Return to Workspace to choose a binder.");
+      throw Error(
+        "This binder is no longer available. Return to Workspace to choose a binder.",
+      );
     if (stored && !stored.document)
       seed = {
         ...seed,
@@ -106,7 +112,8 @@
       loadedDocument = true;
     }
   }
-  let savedLocally = loadedDocument,
+  let saving = false,
+    savedLocally = loadedDocument,
     selectMode = false,
     fittedScale = 1;
   const focusKey = () => {
@@ -314,9 +321,11 @@
       const focus = dialogFocus.get(d);
       window.UIControls.restoreFocus(
         focus?.node,
-        () => focus?.region && document.querySelector(
-          '.editor-pocket[data-region-id="' + CSS.escape(focus.region) + '"]',
-        ),
+        () =>
+          focus?.region &&
+          document.querySelector(
+            '.editor-pocket[data-region-id="' + CSS.escape(focus.region) + '"]',
+          ),
         () => document.querySelector(".editor-pocket"),
         $("select-pockets"),
       );
@@ -1365,7 +1374,9 @@
       );
     const option = scope.querySelector('[value="selection"]');
     option.disabled = !count;
-    option.textContent = count ? "Selected cards (" + count + ")" : "Select cards";
+    option.textContent = count
+      ? "Selected cards (" + count + ")"
+      : "Select cards";
     scope.querySelector('[value="page"]').disabled = !pageAvailable;
     if (!scope.value || scope.selectedOptions[0]?.disabled)
       scope.value = pageAvailable ? "page" : "";
@@ -1866,7 +1877,12 @@
       const value = pocketTab === "artwork" ? artDraft : placeholderDraft;
       if (!value) throw Error("Choose an image first.");
       const target = { ...pocketTarget };
-      if (!run(() => state.putContent(target.pid, target.rid, value), "Pocket design applied.")) {
+      if (
+        !run(
+          () => state.putContent(target.pid, target.rid, value),
+          "Pocket design applied.",
+        )
+      ) {
         $("pocket-design-error").textContent = $("editor-message").textContent;
         return;
       }
@@ -1909,7 +1925,10 @@
       ? "Redo the last undone edit"
       : "Undo an edit before using Redo.";
     const needsSave = state.dirty || !savedLocally;
-    $("save").disabled = coverOpen || !needsSave;
+    $("save").disabled = saving || coverOpen || !needsSave;
+    $("save").title = repository.enabled
+      ? "Save privately to your account"
+      : "Save on this browser";
     $("save").classList.toggle("primary", needsSave);
     $("save").classList.toggle("secondary", !needsSave);
     $("save-status").textContent = needsSave
@@ -2034,11 +2053,20 @@
   $("redo").addEventListener("click", () =>
     run(() => state.redo(), "Change restored."),
   );
-  function saveLocal() {
-    if (coverOpen || document.querySelector("dialog[open]") ||
-      (!state.dirty && savedLocally)) return;
+  async function saveLocal() {
+    if (
+      saving ||
+      coverOpen ||
+      document.querySelector("dialog[open]") ||
+      (!state.dirty && savedLocally)
+    )
+      return;
+    const snapshot = structuredClone(state.document);
+    saving = true;
+    $("save").disabled = true;
+    $("save").setAttribute("aria-busy", "true");
     try {
-      const entry = window.BinderStore.save(binderId, state.document, revision);
+      const entry = await repository.save(binderId, snapshot, revision);
       revision = entry.revision;
       history.replaceState(
         null,
@@ -2048,7 +2076,7 @@
             JSON.stringify({ id: binderId, ...(returnTo ? { returnTo } : {}) }),
           ),
       );
-      state.save();
+      state.save(snapshot);
       clearTimeout(savedTimer);
       savedOnce = true;
       savedTimer = setTimeout(() => {
@@ -2060,9 +2088,115 @@
       message("");
     } catch (error) {
       message(error.message, true);
+      if (repository.enabled && error.code === "40001") showSaveConflict();
+    } finally {
+      saving = false;
+      $("save").removeAttribute("aria-busy");
+      render();
     }
   }
+  function showSaveConflict() {
+    let dialog = $("cloud-save-conflict");
+    if (dialog) {
+      dialog.showModal();
+      return;
+    }
+    dialog = document.createElement("dialog");
+    dialog.id = "cloud-save-conflict";
+    dialog.className = "cloud-dialog";
+    dialog.tabIndex = -1;
+    const title = document.createElement("h2");
+    title.id = "cloud-conflict-title";
+    title.textContent = "A newer version exists";
+    dialog.setAttribute("aria-labelledby", title.id);
+    const text = document.createElement("p");
+    text.setAttribute("role", "status");
+    text.textContent = "Your unsaved draft is safe. Choose what to keep.";
+    let resolving = false;
+    const action = (label, fn) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className =
+        label === "Keep editing" ? "button primary" : "button secondary";
+      b.textContent = label;
+      b.addEventListener("click", async () => {
+        if (resolving) return;
+        resolving = true;
+        dialog.focus();
+        actions
+          .querySelectorAll("button")
+          .forEach((button) => (button.disabled = true));
+        try {
+          await fn();
+        } catch (e) {
+          text.textContent = e.message;
+        } finally {
+          resolving = false;
+          actions
+            .querySelectorAll("button")
+            .forEach((button) => (button.disabled = false));
+          if (dialog.open) b.focus();
+        }
+      });
+      return b;
+    };
+    const actions = document.createElement("div");
+    actions.className = "cloud-dialog-actions";
+    dialog.append(title, text, actions);
+    actions.append(
+      action("Keep editing", () => dialog.close()),
+      action("Reload saved version", () => {
+        if (
+          window.confirm(
+            "Discard this unsaved draft and reload the saved binder?",
+          )
+        )
+          location.reload();
+      }),
+      action("Save as copy", async () => {
+        const snapshot = structuredClone(state.document),
+          id = crypto.randomUUID();
+        snapshot.name = snapshot.name.slice(0, 53) + " (copy)";
+        const saved = await repository.save(id, snapshot, null);
+        binderId = id;
+        revision = saved.revision;
+        state.rename(snapshot.name);
+        state.save(snapshot);
+        savedLocally = true;
+        history.replaceState(
+          null,
+          "",
+          "#" + encodeURIComponent(JSON.stringify({ id })),
+        );
+        dialog.close();
+        render();
+      }),
+    );
+    dialog.addEventListener("close", () =>
+      ($("save").disabled ? $("rename-binder") : $("save")).focus(),
+    );
+    dialog.addEventListener("cancel", (event) => {
+      if (resolving) event.preventDefault();
+    });
+    dialog.addEventListener("keydown", (event) => {
+      if (resolving && event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
+    document.body.append(dialog);
+    dialog.showModal();
+  }
   $("save").addEventListener("click", saveLocal);
+  window.addEventListener("pokedex-before-signout", (event) => {
+    if (
+      state.dirty &&
+      !window.confirm(
+        "This binder has unsaved edits. Download a backup or Save before signing out. Sign out anyway?",
+      )
+    )
+      event.preventDefault();
+  });
   $("feedback-undo").addEventListener("click", () => {
     if (!toastAction || toastAction.version !== editVersion) return;
     const undo = toastAction.kind === "undo";
@@ -2127,7 +2261,7 @@
           run(() => {
             state.replace(doc);
             pageId = doc.pages[0].id;
-          }, "Binder imported. Review it and click Save to keep it on this browser."),
+          }, "Backup restored. Review it, then Save to keep it."),
       );
     } catch (error) {
       message(
@@ -2315,13 +2449,10 @@
       "Merge selected pockets?",
       `Merge ${selected.length} connected regions into one empty pocket. ${count} placed cards will move to overflow. Undo is available.`,
       () =>
-        run(
-          () => {
-            state.merge(pageId, selected);
-            selectMode = false;
-          },
-          "Pockets merged; contents kept in overflow.",
-        ),
+        run(() => {
+          state.merge(pageId, selected);
+          selectMode = false;
+        }, "Pockets merged; contents kept in overflow."),
     );
   });
   $("unmerge").addEventListener("click", () =>
@@ -2351,10 +2482,10 @@
       ),
       a = el("a");
     a.href = url;
-    a.download = "pokedex-sample-binder.json";
+    a.download = "pokedex-binder.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    message("Downloaded current sample data. This is not a cloud save.");
+    message("Backup downloaded.");
   });
   $("editor-download-slot").append(download);
   document.addEventListener("click", (e) => {

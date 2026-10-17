@@ -14,3 +14,4 @@
 - Distinguish sample functionality from real product functionality. Do not invent live pricing, full-catalog color analysis, printing, private sharing, authentication, or backend persistence.
 - Do not deploy or connect the production project until explicitly requested.
 - Communicate concisely: lead with the next action, keep steps bounded, and avoid unnecessary confirmations or tangents.
+- Store temporary development screenshots, experimental scripts, backups and working copies in `.scratch/` inside this repository; it is ignored by Git. Keep reusable tests in `scripts/` and durable project records in `docs/`. Do not use the former TK workspace for project artifacts. `.scratch/` is disposable local storage, not a permanent backup; Git does not preserve it.

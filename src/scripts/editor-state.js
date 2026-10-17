@@ -504,8 +504,8 @@
           ? ""
           : "Selected pockets must connect along an edge.";
       },
-      save() {
-        saved = copy(current);
+      save(snapshot = current) {
+        saved = copy(snapshot);
         return copy(saved);
       },
     };

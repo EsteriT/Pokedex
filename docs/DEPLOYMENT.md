@@ -8,7 +8,7 @@
 
 In the repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The included Pages workflow builds and verifies the frontend on pushes to `main`. You can also run it manually from **Actions → Deploy website → Run workflow**.
 
-The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. There is no server or database to configure.
+The workflow publishes only `dist/`. Source, tests and documentation remain in the repository, outside the deployed website. The accepted frontend release needs no server/database configuration. The optional binder-cloud foundation on the implementation branch has a separate [setup and approval gate](BACKEND-FOUNDATION.md); it is not deployed by these prototype instructions.
 
 ## Preview the deployment locally
 
@@ -18,6 +18,8 @@ python -m http.server 5500 --directory dist
 ```
 
 Open [localhost:5500](http://localhost:5500/). The build uses the existing standalone previews, with embedded scripts, styles, fonts and cover artwork. The landing page is also copied to `index.html` for the root URL. Links stay relative so GitHub's `/Pokedex/` project path works.
+
+On the backend implementation branch, a configured local Supabase build is deliberately rejected by Pages packaging. Use an unconfigured prototype build or approved hosted HTTPS configuration; never publish localhost settings. The workflow currently supplies no cloud configuration.
 
 ## Publish an update
 

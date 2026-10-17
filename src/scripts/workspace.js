@@ -1,5 +1,7 @@
 (() => {
   "use strict";
+  const repository = window.BinderRepository || window.BinderStore;
+  let persisting = false;
   const $ = (id) => document.getElementById(id),
     limit = 3;
   const grid = $("binder-grid"),
@@ -45,6 +47,13 @@
     });
   });
   function beginCreate() {
+    if (repository.enabled && !repository.user) {
+      announce(
+        "Sign in with Google from the account menu to create a cloud binder.",
+      );
+      document.querySelector(".account").open = true;
+      return;
+    }
     if (binders.length >= limit) {
       announce("All three binder slots are in use.");
       return;
@@ -79,7 +88,7 @@
     $("binder-name").focus();
     $("binder-name").select();
   }
-  function duplicate(b) {
+  async function duplicate(b) {
     if (binders.length >= limit) {
       announce("Delete a binder before duplicating another.");
       return;
@@ -97,14 +106,19 @@
           }
         : undefined,
     };
-    if (!persist([...binders, duplicated])) return;
+    if (!(await persist([...binders, duplicated]))) return;
     render();
-    announce("Binder duplicated in this sample workspace.");
+    announce("Binder duplicated.");
   }
-  function persist(next) {
+  async function persist(next) {
+    if (persisting) return false;
+    persisting = true;
+    grid.setAttribute("aria-busy", "true");
     try {
       // Refuse stale Workspace actions rather than overwrite another tab's work.
-      const latest = window.BinderStore.read();
+      const latest = repository.enabled
+        ? await repository.refresh()
+        : repository.read();
       if (JSON.stringify(latest) !== JSON.stringify(binders)) {
         binders = latest;
         render();
@@ -113,17 +127,21 @@
         );
         return false;
       }
-      binders = window.BinderStore.write(next);
+      binders = await repository.write(next);
       return true;
     } catch (error) {
       announce(error.message);
+      if (edit.open) $("form-error").textContent = error.message;
       return false;
+    } finally {
+      persisting = false;
+      grid.setAttribute("aria-busy", "false");
     }
   }
   function askDelete(b) {
     currentId = b.id;
     $("delete-copy").textContent =
-      `“${b.name}” and its ${b.pages} ${b.pages === 1 ? "page" : "pages"} will be removed from this sample workspace.`;
+      `“${b.name}” and its ${b.pages} ${b.pages === 1 ? "page" : "pages"} will be permanently deleted. Physical inventory is unaffected.`;
     modal(deletion);
     deletion.querySelector(".close-dialog").focus();
   }
@@ -146,7 +164,7 @@
     window.location.assign(binderDestination(b, customize));
   }
 
-  function reorderBinder(id, targetIndex) {
+  async function reorderBinder(id, targetIndex) {
     if ($("binder-search").value.trim()) {
       announce("Clear search before reordering binders.");
       return;
@@ -162,7 +180,7 @@
     const next = [...binders],
       moved = next.splice(from, 1)[0];
     next.splice(targetIndex, 0, moved);
-    if (!persist(next)) return;
+    if (!(await persist(next))) return;
     render();
     document
       .querySelector('[data-focus-key="' + CSS.escape(id + ":menu") + '"]')
@@ -171,7 +189,7 @@
       moved.name +
         " moved to position " +
         (targetIndex + 1) +
-        ". Shelf order saved on this browser.",
+        ". Shelf order saved.",
     );
   }
   function positionBinderMenu(menu) {
@@ -322,7 +340,7 @@
       });
     }
   }
-  $("binder-form").addEventListener("submit", (e) => {
+  $("binder-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = $("binder-name").value.trim();
     if (!name) {
@@ -372,17 +390,15 @@
       });
       $("binder-search").value = "";
     }
-    if (!persist(next)) return;
+    if (!(await persist(next))) return;
     render();
     edit.close();
     announce(
-      mode === "rename"
-        ? "Binder renamed."
-        : "Binder created with one page in this sample workspace.",
+      mode === "rename" ? "Binder renamed." : "Binder created with one page.",
     );
   });
-  $("confirm-delete").addEventListener("click", () => {
-    if (!persist(binders.filter((b) => b.id !== currentId))) return;
+  $("confirm-delete").addEventListener("click", async () => {
+    if (!(await persist(binders.filter((b) => b.id !== currentId)))) return;
     render();
     deletion.close();
     announce(
@@ -435,11 +451,20 @@
   });
   $("create-binder").addEventListener("click", beginCreate);
   $("empty-create").addEventListener("click", beginCreate);
-  function initialize() {
+  async function initialize() {
     try {
+      if (repository.enabled) await repository.ready;
       if (!Array.isArray(window.SAMPLE_BINDERS))
         throw Error("Sample data missing");
-      binders = window.BinderStore.read();
+      binders = repository.read();
+      if (repository.enabled) {
+        document.querySelector(
+          "#binders-panel .preview-disclosure",
+        ).textContent =
+          "Private cloud binders. Use Save in the editor to keep card changes.";
+        $("error-state").querySelector("p").textContent =
+          "Your saved binders have not been changed.";
+      }
       $("binder-search").value = "";
       render();
     } catch (error) {
@@ -451,8 +476,10 @@
       grid.setAttribute("aria-busy", "false");
     }
   }
-  $("retry").addEventListener("click", initialize);
-  $("reset-demo").addEventListener("click", () => {
+  $("retry").addEventListener("click", () =>
+    repository.enabled ? location.reload() : initialize(),
+  );
+  $("reset-demo")?.addEventListener("click", () => {
     if (
       !window.confirm(
         "Reset this browser's saved binders to the sample binders? Download any binders you want to keep first. This cannot be undone.",

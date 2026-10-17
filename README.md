@@ -36,16 +36,19 @@ Your saved data stays in the current browser and website address. **Use Save to 
 
 ### Run locally
 
-Requires Node.js 18+ and a local web server. There are no npm dependencies to install.
+Requires Node.js 22+ and a local web server. Install the pinned dependencies before building.
 
 ```sh
 git clone https://github.com/EsteriT/Pokedex.git
 cd Pokedex
+npm ci
 npm run build
 python -m http.server 5500
 ```
 
 Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
+
+The binder backend is being developed on a separate feature branch. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) for local Supabase/Google setup and the remaining acceptance/deployment gates; cloud saving is not deployed yet.
 
 ### Develop & verify
 
@@ -58,12 +61,16 @@ Edit the files in `src/`; generated previews are rebuilt from those sources.
 | `npm test` | Check binder, collection, catalogue and customization behavior. |
 | `npm run build:pages` | Build the deployment into `dist/` and check its page links. |
 | `npm run test:browser` | Run Chromium regressions with Python 3 and Brave, Chrome or Edge. Set `BROWSER_PATH` if needed. |
+| `npm run test:backend` | Execute database rules in embedded PostgreSQL. |
+| `npm run test:repository` | Check the cloud adapter with controlled SDK fixtures. |
+| `npm run test:backend:live` | Test real services against a running local Supabase stack only. |
+| `npm run test:backend:browser` | Check real local cloud Save, backups, conflicts, sign-out and account isolation in Chromium. |
 
 ```text
 src/        Editable pages, styles, scripts and sample data
 assets/     Fonts, artwork and their attribution
 preview/    Generated standalone versions of the five pages
-scripts/    Dependency-free builds and regression checks
+scripts/    Build scripts and regression checks
 docs/       Design decisions, architecture and project records
 ```
 

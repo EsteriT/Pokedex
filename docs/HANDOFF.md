@@ -8,6 +8,8 @@ After merging/pushing the audited foundation, the user explicitly authorized the
 
 The hosted build configuration contains the intended project URL and modern publishable key, with no Google/admin secret. The user confirmed the exact Google callbacks and Workspace return settings are saved. Public Auth settings verify Google enabled, Email disabled and anonymous sign-ins disabled; the authorize endpoint redirects to Google with the correct Supabase callback. The Pages workflow now builds cloud-enabled pages. Actual deployed Google login and private Save/reopen/backup acceptance remain pending; a successful build alone does not prove that flow. Earlier sections below record historical implementation/audit snapshots.
 
+Commit `83b0ede` was fast-forwarded to `main` and pushed. Deploy website run `39025727131` passed every build/test/deploy step. Live root/landing navigation and all four application configurations match the hosted project; post-deployment anonymous read/commit requests remain denied. The user has been asked to verify actual hosted Google login and create/place/Save/refresh. Do not mark that acceptance complete until the result is known.
+
 ## Binder backend implementation - 2026-10-17
 
 The user authorized the eight-stage binder backend milestone. Work is isolated on `feat/binder-cloud-foundation`; see [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md) for implementation, setup, verification scope and exact remaining gates. This supersedes earlier blanket statements that backend work is deferred, but does not authorize production changes. No hosted Supabase project has been linked or modified, and nothing has been pushed/deployed.

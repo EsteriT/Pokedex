@@ -21,7 +21,7 @@ The website remains static and can still use GitHub Pages. A publishable key ide
 | 5. Google sign-in | PKCE login implemented. User confirmed successful real Google sign-in/return to local Workspace on 2026-10-17; a local Google-provider account was verified. Hosted Google settings are saved and public provider flags/authorize redirects are verified; actual hosted login remains pending. |
 | 6. Frontend integration | Async manual Save, Workspace actions, private viewer, Discover handoff, conflict recovery and account-scoped copying implemented. Real source/preview browser create/place/Save/reopen, Reload/Save-as-copy and Sign out confirmations pass. |
 | 7. Explicit import/private artwork | Explicit local import preserves browser originals/collection. Actual Storage upload/download and portable backup restore pass. Previously viewed private artwork is denied after switching accounts; private SDK requests bypass HTTP cache. SQL/adapter cleanup checks pass. |
-| 8. End-to-end/deployment | Hosted rollout is authorized; migrations, rolled-back ownership/validation assertions and anonymous HTTP denial pass. Hosted Google settings and authorize redirects are verified. The workflow supplies hosted configuration; actual deployed provider login and Save acceptance remain pending. |
+| 8. End-to-end/deployment | Hosted migrations, rolled-back ownership/validation assertions and anonymous HTTP denial pass. Google settings and authorize redirects are verified. Commit `83b0ede` deployed successfully; live application configuration is verified. Actual deployed provider login and Save acceptance remain pending. |
 
 Do not describe all eight stages as complete until the missing checks above pass.
 
@@ -92,6 +92,6 @@ The migrations and hosted assertions/advisor checks are complete. The user confi
 
 The website build needs only the hosted API URL and publishable key. Those public settings are included in the Pages workflow. Provider flags and the Google authorize redirect are verified. Actual deployed Google login and private Save/reopen/backup checks remain required. A local Google session is not copied to the hosted Auth database; a user signs in to each environment separately.
 
-The user has approved this hosted rollout. Database changes and provider configuration are complete; workflow deployment and actual deployed acceptance must still finish before calling the cloud release complete.
+The user has approved this hosted rollout. Database changes, provider configuration and workflow deployment are complete. Actual deployed Google login and Save/reopen/backup acceptance must still finish before calling the cloud release complete.
 
 Official references: [local Supabase](https://supabase.com/docs/guides/local-development/cli/getting-started), [Google login](https://supabase.com/docs/guides/auth/social-login/auth-google), [API security](https://supabase.com/docs/guides/api/securing-your-api), [Storage access control](https://supabase.com/docs/guides/storage/security/access-control), [PGlite limitations](https://pglite.dev/docs/).

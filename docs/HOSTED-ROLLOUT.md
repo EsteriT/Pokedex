@@ -12,6 +12,8 @@ The user authorized the hosted rollout after the local foundation was audited, c
 - Verified the public HTTP API denies anonymous binder SELECT and commit RPC requests with HTTP 401 / PostgreSQL `42501`.
 - Verified 55 catalogue records, zero exposed security-definer application RPCs and no anonymous usage of the private schema.
 - Prepared and built the GitHub Pages configuration using only the hosted API URL and modern publishable key. Google and administrator secrets are excluded from the website and workflow.
+- Published commit `83b0ede` to `main`. [Deploy website run 39025727131](https://github.com/EsteriT/Pokedex/actions/runs/39025727131) succeeded, including build, reference checks, model tests, embedded database tests and repository tests.
+- Fetched the live root/landing pages and verified Workspace navigation. All four live application pages embed the exact hosted public configuration, with no localhost backend URL. Rechecked Google-only provider flags and anonymous HTTP read/commit denial after publication.
 
 ## Migration history
 
@@ -39,7 +41,7 @@ The user confirmed the following dashboard settings are saved. Public Auth setti
 1. Google Cloud → Google Auth Platform → Clients → the existing Web client: add JavaScript origin `https://esterit.github.io` and redirect URI `https://pnuovoogfjzzlgmenhnq.supabase.co/auth/v1/callback`. Preserve the local development entries. If the OAuth audience is in Testing, explicitly add intended beta testers as test users.
 2. Supabase → Authentication → Sign In / Providers → Google: enable it and enter the existing client ID/secret privately. Disable the Email provider; anonymous sign-ins stay disabled. The beta login method is Google.
 3. Supabase → Authentication → URL Configuration: Site URL and allowed return URL must be exactly `https://esterit.github.io/Pokedex/Pokedex-workspace.html`. Do not use wildcard redirects.
-4. Public Auth settings and the generated Google authorize redirect are verified. The workflow now supplies the hosted public build configuration. Confirm its Actions deployment succeeds and the live pages embed that configuration.
+4. Public Auth settings, the generated Google authorize redirect, Actions deployment and live embedded configuration are verified.
 5. **Still required:** verify actual hosted Google login/return, create a binder, place a card, Save, reload, restore/download a portable artwork backup, sign out and reopen from another browser profile. The production provider flow is separate from the earlier successful local Google test.
 
 The existing browser-local binders are not automatically migrated. After hosted sign-in, Account → Import a browser binder explicitly copies one selected binder and preserves its original.

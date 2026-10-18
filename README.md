@@ -26,13 +26,13 @@ Arrange your collection, customize every detail, and make a binder that feels li
 | **Move things naturally** | Drag cards to swap pockets, push a row toward an empty space, or keep displaced cards in Overflow. Select batches and copy cards between binders. |
 | **Make it yours** | Choose covers, including transparent; add titles and artwork; style cards with sleeves and toploaders. |
 | **Find what fits** | Explore the sample catalogue through search, filters and curated color matching. Track your collection in Workspace. |
-| **Keep your work** | Save in your browser, download a backup, and restore it later. Open a read-only view of your saved binder. |
+| **Keep your work** | Save, download a backup, and restore it later. Open a read-only view of your saved binder. |
 
 ### Before you begin
 
 This is the **frontend MVP**, accepted on October 16, 2026. It includes **55 sample card printings**; prices are fictional interface examples.
 
-The hosted cloud beta adds **Google sign-in and private account binders**. Use **Save** to keep edits and **Download backup** for a portable copy. Existing browser binders are imported explicitly; collection records stay browser-local. Unconfigured builds keep the original local prototype. Actual hosted login/Save acceptance is tracked in the [rollout record](docs/HOSTED-ROLLOUT.md).
+The hosted cloud beta adds **Google sign-in, private binders and account collections**. Use **Save** to keep edits and **Download backup** for a portable copy. Existing browser binders and collection records are imported explicitly, preserving their browser originals. Unconfigured builds keep the original local prototype. Actual hosted login/Save acceptance is tracked in the [rollout record](docs/HOSTED-ROLLOUT.md).
 
 ### Run locally
 
@@ -49,6 +49,8 @@ python -m http.server 5500
 Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
 
 The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup, verified acceptance and beta limits.
+
+Account collection storage is implemented and tested on `feat/collection-cloud`; its approved hosted migration is deployed and website publication is in progress. See [the collection guide](docs/COLLECTION-CLOUD.md) for private saving, browser import, conflict recovery and test coverage. Actual hosted collection UI acceptance remains pending.
 
 ### Develop & verify
 
@@ -80,7 +82,7 @@ docs/       Design decisions, architecture and project records
 - [Deployment](docs/DEPLOYMENT.md) — GitHub Pages setup and publishing.
 - [Design](docs/DESIGN.md) · [Architecture](docs/ARCHITECTURE.md) · [Current handoff](docs/HANDOFF.md).
 
-Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, collection synchronization, public sharing and print/image export remain future work.
+Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, automatic realtime synchronization, public sharing and print/image export remain future work.
 
 ---
 

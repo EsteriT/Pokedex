@@ -4881,6 +4881,15 @@ PERFORMANCE OF THIS SOFTWARE.
     result.code = error.code;
     return result;
   }
+  async function accessToken() {
+    assertSession();
+    const { data, error } = await client.auth.getSession();
+    assertSession();
+    if (error) throw errorFor(error);
+    if (!data.session?.access_token || data.session.user.id !== user.id)
+      throw Error("Account changed. Download your draft backup, then reload.");
+    return data.session.access_token;
+  }
   function entry(row) {
     const d = local.validate(row.document),
       first = d.pages[0];
@@ -4929,10 +4938,14 @@ PERFORMANCE OF THIS SOFTWARE.
     for (const b of next)
       documents.push({ id: b.id, document: await media.pack(materialize(b)) });
     assertSession();
-    const { error } = await client.rpc("commit_binders", {
-      expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
-      documents,
-    });
+    const token = await accessToken();
+    const { error } = await client
+      .rpc("commit_binders", {
+        expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
+        documents,
+      })
+      // Never let an SDK session change retarget an already submitted write.
+      .setHeader("Authorization", "Bearer " + token);
     if (error) throw errorFor(error);
     assertSession();
     if (user.id !== owner)
@@ -5000,6 +5013,8 @@ PERFORMANCE OF THIS SOFTWARE.
   window.BinderRepository = {
     enabled,
     ready,
+    assertSession,
+    accessToken,
     get user() {
       return user;
     },
@@ -5091,8 +5106,7 @@ PERFORMANCE OF THIS SOFTWARE.
     heading.textContent = user?.email || "Cloud binders";
     panel.append(heading, note);
     if (!user) {
-      note.textContent =
-        "Sign in to save private binders. Your collection stays in this browser.";
+      note.textContent = "Sign in to save private binders and your collection.";
       const route = document.querySelector(
         '#workspace-nav, .workspace-back, a[href*="workspace"], #editor-route',
       );
@@ -5105,7 +5119,7 @@ PERFORMANCE OF THIS SOFTWARE.
       return;
     }
     note.textContent =
-      "Private binders. Manual Save. Collection stays on this device.";
+      "Private binders and collection. Use Save to keep changes.";
     panel.append(button("Sign out", () => repository.signOut()));
     panel.append(
       button("Remove unused artwork", async () => {

@@ -34,6 +34,15 @@ function setup({ enabled = true, signedIn = true } = {}) {
       async getUser() {
         return { data: { user: signedIn ? user : null } };
       },
+      async getSession() {
+        return {
+          data: {
+            session: signedIn
+              ? { user, access_token: "test-owner-" + user.id }
+              : null,
+          },
+        };
+      },
       onAuthStateChange(fn) {
         callback = fn;
       },
@@ -63,7 +72,16 @@ function setup({ enabled = true, signedIn = true } = {}) {
         },
       };
     },
-    async rpc(name, args) {
+    rpc(name, args) {
+      const request = client.executeRpc(name, args);
+      request.setHeader = (name, value) => {
+        assert.equal(name, "Authorization");
+        assert.equal(value, "Bearer test-owner-" + user.id);
+        return request;
+      };
+      return request;
+    },
+    async executeRpc(name, args) {
       writes.push([name, structuredClone(args)]);
       if (name === "reserve_binder_artwork") return {};
       if (name === "cleanup_binder_artwork") return { data: bucket.unused };

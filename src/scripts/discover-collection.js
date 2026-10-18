@@ -1,9 +1,12 @@
 (() => {
   "use strict";
-  const $ = (id) => document.getElementById(id);
-  let state = window.CollectionState.create(window.SAMPLE_COLLECTION),
+  const $ = (id) => document.getElementById(id),
+    repository = window.CollectionRepository;
+  let state = window.CollectionState.create(repository.empty()),
     revision = null,
-    blocked = false,
+    blocked = true,
+    persisting = false,
+    loadId = 0,
     statusText = "",
     pendingMessage = "";
   const announce = (text) => {
@@ -29,24 +32,39 @@
   }
   function render() {
     updateAnnouncementTarget();
-    $("discover-collection-save").disabled = !state.dirty || blocked;
+    $("discover-collection-save").disabled =
+      !state.dirty || blocked || persisting;
     $("detail-collection-save").hidden = !state.dirty;
-    $("detail-collection-save").disabled = blocked;
+    $("detail-collection-save").disabled = blocked || persisting;
+    $("discover-collection-save").toggleAttribute("aria-busy", persisting);
+    $("discover-collection-reload").disabled = persisting;
     $("discover-collection-undo").hidden = !state.canUndo;
     $("detail-collection-undo").hidden = !state.canUndo;
     $("discover-collection-download").hidden = !state.dirty;
   }
-  function load(onlyIfChanged = false) {
+  async function load(onlyIfChanged = false) {
+    if (persisting) return;
+    const request = ++loadId,
+      wasBlocked = blocked;
+    blocked = true;
+    render();
     try {
-      const saved = window.CollectionStore.read();
-      if (onlyIfChanged && (saved?.revision ?? null) === revision && !blocked)
-        return;
-      state.load(saved?.document || window.SAMPLE_COLLECTION);
-      revision = saved?.revision ?? null;
+      const saved = await repository.read();
+      if (request !== loadId) return;
+      if (
+        !onlyIfChanged ||
+        (saved?.revision ?? null) !== revision ||
+        wasBlocked
+      ) {
+        state.load(saved?.document || repository.empty());
+        revision = saved?.revision ?? null;
+      }
       blocked = false;
+      $("discover-collection-reload").hidden = true;
     } catch (error) {
-      blocked = true;
+      if (request !== loadId) return;
       announce(error.message);
+      $("discover-collection-reload").hidden = false;
     }
     render();
   }
@@ -62,6 +80,7 @@
         throw Error(
           "Saved collection is unavailable. It has not been overwritten.",
         );
+      repository.check();
       const merged = state.upsert(value, id);
       pendingMessage =
         (merged
@@ -71,16 +90,26 @@
             ". ") + "Unsaved changes · Save collection to keep them.";
     },
   });
-  function save() {
+  async function save() {
+    if (blocked || persisting) return;
+    persisting = true;
+    const snapshot = JSON.parse(JSON.stringify(state.document));
+    render();
     try {
-      revision = window.CollectionStore.save(state.document, revision);
-      state.save();
+      revision = await repository.save(snapshot, revision);
+      state.save(snapshot);
+      $("discover-collection-reload").hidden = true;
       announce(
-        "Collection saved on this browser. Open My collection to view it.",
+        repository.enabled
+          ? "Collection saved to your account."
+          : "Collection saved on this browser. Open My collection to view it.",
       );
-      render();
     } catch (error) {
       announce(error.message);
+      $("discover-collection-reload").hidden = false;
+    } finally {
+      persisting = false;
+      render();
     }
   }
   for (const id of ["discover-collection-save", "detail-collection-save"])
@@ -140,14 +169,9 @@
       $("open-workspace-collection").href = url.href;
       render();
     },
-    open(selected, selectedFinish) {
-      if (!state.dirty) load(true);
-      if (blocked) {
-        announce(
-          "Saved collection is unavailable. Restore or reload valid collection data first.",
-        );
-        return;
-      }
+    async open(selected, selectedFinish) {
+      if (!state.dirty) await load(true);
+      if (blocked || !$("details-dialog").open) return;
       form.open(null, {
         cardId: selected.id || selected.collectorNumber,
         finish: selectedFinish || "unknown",
@@ -162,7 +186,11 @@
     }
   });
   window.addEventListener("storage", (e) => {
-    if (e.key !== "pokedex.collection.v1" && e.key !== null) return;
+    if (
+      repository.enabled ||
+      (e.key !== "pokedex.collection.v1" && e.key !== null)
+    )
+      return;
     if (state.dirty || $("inventory-dialog").open)
       announce(
         "Collection changed in another tab. Download your edits before reloading; saving will detect the conflict.",
@@ -174,6 +202,38 @@
     updateAnnouncementTarget();
     if ($("details-dialog").open && statusText)
       $("detail-message").textContent = statusText;
+  });
+  $("discover-collection-reload").addEventListener("click", () => {
+    if (
+      !state.dirty ||
+      window.confirm(
+        "Discard unsaved collection edits and reload? Download a draft backup first to keep them.",
+      )
+    )
+      load();
+  });
+  window.addEventListener("pokedex-before-signout", (e) => {
+    if (persisting) {
+      e.preventDefault();
+      announce("Wait for collection Save to finish before signing out.");
+      return;
+    }
+    if (
+      state.dirty &&
+      !window.confirm(
+        "Sign out and discard unsaved collection edits? Download a backup first to keep them.",
+      )
+    )
+      e.preventDefault();
+  });
+  window.addEventListener("pokedex-account-changed", () => {
+    ++loadId;
+    blocked = true;
+    if (!state.dirty) state.load({ records: [] });
+    announce(
+      "Account changed. Download any draft backup, then reload before continuing.",
+    );
+    render();
   });
   load();
 })();

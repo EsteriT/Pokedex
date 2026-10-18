@@ -190,8 +190,8 @@
           current = future.pop();
         }
       },
-      save() {
-        saved = copy(current);
+      save(snapshot = current) {
+        saved = validate(copy(snapshot));
       },
       load(doc) {
         current = validate(doc);

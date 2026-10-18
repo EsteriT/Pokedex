@@ -112,6 +112,15 @@ class CDP:
 
 
 
+def add_discover_record(cdp, save=False):
+    cdp.evaluate("document.getElementById('add-to-collection').click()")
+    cdp.wait("document.getElementById('inventory-dialog').open")
+    cdp.evaluate("document.getElementById('inventory-apply').click()")
+    if save:
+        cdp.evaluate("document.getElementById('detail-collection-save').click()")
+        cdp.wait("document.getElementById('detail-collection-save').hidden")
+
+
 def check_collection(cdp, base, route):
     cdp.go(f"{base}/{route}?tab=collection", "!!(window.CollectionStore&&document.getElementById('collection-add'))")
     cdp.evaluate("""(()=>{localStorage.removeItem('pokedex.collection.v1');let c=CARDS[0],doc={records:Array.from({length:1100},(_,i)=>({id:'browser-'+i,kind:'owned',cardId:c.id||c.collectorNumber,finish:'unknown',quantity:1,condition:'unknown',grading:{company:'Other',grade:'Group '+i},notes:'x'.repeat(1900),chase:false,tradeStatus:'keep'}))};CollectionStore.save(doc,null)})()""")
@@ -193,11 +202,11 @@ def check_discover_gallery(cdp, base, route):
     assert cdp.evaluate("document.getElementById('details-dialog').open"),'Parent details must remain open behind image viewer'
     cdp.escape();time.sleep(.1)
     assert cdp.evaluate("document.getElementById('details-dialog').open&&document.activeElement===document.getElementById('view-image')"),'Image dismissal must return to its detail action'
-    cdp.evaluate("document.getElementById('add-to-collection').click();document.getElementById('inventory-apply').click()")
+    add_discover_record(cdp)
     assert cdp.evaluate("!document.getElementById('detail-collection-save').hidden&&localStorage.getItem('pokedex.collection.v1')===null"),'Collection additions must remain unsaved until manual Save'
     cdp.evaluate("document.getElementById('detail-collection-undo').click()")
     assert cdp.evaluate("document.getElementById('detail-collection-save').hidden"),'Collection additions must still support Undo'
-    cdp.evaluate("document.getElementById('add-to-collection').click();document.getElementById('inventory-apply').click();document.getElementById('detail-collection-save').click()")
+    add_discover_record(cdp, save=True)
     assert cdp.evaluate("!!CollectionStore.read()&&document.getElementById('detail-collection-save').hidden"),'Collection Save must persist the chosen card'
     cdp.evaluate("BinderStore.write(SAMPLE_BINDERS.slice(0,1).map(b=>({...b,revision:0})));document.getElementById('add-to-binder').click()")
     assert cdp.evaluate("document.getElementById('placement-dialog').open&&!document.getElementById('placement-confirm').disabled"),'Binder/page handoff must remain available'
@@ -287,9 +296,13 @@ def check_cleanup(cdp, base, editor, workspace):
     assert cdp.evaluate("BinderStore.read().length===1&&BinderSchema.validIdentifier(BinderStore.read()[0].id)"), 'Invalid link IDs must be replaced before saving'
     saved_id = cdp.evaluate('BinderStore.read()[0].id')
     cdp.go(base+'/'+discover, "!!window.DiscoverCollection&&document.querySelectorAll('#card-grid > button').length===24")
-    cdp.evaluate("document.querySelector('#card-grid > button').click();document.getElementById('add-to-collection').click();document.getElementById('inventory-apply').click();document.getElementById('detail-collection-save').click();localStorage.removeItem('pokedex.collection.v1');dispatchEvent(new StorageEvent('storage',{key:null}));document.getElementById('add-to-collection').click();document.getElementById('inventory-apply').click();document.getElementById('detail-collection-save').click()")
+    cdp.evaluate("document.querySelector('#card-grid > button').click()")
+    add_discover_record(cdp, save=True)
+    cdp.evaluate("localStorage.removeItem('pokedex.collection.v1');dispatchEvent(new StorageEvent('storage',{key:null}))")
+    add_discover_record(cdp, save=True)
     assert cdp.evaluate("document.getElementById('detail-message').textContent.includes('Collection saved')"), 'Discover must reset its revision after storage clear'
-    cdp.evaluate("document.getElementById('add-to-collection').click();document.getElementById('inventory-apply').click();localStorage.removeItem('pokedex.collection.v1');dispatchEvent(new StorageEvent('storage',{key:null}))")
+    add_discover_record(cdp)
+    cdp.evaluate("localStorage.removeItem('pokedex.collection.v1');dispatchEvent(new StorageEvent('storage',{key:null}))")
     assert cdp.evaluate("!document.getElementById('detail-collection-save').hidden&&document.getElementById('detail-message').textContent.includes('another tab')"), 'Discover must retain dirty edits on storage clear'
     cdp.evaluate("document.getElementById('detail-collection-undo').click();document.getElementById('close-details').click()")
     cdp.go(base+'/'+viewer+'?binder='+saved_id, "!!document.querySelector('#viewer-cover-art .binder-cover-art')")
@@ -918,6 +931,12 @@ def main():
             base = f"http://127.0.0.1:{server.server_port}"
             for editor, workspace in (("src/editor.html", "src/workspace.html"), ("preview/Pokedex-editor.html", "preview/Pokedex-workspace.html")):
                 if os.environ.get('POKEDEX_BROWSER_SUITE') == 'cloud':
+                    check_cloud_contract(cdp, base, workspace, editor)
+                    continue
+                if os.environ.get('POKEDEX_BROWSER_SUITE') == 'collection':
+                    check_collection(cdp, base, workspace)
+                    check_discover_gallery(cdp, base, 'src/discover.html' if editor.startswith('src/') else 'preview/Pokedex-discover.html')
+                    check_cleanup(cdp, base, editor, workspace)
                     check_cloud_contract(cdp, base, workspace, editor)
                     continue
                 check_phone_layout(cdp, base, editor)

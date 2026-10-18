@@ -53,6 +53,7 @@ const scope = { window: {}, crypto: webcrypto };
 for (const file of [
   "data/sample-cards.js",
   "data/sample-card-details.js",
+  "data/sample-collection.js",
   "scripts/binder-schema.js",
   "scripts/editor-state.js",
 ])
@@ -137,6 +138,11 @@ async function main() {
       await testAccount("test");
     }
     const [a, b] = clients;
+    await require("./check-collection-live.cjs")(
+      a,
+      b,
+      scope.window.SAMPLE_COLLECTION,
+    );
     const commit = (c, expected, documents) =>
       c.rpc("commit_binders", { expected, documents });
     const read = async (c) => {
@@ -264,6 +270,13 @@ async function main() {
     const session = (await a.auth.getSession()).data.session;
     const reopened = createClient(url, publicKey, options);
     await reopened.auth.setSession(session);
+    const reopenedCollection = await reopened
+      .from("collections")
+      .select("revision,document")
+      .maybeSingle();
+    if (reopenedCollection.error) throw reopenedCollection.error;
+    assert.equal(reopenedCollection.data.revision, 2);
+    assert.equal(reopenedCollection.data.document.records.length, 6);
     assert.equal(
       (await read(reopened))[0].document.pages[0].regions[0].content.src,
       "storage:" + objectPath,

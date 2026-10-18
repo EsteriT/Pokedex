@@ -15,13 +15,16 @@
       async getUser() {
         return { data: { user } };
       },
+      async getSession() {
+        return { data: { session: { user, access_token: "fixture-token" } } };
+      },
       onAuthStateChange() {},
       async signOut() {
         return {};
       },
     },
     storage: {
-      from() {
+      from(table) {
         return {};
       },
     },
@@ -29,6 +32,13 @@
       return {
         select() {
           return {
+            async maybeSingle() {
+              return {
+                data: JSON.parse(
+                  sessionStorage.getItem("pokedex.test-collection") || "null",
+                ),
+              };
+            },
             async order() {
               return { data: read() };
             },
@@ -36,8 +46,26 @@
         },
       };
     },
-    async rpc(name, args) {
+    rpc(name, args) {
+      const request = sdk.executeRpc(name, args);
+      request.setHeader = () => request;
+      return request;
+    },
+    async executeRpc(name, args) {
       if (name === "cleanup_binder_artwork") return { data: [] };
+      if (name === "commit_collection") {
+        const prior = JSON.parse(
+          sessionStorage.getItem("pokedex.test-collection") || "null",
+        );
+        if ((prior?.revision ?? null) !== args.expected_revision)
+          return { error: { code: "40001" } };
+        const revision = (prior?.revision || 0) + 1;
+        sessionStorage.setItem(
+          "pokedex.test-collection",
+          JSON.stringify({ revision, document: args.document }),
+        );
+        return { data: revision };
+      }
       const rows = read();
       if (
         JSON.stringify(args.expected) !==

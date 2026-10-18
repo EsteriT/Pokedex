@@ -1,5 +1,7 @@
 # Pokedex architecture — working draft
 
+The 2026-10-18 account collection implementation on `feat/collection-cloud` is documented in [COLLECTION-CLOUD.md](COLLECTION-CLOUD.md). It adds a shared collection adapter, owner-scoped snapshot/revision storage and explicit browser import. It is tested locally; its approved hosted migration is deployed and website publication is in progress. The accepted hosted binder rollout remains recorded in [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md). Older browser-local-only collection descriptions below describe the prototype baseline.
+
 Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). The 2026-10-17 binder backend implementation is documented in [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md), including passing local service/browser tests and the remaining hosted deployment gates. Older proposals below are historical where they conflict with that contract. [HISTORY.md](HISTORY.md) records superseded prototype iterations.
 
 Updated: 2026-10-12. Companion: [DESIGN.md](DESIGN.md). This document plans responsibilities, data, and integration. It is not permission to build a backend or deploy.

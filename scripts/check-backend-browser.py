@@ -13,6 +13,7 @@ import sys
 import tempfile
 import threading
 import time
+from check_collection_cloud import check_collection_cloud
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 
@@ -110,7 +111,7 @@ def main():
                 cdp.evaluate("(async()=>{const c=BinderRepository.client,r=await c.from('binders').select('*');const result=await c.rpc('commit_binders',{expected:r.data.map(b=>({id:b.id,revision:b.revision})),documents:r.data.map(b=>({id:b.id,document:{...b.document,name:'Newer saved version'}}))});if(result.error)throw Error(result.error.message)})()")
                 cdp.evaluate("document.getElementById('rename-binder').click();document.getElementById('new-name').value='My stale draft';document.getElementById('name-form').requestSubmit();document.getElementById('save').click()")
                 cdp.wait("document.getElementById('cloud-save-conflict')?.open",timeout=35)
-                cdp.evaluate("window.realRpc=BinderRepository.client.rpc.bind(BinderRepository.client);window.copyGate=new Promise(resolve=>window.releaseCopy=resolve);BinderRepository.client.rpc=(...args)=>copyGate.then(()=>realRpc(...args))")
+                cdp.evaluate("window.realRpc=BinderRepository.client.rpc.bind(BinderRepository.client);window.copyGate=new Promise(resolve=>window.releaseCopy=resolve);BinderRepository.client.rpc=(...args)=>{const query=realRpc(...args),originalThen=query.then.bind(query);query.then=(...handlers)=>copyGate.then(()=>originalThen(...handlers));return query}")
                 cdp.evaluate("[...document.querySelectorAll('#cloud-save-conflict button')].find(b=>b.textContent==='Save as copy').click()")
                 assert cdp.evaluate("[...document.querySelectorAll('#cloud-save-conflict button')].every(b=>b.disabled)"),'A pending copy must lock all conflict choices'
                 cdp.escape()
@@ -126,6 +127,7 @@ def main():
                 cdp.wait("document.querySelectorAll('#binder-grid .binder-card').length===3",timeout=35)
                 assert cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")==original
                 assert cdp.evaluate("localStorage.getItem('pokedex.collection.v1')")==collection
+                check_collection_cloud(cdp, base, folder+workspace_name, folder+('discover.html' if folder=='src/' else 'Pokedex-discover.html'), ROOT)
                 assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
                 cdp.evaluate("sessionStorage.setItem('pokedex.copied-cards.v1',JSON.stringify({target:"+json.dumps(binder_id)+",owner:'another-account',cards:[{cardId:'001'}]}))")
                 cdp.go(base+'/'+folder+editor_name+'#'+quote(json.dumps({'id':binder_id}),safe=''),"!!window.EditorLayout")
@@ -143,6 +145,7 @@ def main():
                 workspace(folder+workspace_name+'?account=second')
                 assert cdp.evaluate('BinderRepository.user.id')==other_session['user']['id'],'Account switch must load the second authenticated user'
                 assert cdp.evaluate("BinderRepository.read().length===0"),'Other account must have an empty private workspace'
+                assert cdp.evaluate("(async()=>await CollectionRepository.read()===null)()"),'Other account must not inherit the owner collection'
                 assert cdp.evaluate("(async()=>!!(await BinderRepository.client.storage.from('binder-artwork').download("+json.dumps(owner_path[8:])+" )).error)()"),'Other account cannot download even previously viewed private artwork'
                 cdp.go(base+'/'+folder+viewer_name+'?binder='+binder_id,"!!window.BinderRepository?.user&&!document.getElementById('viewer-error').hidden")
                 assert cdp.evaluate("document.getElementById('viewer-shell').hidden"),'A private viewer must not display the other account\'s binder'

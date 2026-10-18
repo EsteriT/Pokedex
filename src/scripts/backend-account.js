@@ -35,8 +35,7 @@
     heading.textContent = user?.email || "Cloud binders";
     panel.append(heading, note);
     if (!user) {
-      note.textContent =
-        "Sign in to save private binders. Your collection stays in this browser.";
+      note.textContent = "Sign in to save private binders and your collection.";
       const route = document.querySelector(
         '#workspace-nav, .workspace-back, a[href*="workspace"], #editor-route',
       );
@@ -49,7 +48,7 @@
       return;
     }
     note.textContent =
-      "Private binders. Manual Save. Collection stays on this device.";
+      "Private binders and collection. Use Save to keep changes.";
     panel.append(button("Sign out", () => repository.signOut()));
     panel.append(
       button("Remove unused artwork", async () => {

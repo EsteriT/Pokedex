@@ -1,17 +1,21 @@
-(() => {
+(async () => {
   "use strict";
   const $ = (id) => document.getElementById(id),
+    repository = window.CollectionRepository,
     cards = window.CARDS,
     byId = new Map(cards.map((c) => [c.id || c.collectorNumber, c]));
   let revision = null,
     persisted = false,
-    blocked = false,
+    blocked = true,
+    loading = true,
+    persisting = false,
+    loadId = 0,
     view = "owned",
     editing = null,
     confirmAction = null;
   let selecting = false;
   const selected = new Set();
-  let state = window.CollectionState.create(window.SAMPLE_COLLECTION);
+  let state = window.CollectionState.create(repository.empty());
   const { make, picture } = window.CollectionUI;
   const filterPanel = document.querySelector(
     "#collection-panel .collection-filters",
@@ -464,7 +468,7 @@
     const count = state.document.records.filter((r) => r.kind === view).length;
     $("inventory-results").textContent =
       rows.length + " " + (rows.length === 1 ? "card group" : "card groups");
-    $("inventory-empty").hidden = !!rows.length;
+    $("inventory-empty").hidden = !!rows.length || loading || blocked;
     $("inventory-empty-title").textContent = count
       ? "No matching records"
       : view === "owned"
@@ -475,14 +479,29 @@
       : "Add a printing to start tracking " +
         (view === "owned" ? "your collection." : "your wanted cards.");
     $("collection-empty-add").hidden = false;
-    $("collection-save").disabled = blocked || (!state.dirty && persisted);
-    $("collection-save-status").textContent = blocked
-      ? "Local data unavailable"
-      : !$("collection-save").disabled
-        ? "Unsaved changes"
-        : Date.now() < savedUntil
-          ? "✓ Saved"
-          : "All changes saved";
+    $("collection-save").disabled =
+      blocked || persisting || (!state.dirty && persisted);
+    $("collection-save").toggleAttribute("aria-busy", persisting);
+    $("collection-reload").disabled = persisting;
+    $("collection-browser-import").hidden = !repository.enabled;
+    $("collection-browser-import").disabled = blocked || persisting;
+    $("collection-empty-add").disabled = blocked;
+    $("collection-save").title = repository.enabled
+      ? "Save to your account"
+      : "Save on this browser";
+    $("collection-save-status").textContent = loading
+      ? "Loading collection..."
+      : blocked
+        ? repository.enabled
+          ? "Account collection unavailable"
+          : "Local data unavailable"
+        : persisting
+          ? "Saving..."
+          : !$("collection-save").disabled
+            ? "Unsaved changes"
+            : Date.now() < savedUntil
+              ? "✓ Saved"
+              : "All changes saved";
     $("collection-save-status").classList.toggle(
       "is-unsaved",
       !blocked && !$("collection-save").disabled,
@@ -492,7 +511,7 @@
     $("collection-redo").hidden = !state.canRedo;
     $("collection-redo").disabled = !state.canRedo;
     $("collection-add").disabled = blocked;
-    $("collection-import").disabled = blocked;
+    $("collection-import").disabled = blocked || persisting;
     if (key && !active.isConnected)
       (
         document.querySelector('[data-record="' + CSS.escape(key) + '"]') ||
@@ -501,6 +520,9 @@
   }
   function run(action, text) {
     try {
+      if (blocked)
+        throw Error("Collection is unavailable. Reload before editing.");
+      repository.check();
       const result = action();
       render();
       message(typeof text === "function" ? text(result) : text);
@@ -510,40 +532,56 @@
       return false;
     }
   }
-  function load() {
+  const syncError = (text = "") => {
+    $("collection-sync-message").textContent = text;
+    $("collection-sync-message").hidden = !text;
+  };
+  async function load() {
+    if (persisting) return;
+    const request = ++loadId;
+    blocked = true;
+    loading = true;
+    render();
     try {
-      const saved = window.CollectionStore.read();
-      if (saved) {
-        state.load(saved.document);
-        revision = saved.revision;
-        persisted = true;
-      } else {
-        state.load(window.SAMPLE_COLLECTION);
-        revision = null;
-        persisted = false;
-      }
+      const saved = await repository.read();
+      if (request !== loadId) return;
+      state.load(saved?.document || repository.empty());
+      revision = saved?.revision ?? null;
+      persisted = !!saved || repository.enabled;
       blocked = false;
+      syncError();
     } catch (error) {
-      blocked = true;
+      if (request !== loadId) return;
+      syncError(error.message);
       message(error.message);
     }
+    loading = false;
     render();
   }
-  function save() {
-    if (blocked) return;
+  async function save() {
+    if (blocked || persisting) return;
+    persisting = true;
+    const snapshot = JSON.parse(JSON.stringify(state.document));
+    render();
     try {
-      revision = window.CollectionStore.save(state.document, revision);
-      state.save();
+      revision = await repository.save(snapshot, revision);
+      state.save(snapshot);
       persisted = true;
+      syncError();
       savedUntil = Date.now() + 2000;
       clearTimeout(savedTimer);
       savedTimer = setTimeout(render, 2050);
-      render();
       message(
-        "Collection saved on this browser. Binder layouts are unaffected.",
+        repository.enabled
+          ? "Collection saved to your account."
+          : "Collection saved on this browser. Binder layouts are unaffected.",
       );
     } catch (error) {
+      syncError(error.message);
       message(error.message);
+    } finally {
+      persisting = false;
+      render();
     }
   }
 
@@ -551,6 +589,8 @@
     kind: () => view,
     records: () => state.document.records,
     applyMany(values) {
+      if (blocked) throw Error("Reload your collection before editing.");
+      repository.check();
       const staged = window.CollectionState.create(state.document);
       values.forEach((value) => staged.upsert(value));
       state.replace(staged.document);
@@ -561,6 +601,8 @@
       );
     },
     apply(value, id) {
+      if (blocked) throw Error("Reload your collection before editing.");
+      repository.check();
       const merged = state.upsert(value, id);
       view = value.kind;
       message(
@@ -839,6 +881,101 @@
       );
     }
   });
+  $("collection-browser-import").addEventListener("click", () => {
+    try {
+      repository.check();
+      const source = repository.readBrowser();
+      if (!source)
+        throw Error(
+          "No saved browser collection to import. Restore a backup instead.",
+        );
+      const summary = repository.previewImport(state.document, source.document);
+      const dialog = make("dialog", "cloud-dialog");
+      dialog.setAttribute("aria-labelledby", "collection-browser-title");
+      const title = make("h2", "", "Import browser collection");
+      title.id = "collection-browser-title";
+      const copy = make(
+        "p",
+        "",
+        `${summary.groups} browser groups: ${summary.added} new, ${summary.overlaps} matching. Review the draft, then Save. The browser original stays unchanged. Quantities are never added together.`,
+      );
+      const label = make("label", "field", "Matching groups");
+      const choice = make("select");
+      for (const [value, text] of [
+        ["", "Choose what to keep"],
+        ["keep", "Keep account records"],
+        ["replace", "Use browser records"],
+      ]) {
+        const option = make("option", "", text);
+        option.value = value;
+        choice.append(option);
+      }
+      label.append(choice);
+      label.hidden = !summary.overlaps;
+      const error = make("p");
+      error.setAttribute("role", "alert");
+      const actions = make("div", "dialog-actions");
+      const cancel = make("button", "button secondary", "Cancel");
+      cancel.type = "button";
+      const apply = make("button", "button primary", "Import into draft");
+      apply.type = "button";
+      cancel.onclick = () => dialog.close();
+      apply.onclick = () => {
+        try {
+          repository.check();
+          if (blocked || persisting)
+            throw Error("Reload your account before importing.");
+          const merged = repository.importDocument(
+            state.document,
+            source.document,
+            summary.overlaps ? choice.value : "keep",
+          );
+          state.replace(merged);
+          render();
+          dialog.close();
+          message("Browser records imported into draft. Review, then Save.");
+        } catch (e) {
+          error.textContent = e.message;
+        }
+      };
+      actions.append(cancel, apply);
+      dialog.append(title, copy, label, error, actions);
+      document.body.append(dialog);
+      dialog.addEventListener("close", () => {
+        dialog.remove();
+        $("collection-browser-import").focus();
+      });
+      dialog.showModal();
+      cancel.focus();
+    } catch (error) {
+      message(error.message);
+    }
+  });
+  window.addEventListener("pokedex-before-signout", (e) => {
+    if (persisting) {
+      e.preventDefault();
+      syncError("Wait for collection Save to finish before signing out.");
+      return;
+    }
+    if (
+      state.dirty &&
+      !window.confirm(
+        "Sign out and discard unsaved collection edits? Download a backup first to keep them.",
+      )
+    )
+      e.preventDefault();
+  });
+  window.addEventListener("pokedex-account-changed", () => {
+    ++loadId;
+    blocked = true;
+    loading = false;
+    selected.clear();
+    if (!state.dirty) state.load({ records: [] });
+    syncError(
+      "Account changed. Download any draft backup, then reload before continuing.",
+    );
+    render();
+  });
   $("collection-reload").addEventListener("click", () => {
     if (state.dirty) {
       confirm(
@@ -865,7 +1002,10 @@
     }
   });
   window.addEventListener("storage", (e) => {
-    if (e.key === "pokedex.collection.v1" || e.key === null) {
+    if (
+      !repository.enabled &&
+      (e.key === "pokedex.collection.v1" || e.key === null)
+    ) {
       if (state.dirty || document.querySelector("dialog[open]"))
         message(
           "Collection changed in another tab. Download edits or reload before saving.",
@@ -880,7 +1020,10 @@
     ),
     "All sets",
   );
-  load();
+  if (repository.enabled)
+    $("collection-storage-help").textContent =
+      "Private account collection. Save keeps edits. Browser imports never add overlapping quantities automatically. Download backups to keep a portable copy. Sample catalogue; live prices are unavailable.";
+  await load();
   if (location.hash) {
     try {
       const selection = JSON.parse(decodeURIComponent(location.hash.slice(1)));

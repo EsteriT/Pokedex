@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <meta
       name="description"
       content="Explore Pokémon card printings, artwork, and sample price-checking controls."
@@ -3810,6 +3813,14 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         >
           Download edits
         </button>
+        <button
+          id="discover-collection-reload"
+          class="button secondary"
+          type="button"
+          hidden
+        >
+          Reload saved collection
+        </button>
         <a id="discover-workspace-collection" href="Pokedex-workspace.html">
           My collection ↗
         </a>
@@ -6931,6 +6942,15 @@ PERFORMANCE OF THIS SOFTWARE.
     result.code = error.code;
     return result;
   }
+  async function accessToken() {
+    assertSession();
+    const { data, error } = await client.auth.getSession();
+    assertSession();
+    if (error) throw errorFor(error);
+    if (!data.session?.access_token || data.session.user.id !== user.id)
+      throw Error("Account changed. Download your draft backup, then reload.");
+    return data.session.access_token;
+  }
   function entry(row) {
     const d = local.validate(row.document),
       first = d.pages[0];
@@ -6979,10 +6999,14 @@ PERFORMANCE OF THIS SOFTWARE.
     for (const b of next)
       documents.push({ id: b.id, document: await media.pack(materialize(b)) });
     assertSession();
-    const { error } = await client.rpc("commit_binders", {
-      expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
-      documents,
-    });
+    const token = await accessToken();
+    const { error } = await client
+      .rpc("commit_binders", {
+        expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
+        documents,
+      })
+      // Never let an SDK session change retarget an already submitted write.
+      .setHeader("Authorization", "Bearer " + token);
     if (error) throw errorFor(error);
     assertSession();
     if (user.id !== owner)
@@ -7050,6 +7074,8 @@ PERFORMANCE OF THIS SOFTWARE.
   window.BinderRepository = {
     enabled,
     ready,
+    assertSession,
+    accessToken,
     get user() {
       return user;
     },
@@ -7141,8 +7167,7 @@ PERFORMANCE OF THIS SOFTWARE.
     heading.textContent = user?.email || "Cloud binders";
     panel.append(heading, note);
     if (!user) {
-      note.textContent =
-        "Sign in to save private binders. Your collection stays in this browser.";
+      note.textContent = "Sign in to save private binders and your collection.";
       const route = document.querySelector(
         '#workspace-nav, .workspace-back, a[href*="workspace"], #editor-route',
       );
@@ -7155,7 +7180,7 @@ PERFORMANCE OF THIS SOFTWARE.
       return;
     }
     note.textContent =
-      "Private binders. Manual Save. Collection stays on this device.";
+      "Private binders and collection. Use Save to keep changes.";
     panel.append(button("Sign out", () => repository.signOut()));
     panel.append(
       button("Remove unused artwork", async () => {
@@ -7576,8 +7601,8 @@ window.SAMPLE_COLLECTION = {
           current = future.pop();
         }
       },
-      save() {
-        saved = copy(current);
+      save(snapshot = current) {
+        saved = validate(copy(snapshot));
       },
       load(doc) {
         current = validate(doc);
@@ -7637,6 +7662,117 @@ window.SAMPLE_COLLECTION = {
   }
   window.CollectionState = { create, validate, key, limits };
   window.CollectionStore = { read, save };
+})();
+</script>
+    <script>/* The account collection never overwrites the browser's original inventory. */
+(() => {
+  "use strict";
+  const local = window.CollectionStore,
+    model = window.CollectionState,
+    binders = window.BinderRepository,
+    enabled = !!binders?.enabled;
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const ready = binders?.ready || Promise.resolve();
+  function check() {
+    if (enabled) {
+      if (!binders.user)
+        throw Error("Sign in with Google to use your account collection.");
+      binders.assertSession();
+    }
+  }
+  function requestError(error) {
+    const e = Error(
+      error.code === "40001"
+        ? "Collection changed on another device. Download your draft backup, then reload the saved collection before saving again."
+        : error.message ||
+            "Collection request failed. Your draft is still available.",
+    );
+    e.code = error.code;
+    return e;
+  }
+  async function read() {
+    await ready;
+    if (!enabled) return local.read();
+    check();
+    const { data, error } = await binders.client
+      .from("collections")
+      .select("revision,document")
+      .maybeSingle();
+    check();
+    if (error) throw requestError(error);
+    return data
+      ? { revision: data.revision, document: model.validate(data.document) }
+      : null;
+  }
+  async function save(document, revision) {
+    const snapshot = model.validate(clone(document));
+    if (enabled && new Blob([JSON.stringify(snapshot)]).size > 16 * 1024 * 1024)
+      throw Error(
+        "Cloud collections are limited to 16 MB. Download a backup before reducing large notes.",
+      );
+    await ready;
+    if (!enabled) return local.save(snapshot, revision);
+    check();
+    const token = await binders.accessToken();
+    check();
+    const { data, error } = await binders.client
+      .rpc("commit_collection", {
+        expected_revision: revision,
+        document: snapshot,
+      })
+      // Pin a pending write to its original account, even if the SDK session changes.
+      .setHeader("Authorization", "Bearer " + token);
+    check();
+    if (error) throw requestError(error);
+    if (!Number.isSafeInteger(data) || data < 1)
+      throw Error(
+        "Save response was incomplete. Download your draft and reload before retrying.",
+      );
+    return data;
+  }
+  function previewImport(current, browser) {
+    const account = model.validate(current),
+      source = model.validate(browser);
+    const groups = new Map(account.records.map((r) => [model.key(r), r]));
+    return {
+      groups: source.records.length,
+      added: source.records.filter((r) => !groups.has(model.key(r))).length,
+      overlaps: source.records.filter((r) => groups.has(model.key(r))).length,
+    };
+  }
+  function importDocument(current, browser, overlap) {
+    if (!["keep", "replace"].includes(overlap))
+      throw Error("Choose how to handle matching groups.");
+    const account = model.validate(current),
+      source = model.validate(browser);
+    const records = clone(account.records),
+      positions = new Map(records.map((r, i) => [model.key(r), i]));
+    const ids = new Set(records.map((r) => r.id));
+    for (const record of source.records) {
+      const index = positions.get(model.key(record));
+      if (index !== undefined) {
+        if (overlap === "replace")
+          records[index] = { ...record, id: records[index].id };
+      } else {
+        const id = ids.has(record.id) ? crypto.randomUUID() : record.id;
+        ids.add(id);
+        positions.set(model.key(record), records.length);
+        records.push({ ...record, id });
+      }
+    }
+    return model.validate({ records });
+  }
+  window.CollectionRepository = {
+    enabled,
+    ready,
+    read,
+    save,
+    check,
+    empty: () => (enabled ? { records: [] } : clone(window.SAMPLE_COLLECTION)),
+    readBrowser: () => local.read(),
+    previewImport,
+    importDocument,
+  };
 })();
 </script>
     <script>/* Shared collection controls used by the gallery and card picker. */
@@ -8688,10 +8824,13 @@ window.SAMPLE_COLLECTION = {
 </script>
     <script>(() => {
   "use strict";
-  const $ = (id) => document.getElementById(id);
-  let state = window.CollectionState.create(window.SAMPLE_COLLECTION),
+  const $ = (id) => document.getElementById(id),
+    repository = window.CollectionRepository;
+  let state = window.CollectionState.create(repository.empty()),
     revision = null,
-    blocked = false,
+    blocked = true,
+    persisting = false,
+    loadId = 0,
     statusText = "",
     pendingMessage = "";
   const announce = (text) => {
@@ -8717,24 +8856,39 @@ window.SAMPLE_COLLECTION = {
   }
   function render() {
     updateAnnouncementTarget();
-    $("discover-collection-save").disabled = !state.dirty || blocked;
+    $("discover-collection-save").disabled =
+      !state.dirty || blocked || persisting;
     $("detail-collection-save").hidden = !state.dirty;
-    $("detail-collection-save").disabled = blocked;
+    $("detail-collection-save").disabled = blocked || persisting;
+    $("discover-collection-save").toggleAttribute("aria-busy", persisting);
+    $("discover-collection-reload").disabled = persisting;
     $("discover-collection-undo").hidden = !state.canUndo;
     $("detail-collection-undo").hidden = !state.canUndo;
     $("discover-collection-download").hidden = !state.dirty;
   }
-  function load(onlyIfChanged = false) {
+  async function load(onlyIfChanged = false) {
+    if (persisting) return;
+    const request = ++loadId,
+      wasBlocked = blocked;
+    blocked = true;
+    render();
     try {
-      const saved = window.CollectionStore.read();
-      if (onlyIfChanged && (saved?.revision ?? null) === revision && !blocked)
-        return;
-      state.load(saved?.document || window.SAMPLE_COLLECTION);
-      revision = saved?.revision ?? null;
+      const saved = await repository.read();
+      if (request !== loadId) return;
+      if (
+        !onlyIfChanged ||
+        (saved?.revision ?? null) !== revision ||
+        wasBlocked
+      ) {
+        state.load(saved?.document || repository.empty());
+        revision = saved?.revision ?? null;
+      }
       blocked = false;
+      $("discover-collection-reload").hidden = true;
     } catch (error) {
-      blocked = true;
+      if (request !== loadId) return;
       announce(error.message);
+      $("discover-collection-reload").hidden = false;
     }
     render();
   }
@@ -8750,6 +8904,7 @@ window.SAMPLE_COLLECTION = {
         throw Error(
           "Saved collection is unavailable. It has not been overwritten.",
         );
+      repository.check();
       const merged = state.upsert(value, id);
       pendingMessage =
         (merged
@@ -8759,16 +8914,26 @@ window.SAMPLE_COLLECTION = {
             ". ") + "Unsaved changes · Save collection to keep them.";
     },
   });
-  function save() {
+  async function save() {
+    if (blocked || persisting) return;
+    persisting = true;
+    const snapshot = JSON.parse(JSON.stringify(state.document));
+    render();
     try {
-      revision = window.CollectionStore.save(state.document, revision);
-      state.save();
+      revision = await repository.save(snapshot, revision);
+      state.save(snapshot);
+      $("discover-collection-reload").hidden = true;
       announce(
-        "Collection saved on this browser. Open My collection to view it.",
+        repository.enabled
+          ? "Collection saved to your account."
+          : "Collection saved on this browser. Open My collection to view it.",
       );
-      render();
     } catch (error) {
       announce(error.message);
+      $("discover-collection-reload").hidden = false;
+    } finally {
+      persisting = false;
+      render();
     }
   }
   for (const id of ["discover-collection-save", "detail-collection-save"])
@@ -8828,14 +8993,9 @@ window.SAMPLE_COLLECTION = {
       $("open-workspace-collection").href = url.href;
       render();
     },
-    open(selected, selectedFinish) {
-      if (!state.dirty) load(true);
-      if (blocked) {
-        announce(
-          "Saved collection is unavailable. Restore or reload valid collection data first.",
-        );
-        return;
-      }
+    async open(selected, selectedFinish) {
+      if (!state.dirty) await load(true);
+      if (blocked || !$("details-dialog").open) return;
       form.open(null, {
         cardId: selected.id || selected.collectorNumber,
         finish: selectedFinish || "unknown",
@@ -8850,7 +9010,11 @@ window.SAMPLE_COLLECTION = {
     }
   });
   window.addEventListener("storage", (e) => {
-    if (e.key !== "pokedex.collection.v1" && e.key !== null) return;
+    if (
+      repository.enabled ||
+      (e.key !== "pokedex.collection.v1" && e.key !== null)
+    )
+      return;
     if (state.dirty || $("inventory-dialog").open)
       announce(
         "Collection changed in another tab. Download your edits before reloading; saving will detect the conflict.",
@@ -8862,6 +9026,38 @@ window.SAMPLE_COLLECTION = {
     updateAnnouncementTarget();
     if ($("details-dialog").open && statusText)
       $("detail-message").textContent = statusText;
+  });
+  $("discover-collection-reload").addEventListener("click", () => {
+    if (
+      !state.dirty ||
+      window.confirm(
+        "Discard unsaved collection edits and reload? Download a draft backup first to keep them.",
+      )
+    )
+      load();
+  });
+  window.addEventListener("pokedex-before-signout", (e) => {
+    if (persisting) {
+      e.preventDefault();
+      announce("Wait for collection Save to finish before signing out.");
+      return;
+    }
+    if (
+      state.dirty &&
+      !window.confirm(
+        "Sign out and discard unsaved collection edits? Download a backup first to keep them.",
+      )
+    )
+      e.preventDefault();
+  });
+  window.addEventListener("pokedex-account-changed", () => {
+    ++loadId;
+    blocked = true;
+    if (!state.dirty) state.load({ records: [] });
+    announce(
+      "Account changed. Download any draft backup, then reload before continuing.",
+    );
+    render();
   });
   load();
 })();

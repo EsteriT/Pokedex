@@ -31,6 +31,15 @@
     result.code = error.code;
     return result;
   }
+  async function accessToken() {
+    assertSession();
+    const { data, error } = await client.auth.getSession();
+    assertSession();
+    if (error) throw errorFor(error);
+    if (!data.session?.access_token || data.session.user.id !== user.id)
+      throw Error("Account changed. Download your draft backup, then reload.");
+    return data.session.access_token;
+  }
   function entry(row) {
     const d = local.validate(row.document),
       first = d.pages[0];
@@ -79,10 +88,14 @@
     for (const b of next)
       documents.push({ id: b.id, document: await media.pack(materialize(b)) });
     assertSession();
-    const { error } = await client.rpc("commit_binders", {
-      expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
-      documents,
-    });
+    const token = await accessToken();
+    const { error } = await client
+      .rpc("commit_binders", {
+        expected: expected.map((b) => ({ id: b.id, revision: b.revision })),
+        documents,
+      })
+      // Never let an SDK session change retarget an already submitted write.
+      .setHeader("Authorization", "Bearer " + token);
     if (error) throw errorFor(error);
     assertSession();
     if (user.id !== owner)
@@ -150,6 +163,8 @@
   window.BinderRepository = {
     enabled,
     ready,
+    assertSession,
+    accessToken,
     get user() {
       return user;
     },

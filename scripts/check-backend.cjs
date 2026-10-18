@@ -11,6 +11,7 @@ const scope = { window: {}, crypto: webcrypto };
 for (const file of [
   "data/sample-cards.js",
   "data/sample-card-details.js",
+  "data/sample-collection.js",
   "scripts/binder-schema.js",
   "scripts/editor-state.js",
   "scripts/binder-store.js",
@@ -87,6 +88,13 @@ async function main() {
       as(uid, (tx) =>
         tx.query("select * from public.binders order by position"),
       ).then((r) => r.rows);
+    await require("./check-collection-backend.cjs")(
+      db,
+      as,
+      a,
+      b,
+      scope.window.SAMPLE_COLLECTION,
+    );
     const commit = (uid, expected, docs, role) =>
       as(
         uid,

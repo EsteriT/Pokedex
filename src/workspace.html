@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <title>My binders — Pokedex</title>
     <meta
       name="description"
@@ -195,6 +198,7 @@
           </div>
         </div>
 
+        <p id="collection-sync-message" role="alert" hidden></p>
         <div class="collection-topbar">
           <div
             class="collection-switch"
@@ -248,6 +252,14 @@
                     />
                   </label>
                   <button
+                    id="collection-browser-import"
+                    class="button secondary"
+                    type="button"
+                    hidden
+                  >
+                    Import browser collection
+                  </button>
+                  <button
                     id="collection-reload"
                     class="button secondary"
                     type="button"
@@ -255,8 +267,8 @@
                     Reload saved collection
                   </button>
                   <details class="collection-help">
-                    <summary>About this preview</summary>
-                    <p>
+                    <summary>About this collection</summary>
+                    <p id="collection-storage-help">
                       Sample catalogue. Save stores changes on this browser
                       only. Download a backup to keep a copy. Live collection
                       value is not connected.
@@ -799,6 +811,7 @@
     <script src="scripts/workspace.js"></script>
     <script src="data/sample-collection.js"></script>
     <script src="scripts/collection-state.js"></script>
+    <script src="scripts/collection-repository.js"></script>
     <script src="scripts/collection-ui.js"></script>
     <script src="scripts/collection-form.js"></script>
     <script src="scripts/collection.js"></script>

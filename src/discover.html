@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <meta
       name="description"
       content="Explore Pokémon card printings, artwork, and sample price-checking controls."
@@ -92,6 +95,14 @@
           type="button"
         >
           Download edits
+        </button>
+        <button
+          id="discover-collection-reload"
+          class="button secondary"
+          type="button"
+          hidden
+        >
+          Reload saved collection
         </button>
         <a id="discover-workspace-collection" href="workspace.html">
           My collection ↗
@@ -896,6 +907,7 @@
     <script src="scripts/discover-core.js"></script>
     <script src="data/sample-collection.js"></script>
     <script src="scripts/collection-state.js"></script>
+    <script src="scripts/collection-repository.js"></script>
     <script src="scripts/collection-ui.js"></script>
     <script src="scripts/collection-form.js"></script>
     <script src="scripts/discover-collection.js"></script>

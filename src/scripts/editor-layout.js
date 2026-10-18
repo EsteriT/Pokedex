@@ -66,7 +66,6 @@
     true,
   );
 
-  const pagesSidebar = $("pages-sidebar");
   const pagesBody = $("pages-body"),
     pagesControls = $("pages-controls");
   pagesBody.append($("page-list"));

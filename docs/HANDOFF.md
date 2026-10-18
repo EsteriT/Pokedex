@@ -2,6 +2,10 @@
 
 This file describes the current implementation. [HISTORY.md](HISTORY.md) preserves earlier milestones; some older descriptions are superseded.
 
+## Local nightly checkup — 2026-10-19
+
+See [the audit report and morning handoff](NIGHTLY-AUDIT-2026-10-19.md). Work is isolated on `chore/nightly-codebase-checkup`: sanitize malformed operator CLI JSON errors; bound private artwork downloads while reading and reject redirects; remove one unused sidebar binding; correct cloud-runtime and monitoring documentation. No migrations, production data/settings, schedule activation or remote publication are part of this checkup. The published backup evidence and remaining hosted acceptance gates below are unchanged. Review this local branch before the next merge/push.
+
 ## Automated backup release — 2026-10-19
 
 Final hosted result: follow-up `3d416af` is merged/pushed to main; website deployment `39160611260` and manual backup `39160688435` passed. The unchanged Database Read token successfully queried through the direct API. The private R2 upload was downloaded, digest-checked, decrypted and validated for portable account/artwork recovery; Healthchecks accepted the success signal. Archive: 127,114 bytes. See [verification evidence and remaining gates](AUTOMATED-BACKUPS.md#hosted-verification--2026-10-19). Independent operator recovery, delivered failure/missed-run email tests, disposable expiry acceptance and budget-alert verification remain outstanding. Daily runs are still disabled (`BACKUPS_ENABLED` unset). Follow-up unit/API tests, real local backup/recovery, build/reference checks and a 185-file private-secret scan passed.

@@ -30,7 +30,7 @@ async function check(flags, expected, fail = false, wrapped = true) {
             expected,
           );
           calls++;
-          return fail && fail !== "shape"
+          return fail && !["shape", "json"].includes(fail)
             ? {
                 status: 1,
                 stderr:
@@ -40,9 +40,12 @@ async function check(flags, expected, fail = false, wrapped = true) {
               }
             : {
                 status: 0,
-                stdout: JSON.stringify(
-                  fail === "shape" ? {} : wrapped ? { rows: [{}] } : [{}],
-                ),
+                stdout:
+                  fail === "json"
+                    ? 'private@example.test [{"email":"private@example.test"}'
+                    : JSON.stringify(
+                        fail === "shape" ? {} : wrapped ? { rows: [{}] } : [{}],
+                      ),
               };
         },
       };
@@ -75,7 +78,7 @@ async function check(flags, expected, fail = false, wrapped = true) {
       run,
       (error) =>
         error.message ===
-        (fail === "shape"
+        (["shape", "json"].includes(fail)
           ? "Unexpected Supabase query response. No database output was printed."
           : fail === "login"
             ? "Supabase CLI is not signed in. Run npx.cmd supabase login in your terminal, then retry. The backup administrator key does not replace CLI login."
@@ -98,6 +101,7 @@ async function check(flags, expected, fail = false, wrapped = true) {
   await check(["--hosted", ref], ["--linked", "--project-ref", ref], true);
   await check(["--hosted", ref], ["--linked", "--project-ref", ref], "login");
   await check(["--hosted", ref], ["--linked", "--project-ref", ref], "shape");
+  await check(["--hosted", ref], ["--linked", "--project-ref", ref], "json");
   console.log(
     "PASS: operator CLI local/hosted targeting and private error output.",
   );

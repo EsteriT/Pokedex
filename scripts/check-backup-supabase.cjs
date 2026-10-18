@@ -133,6 +133,66 @@ async function main() {
         .target,
       target,
     );
+    const originalFetch = global.fetch;
+    try {
+      let stopped = false;
+      global.fetch = async (_url, options) => {
+        assert.equal(
+          options.redirect,
+          "error",
+          "Private artwork must not follow redirects",
+        );
+        return new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.enqueue(new Uint8Array(500001));
+            },
+            cancel() {
+              stopped = true;
+            },
+          }),
+          { headers: { "content-type": "image/png" } },
+        );
+      };
+      let queries = 0;
+      await assert.rejects(
+        require("./backend-ops.cjs").main("backup", ["--hosted", target], {
+          directory,
+          quiet: true,
+          query: async () =>
+            ++queries === 1
+              ? [{ controls: true, counters: true }]
+              : [
+                  {
+                    snapshot: {
+                      accounts: [],
+                      objects: [
+                        {
+                          path:
+                            "00000000-0000-0000-0000-000000000000/" +
+                            "a".repeat(64) +
+                            ".png",
+                          size: 3,
+                        },
+                      ],
+                    },
+                  },
+                ],
+        }),
+        /Artwork exceeds the 500 KB limit/,
+      );
+      assert(
+        stopped,
+        "Oversized artwork must cancel its stream before buffering the whole response",
+      );
+      assert.equal(
+        fs.readdirSync(directory).length,
+        1,
+        "A failed download must not create an archive",
+      );
+    } finally {
+      global.fetch = originalFetch;
+    }
   } finally {
     for (const [key, value] of Object.entries(saved)) {
       if (value === undefined) delete process.env[key];

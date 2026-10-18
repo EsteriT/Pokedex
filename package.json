@@ -2,7 +2,7 @@
   "name": "pokedex",
   "version": "1.0.0",
   "private": true,
-  "description": "A browser-based Pokémon binder workshop with local saving, customization and collection tools.",
+  "description": "A Pokémon binder workshop with private cloud saving, customization, collection tools and portable backups.",
   "scripts": {
     "build": "node scripts/build-backend.cjs && node scripts/build-preview.cjs",
     "check": "node scripts/check-project.cjs",

@@ -61,7 +61,7 @@ For a critical failure: **preserve evidence and the latest good backup, stop rep
 
 ## Daily backup controls (after rollout)
 
-- **Run now:** repository → Actions → Encrypted backend backup → Run workflow → main. Use it before database migrations; verify the run and R2 retrieval/decryption result.
+- **Run now:** repository → Actions → Encrypted backend backup → Run workflow → main. Use it before database migrations; verify the run and R2 retrieval/decryption result. While daily runs are intentionally disabled, check and re-pause the monitor afterward if needed: [a ping normally resumes paused Healthchecks monitoring](https://healthchecks.io/docs/configuring_checks/#pinging-a-paused-check).
 - **Enable daily runs:** repository → Settings → Secrets and variables → Actions → Variables → repository variable `BACKUPS_ENABLED=true`. Then unpause the production Healthchecks check when acceptance passes.
 - **Stop scheduled runs:** set `BACKUPS_ENABLED=false`. Pause Healthchecks only during an intentional outage; otherwise its alert is useful. Manual runs remain possible. Record why protection stopped.
 - **Recover:** follow [account/operator recovery](ACCOUNT-DATA-AND-RECOVERY.md#recovery-drill). First test locally and reconcile deletion requests. There is no automated production restore button.

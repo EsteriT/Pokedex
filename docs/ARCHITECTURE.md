@@ -1,5 +1,7 @@
 # Pokedex architecture — working draft
 
+Current runtime (2026-10-19): plain HTML/CSS/JavaScript on GitHub Pages; configured application builds use the shared repositories for Google Auth, private binder/collection records and artwork in Supabase. Unconfigured builds retain explicit browser-local saving. Account export/restore/deletion is deployed. Operator scripts create encrypted recovery archives; one hosted R2 backup passed, while daily scheduling remains disabled pending independent recovery and monitoring acceptance. See [HANDOFF.md](HANDOFF.md) and [the owner cheatsheet](OPERATIONS-CHEATSHEET.md). Planning sections below are historical where they conflict with this runtime.
+
 The 2026-10-18 account collection implementation on `feat/collection-cloud` is documented in [COLLECTION-CLOUD.md](COLLECTION-CLOUD.md). It adds a shared collection adapter, owner-scoped snapshot/revision storage and explicit browser import. It is tested locally; its approved hosted migration and website update are live, with user-confirmed hosted collection UI acceptance complete. The accepted hosted binder rollout remains recorded in [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md). Older browser-local-only collection descriptions below describe the prototype baseline.
 
 Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). The 2026-10-17 binder backend implementation is documented in [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md), including passing local service/browser tests and the remaining hosted deployment gates. Older proposals below are historical where they conflict with that contract. [HISTORY.md](HISTORY.md) records superseded prototype iterations.
@@ -348,7 +350,7 @@ The current landing palette remains unchanged until a specific refinement is req
 
 ## Current frontend module boundaries
 
-See [HANDOFF.md](HANDOFF.md) for the authoritative runtime map. BinderSchema is pure validation/constants; BinderMedia decodes/optimizes images; BinderState owns undoable document edits; BinderStore owns explicit persistence and import validation. Rendering and UI remain in BinderVisuals, BinderCovers, editor and studio modules. Inventory uses its own independent state/store. Build embeds fonts and artwork into generated previews from the original binary assets. No backend is connected.
+See [HANDOFF.md](HANDOFF.md) for the authoritative runtime map. BinderSchema is pure validation/constants; BinderMedia decodes/optimizes images; BinderState owns undoable document edits; BinderStore owns local persistence and portable validation. BinderRepository and CollectionRepository select local or account persistence; BinderCloudMedia handles private artwork. AccountData coordinates saved account export/restore/deletion. Rendering and UI remain in BinderVisuals, BinderCovers, editor and studio modules. Physical inventory remains independent of binder layouts. Build embeds fonts and artwork into generated previews from the original binary assets and includes only public backend configuration and the browser SDK.
 
 ## Deferred resource controls
 

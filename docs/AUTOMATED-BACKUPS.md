@@ -39,9 +39,11 @@ The target Supabase reference, Cloudflare account, bucket and managed prefix are
 
 ## Monitor and schedule
 
-Healthchecks: `Pokedex daily backup`, **Simple**, period **1 day**, grace **3 hours**, verified email integration. Grace accommodates GitHub scheduling delays and is also the maximum start-to-finish interval. The workflow has a shorter 30-minute job timeout. Start/fail/success signals are POST requests with no data body, three bounded attempts and no redirects. A failed success signal fails the job. The final workflow failure step also attempts `/fail` after an early install/startup/cancellation failure. If no step can run, Healthchecks detects the missing heartbeat independently.
+Healthchecks: `Pokedex daily backup`, **Simple**, period **1 day**, grace **3 hours**. Email delivery acceptance is still required. Grace accommodates GitHub scheduling delays and is also the maximum start-to-finish interval. The workflow has a shorter 30-minute job timeout. Start/fail/success signals are POST requests with no data body, three bounded attempts and no redirects. A failed success signal fails the job. The final workflow failure step also attempts `/fail` after an early install/startup/cancellation failure. If no step can run, Healthchecks detects the missing heartbeat independently.
 
 The intended daily schedule is **19:23 UTC / 02:23 Vietnam time**. The scheduled job is gated by repository Actions variable **BACKUPS_ENABLED** being exactly **true**; unset/false means scheduled jobs skip. Manual **Run workflow** on main remains available. Keep the monitor paused and this variable unset until the rollout checklist passes. A disabled schedule with an unpaused monitor will correctly alert that backups are missing.
+
+After a manual test while daily scheduling is disabled, check the monitor and pause it again if needed. Healthchecks normally resumes a paused check when it receives a ping, so the initial paused state may not survive the test. Its optional sticky-pause setting instead ignores pings until manually resumed; a successful HTTP ping then does not prove monitoring is active. Verify the intended state in the dashboard at rollout. See [Healthchecks paused-check behavior](https://healthchecks.io/docs/configuring_checks/#pinging-a-paused-check). This audit did not change hosted monitoring settings.
 
 GitHub scheduling is best effort: it may be delayed, and public-repository schedules can disable after 60 days without activity. Check the workflow and monitor regularly; do not treat a green website deployment as backup evidence.
 

@@ -22,5 +22,6 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Product scope](WEBSITE-GOALS-AND-FUNCTIONS.md) | Goals and feature boundaries |
 | [History](HISTORY.md) | Earlier decisions and milestones |
 | [Codebase audit](CODEBASE-AUDIT.md) | Recorded audit findings and follow-up |
+| [Nightly checkup — 2026-10-19](NIGHTLY-AUDIT-2026-10-19.md) | Operator privacy/download fixes, static cleanup, diagnostics and morning handoff |
 
 **Editing the app?** Read [AGENTS.md](../AGENTS.md), change `src/`, then rebuild and run the checks. Previews are generated files.

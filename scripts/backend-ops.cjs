@@ -41,7 +41,13 @@ function cli(args) {
     throw Error(
       "Supabase command failed. Check the local stack or operator login privately; database output was not printed.",
     );
-  return JSON.parse(result.stdout);
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    throw Error(
+      "Unexpected Supabase query response. No database output was printed.",
+    );
+  }
 }
 async function passphrase(confirm = false) {
   if (process.env.POKEDEX_BACKUP_PASSPHRASE)
@@ -314,6 +320,7 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
       {
         headers: { apikey: secret, Authorization: "Bearer " + secret },
         cache: "no-store",
+        redirect: "error",
         signal: AbortSignal.timeout(30000),
       },
     );
@@ -321,10 +328,17 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
       throw Error(
         "Artwork changed or download failed. No incomplete backup was written; retry.",
       );
-    const bytes = Buffer.from(await response.arrayBuffer());
-    if (bytes.length > 500000 || bytes.length !== Number(object.size))
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of response.body) {
+      size += chunk.length;
+      if (size > 500000) throw Error("Artwork exceeds the 500 KB limit.");
+      chunks.push(chunk);
+    }
+    const bytes = Buffer.concat(chunks);
+    if (bytes.length !== Number(object.size))
       throw Error("Artwork size did not match its snapshot.");
-    const type = response.headers.get("content-type").split(";")[0];
+    const type = (response.headers.get("content-type") || "").split(";")[0];
     const src = "data:" + type + ";base64," + bytes.toString("base64");
     modelImage(src);
     total += src.length;

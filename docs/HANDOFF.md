@@ -2,9 +2,9 @@
 
 This file describes the current implementation. [HISTORY.md](HISTORY.md) preserves earlier milestones; some older descriptions are superseded.
 
-## Local nightly checkup — 2026-10-19
+## Nightly cleanup release — 2026-10-19
 
-See [the audit report and morning handoff](NIGHTLY-AUDIT-2026-10-19.md). Work is isolated on `chore/nightly-codebase-checkup`: sanitize malformed operator CLI JSON errors; bound private artwork downloads while reading and reject redirects; remove one unused sidebar binding; correct cloud-runtime and monitoring documentation. No migrations, production data/settings, schedule activation or remote publication are part of this checkup. The published backup evidence and remaining hosted acceptance gates below are unchanged. Review this local branch before the next merge/push.
+See [the audit report and morning handoff](NIGHTLY-AUDIT-2026-10-19.md). Verified cleanup commit `010e58d` was isolated on `chore/nightly-codebase-checkup`: sanitize malformed operator CLI JSON errors; bound private artwork downloads while reading and reject redirects; remove one unused sidebar binding; correct cloud-runtime and monitoring documentation. The owner subsequently explicitly authorized merge/push/deployment of this cleanup, superseding the audit's local-only publication status. Publish through the existing Pages workflow and verify its result and live routes. No migrations, production data/settings changes or schedule activation are included. Remaining independent recovery and monitoring acceptance is deferred to the morning; daily backups stay disabled.
 
 ## Automated backup release — 2026-10-19
 

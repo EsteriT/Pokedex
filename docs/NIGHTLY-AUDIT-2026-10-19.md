@@ -4,6 +4,8 @@
 
 Baseline: `be6f103` on a clean `main`. Work is isolated on `chore/nightly-codebase-checkup` for local review. This checkup does not publish a website, apply migrations, change hosted settings, delete user data or enable daily backups.
 
+Subsequent release authorization: the owner requested deployment of the verified cleanup (`010e58d`) on 2026-10-19 and explicitly deferred recovery/monitoring work to the morning. This supersedes the local-only publication status of the audit below. The release uses the existing main-branch Pages workflow; it includes no new schema, hosted account data, monitor or schedule changes.
+
 Reviewed the repository structure and dependency/configuration boundaries, five page entry points, source/data modules and stylesheet references, local/cloud persistence and account flows, six database migrations and their security tests, private artwork, operator encryption/recovery/R2 integration, build scripts, deployment workflows and current documentation. Inventory: 177 tracked files at baseline, 44 source/data JavaScript modules and 34 stylesheets. Generated previews/vendor bundles are outputs, not duplicate implementations to delete. Ignored private configuration was used only by existing local tools and a private-value comparison scan; no values are recorded here.
 
 The stack remains plain HTML/CSS/JavaScript, Node CommonJS operator/build/test scripts, Python Chromium acceptance tests, PostgreSQL/Supabase Auth/Storage, GitHub Pages/Actions and private Cloudflare R2. Shared model validators and repositories separate editing, saving, authorization and portable recovery. There was no reason for a framework migration or large refactor.
@@ -50,7 +52,7 @@ Keep the existing module boundaries and layered responsive/theme styles. The edi
 
 ## Morning handoff and remaining work
 
-1. Review this branch's small diff and merge/publish the fixes when desired. The live site and backup job still run the previously published code until then.
+1. The owner authorized publishing this branch's reviewed cleanup after the audit. Confirm the corresponding main-branch Pages deployment and affected live routes; remaining backup acceptance is a separate task.
 2. Resume backup acceptance: independent private R2 download/passphrase/local recovery drill; delivered failure and missed-heartbeat emails; disposable expiry acceptance; budget-alert verification. Check the production monitor state after the manual tests. Daily scheduling remains intentionally off and was not enabled here.
 3. Image-loading optimization remains deferred as requested. No bandwidth, real-user performance or full-catalogue benchmark was performed.
 4. Physical mobile devices, Firefox and Safari remain unverified. Chromium viewport tests do not replace those checks or guarantee mobile polish.

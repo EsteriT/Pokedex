@@ -1,5 +1,7 @@
 # Account data and recovery rollout
 
+**Status: accepted on 2026-10-19 (Asia/Saigon).** Automated verification and the requested user-performed hosted acceptance checks pass within the documented beta scope.
+
 The user authorized both hosted migrations, security verification, merge, push and deployment on **2026-10-19 (Asia/Saigon)**. This supersedes the earlier local-review restriction for this milestone.
 
 ## Recovery preparation
@@ -37,4 +39,9 @@ Feature commit `5dbdfd6e27691d7c9048437482d89f0657ac56f9` was fast-forwarded int
 
 All six public routes were fetched after deployment. Their contents match the reviewed local hosted artifacts after normalizing Windows/Linux line endings. All four application pages have the exact hosted public configuration, the Workspace contains the new account controls, and no configured Google/operator secret appears in the published files. The primary account's saved-data counts remain unchanged. The working branch is now `main`; the feature branch is preserved.
 
-Hosted Google reauthentication and the account-controls UI still require user acceptance with a **disposable Google account**. Do not delete the primary account as a test. Confirm account JSON export/restore with artwork, recent Google reauthentication and typed deletion, then confirm the deleted account's data is gone. Physical mobile devices, Safari and Firefox remain outside this automated Chromium verification.
+On 2026-10-19 the user confirmed both requested live checks pass with a disposable Google account:
+
+- Saved test binder/collection → Account data download → restore the downloaded account JSON → saved binder/collection remain.
+- Sign in again with Google → type `DELETE` → deletion completes and signs the account out.
+
+These are user-performed hosted acceptance results, separate from the automated local artwork/recovery tests and hosted rollback-only cascade/session assertions. The primary account was not requested as a deletion test target. Physical mobile devices, Safari and Firefox remain outside this automated Chromium verification.

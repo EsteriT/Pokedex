@@ -1,6 +1,6 @@
 # Account data and recovery
 
-Status: deployed on 2026-10-19. Both reviewed database migrations and the website update are applied and verified; manual Google/account-controls acceptance remains pending in the [rollout record](ACCOUNT-DATA-ROLLOUT.md). This extends the accepted binder and collection milestones.
+Status: deployed and accepted on 2026-10-19. Both reviewed database migrations and the website update are verified; the user confirmed hosted account backup/restore and fresh Google sign-in followed by deletion/sign-out pass. See the [rollout record](ACCOUNT-DATA-ROLLOUT.md). This extends the accepted binder and collection milestones.
 
 ## For users
 

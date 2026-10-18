@@ -1,6 +1,6 @@
 # Account data: pre-merge audit
 
-This records the local review and release gates before publication. The approved hosted rollout is now deployed; see [ACCOUNT-DATA-ROLLOUT.md](ACCOUNT-DATA-ROLLOUT.md) for current verification and pending manual acceptance.
+This records the local review and release gates before publication. The approved hosted rollout is now deployed and accepted; see [ACCOUNT-DATA-ROLLOUT.md](ACCOUNT-DATA-ROLLOUT.md) for current verification and user-confirmed hosted acceptance.
 
 Reviewed locally on 2026-10-18 on `feat/account-data-controls`. The review covers the uncommitted account controls, their existing binder/collection callers, SQL permissions and races, artwork storage, encrypted operator backups, recovery, packaging and documentation. Expected load is the documented small beta: three binders, 30 pages per binder, 5,000 collection groups and 60 artwork objects per account; the manual operator archive is capped at 256 MB.
 

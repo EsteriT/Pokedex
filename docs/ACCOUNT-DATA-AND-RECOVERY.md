@@ -1,6 +1,6 @@
 # Account data and recovery
 
-Status: hosted rollout authorized on 2026-10-19. Both reviewed database migrations are applied and verified; website publication and manual acceptance are tracked in the [rollout record](ACCOUNT-DATA-ROLLOUT.md). This extends the accepted binder and collection milestones.
+Status: deployed on 2026-10-19. Both reviewed database migrations and the website update are applied and verified; manual Google/account-controls acceptance remains pending in the [rollout record](ACCOUNT-DATA-ROLLOUT.md). This extends the accepted binder and collection milestones.
 
 ## For users
 

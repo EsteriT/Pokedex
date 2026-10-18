@@ -54,7 +54,7 @@ Account collection storage is implemented and tested on `feat/collection-cloud`;
 
 ### Develop & verify
 
-The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Its hosted rollout is authorized and both database migrations are verified; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md) for publication and manual acceptance status.
+The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Both database migrations and the website update are deployed and verified; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md) for security evidence and pending manual Google/account-controls acceptance.
 
 Edit the files in `src/`; generated previews are rebuilt from those sources.
 

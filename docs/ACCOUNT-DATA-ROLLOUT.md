@@ -33,6 +33,8 @@ Both reviewed migrations were applied through the connected Supabase migration t
 
 ## Website and acceptance
 
-The website is published by pushing the reviewed commit to `main`; GitHub Actions runs build, references, models, embedded PostgreSQL and adapter checks before Pages deployment. Deployment status is recorded below after publication.
+Feature commit `5dbdfd6e27691d7c9048437482d89f0657ac56f9` was fast-forwarded into `main` and pushed. [Deploy website run 39149630122](https://github.com/EsteriT/Pokedex/actions/runs/39149630122) succeeded, including dependency installation, hosted packaging, references, model tests, embedded PostgreSQL, repository checks and Pages publication.
+
+All six public routes were fetched after deployment. Their contents match the reviewed local hosted artifacts after normalizing Windows/Linux line endings. All four application pages have the exact hosted public configuration, the Workspace contains the new account controls, and no configured Google/operator secret appears in the published files. The primary account's saved-data counts remain unchanged. The working branch is now `main`; the feature branch is preserved.
 
 Hosted Google reauthentication and the account-controls UI still require user acceptance with a **disposable Google account**. Do not delete the primary account as a test. Confirm account JSON export/restore with artwork, recent Google reauthentication and typed deletion, then confirm the deleted account's data is gone. Physical mobile devices, Safari and Firefox remain outside this automated Chromium verification.

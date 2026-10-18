@@ -163,6 +163,32 @@
   filter: brightness(0.94);
 }
 
+.account-data-dialog label {
+  display: block;
+  margin-top: 12px;
+}
+.account-data-dialog input {
+  max-width: 100%;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+.account-data-dialog h3 {
+  margin-top: 28px;
+}
+.account-data-dialog > .button {
+  margin: 12px 0;
+}
+.account-data-dialog .account-danger {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* Global application navigation; page controls belong below this header. */
 .header-main {
   display: flex;

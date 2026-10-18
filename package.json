@@ -15,7 +15,11 @@
     "backend:stop": "node scripts/backend-local.cjs stop",
     "backend:status": "node scripts/backend-local.cjs status",
     "test:backend:live": "node scripts/check-backend-live.cjs",
-    "test:backend:browser": "node scripts/check-backend-live.cjs --browser"
+    "test:backend:browser": "node scripts/check-backend-live.cjs --browser",
+    "test:account-backup": "node scripts/check-backup-crypto.cjs && node scripts/check-account-backup.cjs",
+    "backend:backup": "node scripts/backend-ops.cjs backup",
+    "backend:recover": "node scripts/backend-ops.cjs recover",
+    "backend:health": "node scripts/backend-ops.cjs health"
   },
   "engines": {
     "node": ">=22"

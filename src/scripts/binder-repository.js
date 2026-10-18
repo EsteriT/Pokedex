@@ -12,14 +12,17 @@
     entries = [],
     failure = null,
     changed = false;
-  function assertSession() {
-    if (failure) throw failure;
+  function assertIdentity() {
     if (!user || changed)
       throw Error(
         changed
           ? "Account changed. Download your draft backup, then reload."
           : "Sign in with Google to save a cloud binder.",
       );
+  }
+  function assertSession() {
+    if (failure) throw failure;
+    assertIdentity();
   }
   function errorFor(error) {
     const result = Error(
@@ -31,14 +34,40 @@
     result.code = error.code;
     return result;
   }
-  async function accessToken() {
-    assertSession();
+  async function identityToken() {
+    assertIdentity();
     const { data, error } = await client.auth.getSession();
-    assertSession();
+    assertIdentity();
     if (error) throw errorFor(error);
     if (!data.session?.access_token || data.session.user.id !== user.id)
       throw Error("Account changed. Download your draft backup, then reload.");
     return data.session.access_token;
+  }
+  async function accessToken() {
+    assertSession();
+    return identityToken();
+  }
+  function reportFailure(error, token) {
+    if (!token || !client) return;
+    const code = String(error.code || ""),
+      category =
+        code === "40001"
+          ? "conflict"
+          : code === "42501"
+            ? "auth"
+            : code === "22023"
+              ? /full|limit/i.test(error.message || "")
+                ? "quota"
+                : "validation"
+              : /fetch|network|timeout/i.test(error.message || "")
+                ? "network"
+                : "unknown";
+    // Telemetry is best effort and never delays Save or includes private text.
+    void Promise.resolve(
+      client
+        .rpc("report_account_failure", { category })
+        .setHeader("Authorization", "Bearer " + token),
+    ).catch(() => {});
   }
   function entry(row) {
     const d = local.validate(row.document),
@@ -96,7 +125,10 @@
       })
       // Never let an SDK session change retarget an already submitted write.
       .setHeader("Authorization", "Bearer " + token);
-    if (error) throw errorFor(error);
+    if (error) {
+      reportFailure(error, token);
+      throw errorFor(error);
+    }
     assertSession();
     if (user.id !== owner)
       throw Error("Account changed. Reload before continuing.");
@@ -164,6 +196,9 @@
     enabled,
     ready,
     assertSession,
+    assertIdentity,
+    identityToken,
+    reportFailure,
     accessToken,
     get user() {
       return user;

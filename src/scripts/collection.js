@@ -951,6 +951,18 @@
       message(error.message);
     }
   });
+  window.addEventListener("pokedex-before-account-action", (e) => {
+    if (
+      persisting ||
+      state.dirty ||
+      document.querySelector("#inventory-dialog[open]")
+    ) {
+      e.preventDefault();
+      syncError(
+        "Save or download your collection draft, then reload before using account data controls.",
+      );
+    }
+  });
   window.addEventListener("pokedex-before-signout", (e) => {
     if (persisting) {
       e.preventDefault();

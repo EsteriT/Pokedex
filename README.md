@@ -54,6 +54,8 @@ Account collection storage is implemented and tested on `feat/collection-cloud`;
 
 ### Develop & verify
 
+The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Its hosted rollout is authorized and both database migrations are verified; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md) for publication and manual acceptance status.
+
 Edit the files in `src/`; generated previews are rebuilt from those sources.
 
 | Command | Purpose |
@@ -67,6 +69,10 @@ Edit the files in `src/`; generated previews are rebuilt from those sources.
 | `npm run test:repository` | Check the cloud adapter with controlled SDK fixtures. |
 | `npm run test:backend:live` | Test real services against a running local Supabase stack only. |
 | `npm run test:backend:browser` | Check real local cloud Save, backups, conflicts, sign-out and account isolation in Chromium. |
+| `npm run test:account-backup` | Check account backup validation, encryption and damaged-file rejection. |
+| `npm run backend:health -- --local` | Read aggregate local backend health counts. |
+| `npm run backend:backup -- --local` | Create a verified encrypted local application/artwork backup. |
+| `npm run backend:recover -- "<file>"` | Decrypt and validate a backup into private recovery files; does not change a database. |
 
 ```text
 src/        Editable pages, styles, scripts and sample data

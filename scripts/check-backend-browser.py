@@ -14,6 +14,7 @@ import tempfile
 import threading
 import time
 from check_collection_cloud import check_collection_cloud
+from check_account_cloud import check_account_cloud
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 
@@ -151,6 +152,9 @@ def main():
                 assert cdp.evaluate("document.getElementById('viewer-shell').hidden"),'A private viewer must not display the other account\'s binder'
                 assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
                 print('PASS:',folder+' real Supabase browser create/place/Save/reopen, artwork restore/upload/portable backup, conflict reload/copy, sign-out confirmation, explicit local import, collection isolation and cross-account denial',flush=True)
+                # The second disposable account is no longer needed after isolation
+                # checks; use it for the destructive account-controls acceptance.
+                check_account_cloud(cdp, base, folder+workspace_name)
         finally:
             if cdp:
                 try:

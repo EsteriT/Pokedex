@@ -39,6 +39,9 @@ async function main() {
   try {
     await db.exec(`create role anon; create role authenticated;
       create schema auth; create table auth.users(id uuid primary key);
+      create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id) on delete cascade,created_at timestamptz default now());
+      create function auth.jwt() returns jsonb language sql stable as
+      $$ select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb $$;
       create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       grant usage on schema auth to authenticated, anon;
@@ -369,6 +372,7 @@ async function main() {
       false,
       "Exposed wrapper does not bypass RLS",
     );
+    await require("./check-account-backend.cjs")(db, as, document);
     console.log(
       "Backend PostgreSQL checks passed: ownership, privileges, document validation, limits, stale saves, atomic rollback, independent accounts, Storage policies/reservations/cleanup.",
     );

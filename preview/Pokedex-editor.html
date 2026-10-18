@@ -747,6 +747,32 @@ body {
   filter: brightness(0.94);
 }
 
+.account-data-dialog label {
+  display: block;
+  margin-top: 12px;
+}
+.account-data-dialog input {
+  max-width: 100%;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+.account-data-dialog h3 {
+  margin-top: 28px;
+}
+.account-data-dialog > .button {
+  margin: 12px 0;
+}
+.account-data-dialog .account-danger {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* Global application navigation; page controls belong below this header. */
 .header-main {
   display: flex;
@@ -10757,14 +10783,17 @@ PERFORMANCE OF THIS SOFTWARE.
     entries = [],
     failure = null,
     changed = false;
-  function assertSession() {
-    if (failure) throw failure;
+  function assertIdentity() {
     if (!user || changed)
       throw Error(
         changed
           ? "Account changed. Download your draft backup, then reload."
           : "Sign in with Google to save a cloud binder.",
       );
+  }
+  function assertSession() {
+    if (failure) throw failure;
+    assertIdentity();
   }
   function errorFor(error) {
     const result = Error(
@@ -10776,14 +10805,40 @@ PERFORMANCE OF THIS SOFTWARE.
     result.code = error.code;
     return result;
   }
-  async function accessToken() {
-    assertSession();
+  async function identityToken() {
+    assertIdentity();
     const { data, error } = await client.auth.getSession();
-    assertSession();
+    assertIdentity();
     if (error) throw errorFor(error);
     if (!data.session?.access_token || data.session.user.id !== user.id)
       throw Error("Account changed. Download your draft backup, then reload.");
     return data.session.access_token;
+  }
+  async function accessToken() {
+    assertSession();
+    return identityToken();
+  }
+  function reportFailure(error, token) {
+    if (!token || !client) return;
+    const code = String(error.code || ""),
+      category =
+        code === "40001"
+          ? "conflict"
+          : code === "42501"
+            ? "auth"
+            : code === "22023"
+              ? /full|limit/i.test(error.message || "")
+                ? "quota"
+                : "validation"
+              : /fetch|network|timeout/i.test(error.message || "")
+                ? "network"
+                : "unknown";
+    // Telemetry is best effort and never delays Save or includes private text.
+    void Promise.resolve(
+      client
+        .rpc("report_account_failure", { category })
+        .setHeader("Authorization", "Bearer " + token),
+    ).catch(() => {});
   }
   function entry(row) {
     const d = local.validate(row.document),
@@ -10841,7 +10896,10 @@ PERFORMANCE OF THIS SOFTWARE.
       })
       // Never let an SDK session change retarget an already submitted write.
       .setHeader("Authorization", "Bearer " + token);
-    if (error) throw errorFor(error);
+    if (error) {
+      reportFailure(error, token);
+      throw errorFor(error);
+    }
     assertSession();
     if (user.id !== owner)
       throw Error("Account changed. Reload before continuing.");
@@ -10909,6 +10967,9 @@ PERFORMANCE OF THIS SOFTWARE.
     enabled,
     ready,
     assertSession,
+    assertIdentity,
+    identityToken,
+    reportFailure,
     accessToken,
     get user() {
       return user;

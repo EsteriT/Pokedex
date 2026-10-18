@@ -8,6 +8,9 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Frontend MVP](FRONTEND-MVP.md) | Accepted scope, milestone and known limits |
 | [Backend foundation](BACKEND-FOUNDATION.md) | Binder cloud implementation, local setup and accepted hosted milestone |
 | [Account collection](COLLECTION-CLOUD.md) | Collection cloud implementation, import/conflict behavior, tests and approved hosted rollout |
+| [Account data and recovery](ACCOUNT-DATA-AND-RECOVERY.md) | Account export/restore/deletion, encrypted operator backups and recovery procedures |
+| [Account data audit](ACCOUNT-DATA-AUDIT.md) | Pre-merge findings, fixes, diagnostic evidence and remaining hosted release gates |
+| [Account controls rollout](ACCOUNT-DATA-ROLLOUT.md) | Authorized hosted migrations, security verification, deployment and manual acceptance |
 | [Backend audit](BACKEND-AUDIT.md) | Final security/bug fixes and pre-commit verification |
 | [Hosted rollout](HOSTED-ROLLOUT.md) | Applied production migrations, security checks and completed binder acceptance |
 | [Deployment](DEPLOYMENT.md) | Build and publish with GitHub Pages |

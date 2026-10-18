@@ -282,6 +282,21 @@ async function main() {
       "storage:" + objectPath,
     );
     await reopened.auth.signOut({ scope: "local" });
+    await testAccount("account-controls");
+    const disposable = clients.at(-1);
+    const seeded = await disposable.rpc("commit_binders", {
+      expected: [],
+      documents: [{ id: randomUUID(), document: doc() }],
+    });
+    assert(!seeded.error, seeded.error?.message);
+    const deleted = await require("./check-account-live.cjs")(
+      disposable,
+      b,
+      admin,
+      url,
+      publicKey,
+    );
+    users.splice(users.indexOf(deleted), 1);
     if (process.argv.includes("--browser")) await browserAcceptance();
     console.log(
       "PASS: local Supabase Auth, real concurrent HTTP saves, RLS, limits, rollback, private upload/download, cross-account denial, and reopened session.",
@@ -293,6 +308,12 @@ async function main() {
     );
   } finally {
     for (const owner of users) {
+      const account = await admin.auth.admin.getUserById(owner);
+      if (
+        account.error?.status === 404 ||
+        account.error?.code === "user_not_found"
+      )
+        continue;
       const listed = await admin.storage
         .from("binder-artwork")
         .list(owner, { limit: 100 });
@@ -317,7 +338,11 @@ async function main() {
     for (const c of clients) await c.auth.signOut({ scope: "local" });
     for (const id of users) {
       const r = await admin.auth.admin.deleteUser(id);
-      if (r.error) {
+      if (
+        r.error &&
+        r.error.status !== 404 &&
+        r.error.code !== "user_not_found"
+      ) {
         console.error("Test user cleanup failed; retry locally.");
         process.exitCode = 1;
       }

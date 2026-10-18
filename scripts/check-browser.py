@@ -49,7 +49,7 @@ class CDP:
             raise RuntimeError("Browser debugging handshake failed.")
         self.serial = 0
         self.call("Page.enable")
-        self.call("Page.addScriptToEvaluateOnNewDocument", {"source": "window.testErrors=[];addEventListener('error',e=>testErrors.push(e.message));addEventListener('unhandledrejection',e=>testErrors.push(String(e.reason?.message||e.reason)));"})
+        self.call("Page.addScriptToEvaluateOnNewDocument", {"source": "window.testErrors=[];addEventListener('error',e=>{if(e.message)testErrors.push(e.message);else if(e.target?.tagName==='SCRIPT')testErrors.push('Script load failed: '+new URL(e.target.src).pathname)},true);addEventListener('unhandledrejection',e=>testErrors.push(String(e.reason?.message||e.reason)));"})
 
     def read(self, count):
         data = b""

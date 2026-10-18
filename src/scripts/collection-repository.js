@@ -57,7 +57,10 @@
       // Pin a pending write to its original account, even if the SDK session changes.
       .setHeader("Authorization", "Bearer " + token);
     check();
-    if (error) throw requestError(error);
+    if (error) {
+      binders.reportFailure?.(error, token);
+      throw requestError(error);
+    }
     if (!Number.isSafeInteger(data) || data < 1)
       throw Error(
         "Save response was incomplete. Download your draft and reload before retrying.",

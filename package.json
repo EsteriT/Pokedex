@@ -21,7 +21,7 @@
     "backend:recover": "node scripts/backend-ops.cjs recover",
     "backend:health": "node scripts/backend-ops.cjs health",
     "backend:backup:auto": "node scripts/backend-backup-auto.cjs",
-    "test:backup:auto": "node scripts/check-backup-automation.cjs && node scripts/check-backup-r2.cjs"
+    "test:backup:auto": "node scripts/check-backup-automation.cjs && node scripts/check-backup-r2.cjs && node scripts/check-backup-supabase.cjs"
   },
   "engines": {
     "node": ">=22"

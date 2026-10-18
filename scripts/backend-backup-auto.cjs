@@ -33,7 +33,16 @@ async function main() {
         const file = await require("./backend-ops.cjs").main(
           "backup",
           ["--hosted", target],
-          { directory, quiet: true },
+          {
+            directory,
+            quiet: true,
+            query: (sql, t) =>
+              require("./backup-supabase.cjs").readOnlyQuery(
+                sql,
+                t.label,
+                process.env.SUPABASE_ACCESS_TOKEN,
+              ),
+          },
         );
         return fs.readFileSync(file);
       },

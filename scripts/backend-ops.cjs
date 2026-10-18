@@ -96,7 +96,7 @@ function target(args) {
     "Use --local or --hosted <project-ref>. Hosted recovery is never automatic.",
   );
 }
-function query(sql, t) {
+function cliQuery(sql, t) {
   const folder = path.join(scratch, "runtime");
   fs.mkdirSync(folder, { recursive: true });
   const file = path.join(folder, "ops-" + randomUUID() + ".sql");
@@ -200,6 +200,7 @@ function portable(archive) {
     });
 }
 async function main(action = defaultAction, args = defaultArgs, options = {}) {
+  const query = options.query || cliQuery;
   if (action === "recover") {
     if (args.length !== 1)
       throw Error("Use backend:recover -- <encrypted-backup-file>.");
@@ -235,12 +236,14 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
     return;
   }
   const t = target(args);
-  const features = query(
-    "select to_regclass('binder_private.account_deletions') is not null as controls, to_regclass('binder_private.operation_counts') is not null as counters;",
-    t,
+  const features = (
+    await query(
+      "select to_regclass('binder_private.account_deletions') is not null as controls, to_regclass('binder_private.operation_counts') is not null as counters;",
+      t,
+    )
   )[0];
   if (action === "health") {
-    const rows = query(
+    const rows = await query(
       `select (select count(*) from auth.users) as accounts,
       (select count(*) from public.binders) as binders,
       (select count(*) from public.collections) as collections,
@@ -256,15 +259,17 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
           target: t.label,
           account_controls_ready: features.controls,
           ...rows[0],
-          ...query(
-            fs.readFileSync(
-              path.join(
-                root,
-                "supabase/diagnostics/portable-binder-preflight.sql",
+          ...(
+            await query(
+              fs.readFileSync(
+                path.join(
+                  root,
+                  "supabase/diagnostics/portable-binder-preflight.sql",
+                ),
+                "utf8",
               ),
-              "utf8",
-            ),
-            t,
+              t,
+            )
           )[0],
         },
         null,
@@ -291,7 +296,7 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
         "Set the matching POKEDEX_BACKUP_URL and private POKEDEX_BACKUP_SECRET_KEY in .env.local. Never publish that key.",
       );
   }
-  const rows = query(
+  const rows = await query(
     `select jsonb_build_object('accounts',coalesce((select jsonb_agg(jsonb_build_object(
     'id',u.id,'email',u.email,'deleting',${features.controls ? "exists(select 1 from binder_private.account_deletions where owner_id=u.id)" : "false"},
     'binders',coalesce((select jsonb_agg(jsonb_build_object('document',document) order by position) from public.binders where owner_id=u.id),'[]'::jsonb),

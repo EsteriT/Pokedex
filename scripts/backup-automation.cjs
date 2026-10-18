@@ -157,7 +157,7 @@ async function run({ snapshot, store, ping, passphrase, clock = Date.now }) {
     stage = "monitor success";
     await ping("success");
     return { key, sha256, bytes: bytes.length, expiredRemoved: removed };
-  } catch {
+  } catch (error) {
     try {
       await ping("fail");
     } catch {}
@@ -165,6 +165,20 @@ async function run({ snapshot, store, ping, passphrase, clock = Date.now }) {
     throw Error(
       "Backup failed during " +
         stage +
+        ([
+          "SUPABASE_NETWORK",
+          "SUPABASE_RESPONSE_INVALID",
+          "SUPABASE_HTTP_400",
+          "SUPABASE_HTTP_401",
+          "SUPABASE_HTTP_403",
+          "SUPABASE_HTTP_429",
+          "SUPABASE_HTTP_500",
+          "SUPABASE_HTTP_502",
+          "SUPABASE_HTTP_503",
+          "SUPABASE_HTTP_FAILED",
+        ].includes(error?.code)
+          ? " (" + error.code + ")"
+          : "") +
         ". No success was reported. Check private settings and retry.",
     );
   }

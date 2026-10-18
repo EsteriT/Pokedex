@@ -13,3 +13,4 @@ require("./check-account-data.cjs");
 require("./check-ops-cli.cjs");
 require("./check-backup-automation.cjs");
 require("./check-backup-r2.cjs");
+require("./check-backup-supabase.cjs");

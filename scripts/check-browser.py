@@ -102,8 +102,13 @@ class CDP:
         raise AssertionError("Timed out: " + expression + " State: " + str(self.evaluate("({url:location.href,ready:document.readyState,errors:window.testErrors,store:typeof window.CollectionStore,body:document.body.innerText.slice(0,160)})")))
 
     def go(self, url, ready):
-        self.call("Page.navigate", {"url": url})
-        self.wait("location.href===" + json.dumps(url) + "&&(" + ready + ")")
+        before = self.evaluate('performance.timeOrigin')
+        navigation = self.call("Page.navigate", {"url": url})
+        if navigation.get('errorText'):
+            raise RuntimeError('Browser navigation failed: ' + navigation['errorText'])
+        # Reopening the same URL must not pass against the previous document.
+        fresh = "performance.timeOrigin!==" + str(before) + "&&" if navigation.get('loaderId') else ""
+        self.wait(fresh + "location.href===" + json.dumps(url) + "&&(" + ready + ")")
 
     def escape(self):
         for event in ("keyDown", "keyUp"):
@@ -373,7 +378,7 @@ def check_push_insert(cdp, base, route):
             cdp.call('Input.dispatchDragEvent',{'type':'drop',**points[1],'data':cdp.drag_data})
             cdp.call('Input.dispatchMouseEvent',{'type':'mouseReleased',**points[1],'button':'left','clickCount':1})
         finally:cdp.call('Input.setInterceptDrags',{'enabled':False})
-        assert cdp.evaluate("!document.getElementById('save').disabled&&!document.getElementById('feedback-undo').hidden&&!document.querySelector('.is-insert-path')"),'Insertion must have Undo and clear its preview'
+        assert cdp.evaluate("!document.getElementById('save').disabled&&!document.getElementById('feedback-undo').hidden&&!document.querySelector('.is-insert-path')"), ('Insertion must have Undo and clear its preview', cdp.evaluate("({saved:document.getElementById('save').disabled,undoHidden:document.getElementById('feedback-undo').hidden,paths:document.querySelectorAll('.is-insert-path').length,message:document.getElementById('editor-message').textContent})"))
         cdp.evaluate("document.getElementById('feedback-undo').click()")
         assert cdp.evaluate("document.getElementById('save').disabled"),'One Undo must restore the whole prior row'
         cdp.evaluate("document.getElementById('redo').click();document.getElementById('save').click()")
@@ -670,9 +675,9 @@ def check_workshop_refinements(cdp, base, route):
     cdp.evaluate("document.getElementById('clear-selection').click();document.querySelectorAll('.editor-pocket')[8].click()")
     time.sleep(.15)
     assert cdp.evaluate("(()=>{let n=document.querySelector('.selection-status'),buttons=[...n.querySelectorAll('button')].filter(n=>n.getClientRects().length);return n.getBoundingClientRect().width<=buttons.length*44+36})()"),'Few actions must not retain a dragged toolbar\'s old width'
-    click('#selection-dismiss');cdp.evaluate("if(document.getElementById('pages-toggle').getAttribute('aria-expanded')==='false')document.getElementById('pages-toggle').click()");click('#add-page')
+    click('#selection-dismiss');cdp.evaluate("if(document.getElementById('pages-toggle').getAttribute('aria-expanded')==='false')document.getElementById('pages-toggle').click();window.addPageToast=null;document.getElementById('add-page').addEventListener('click',()=>{window.addPageToast={text:document.getElementById('editor-message').textContent,visible:!document.querySelector('.editor-feedback').hidden}},{once:true})");click('#add-page')
     cdp.call('Input.dispatchMouseEvent',{'type':'mouseMoved','x':10,'y':10})
-    assert cdp.evaluate("document.getElementById('editor-message').textContent==='Page added.'&&!document.querySelector('.editor-feedback').hidden")
+    assert cdp.evaluate("addPageToast?.text==='Page added.'&&addPageToast.visible"), cdp.evaluate("({captured:addPageToast,message:document.getElementById('editor-message').textContent,hidden:document.querySelector('.editor-feedback').hidden})")
     time.sleep(3.2)
     assert cdp.evaluate("document.querySelector('.editor-feedback').hidden"),'Routine notifications must expire after three seconds'
     cdp.evaluate("document.getElementById('undo').click();document.getElementById('feedback-dismiss').click()")

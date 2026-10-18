@@ -23,6 +23,8 @@ If file removal fails or the connection drops, the account remains pending. Open
 
 ## Free manual operator backups
 
+The later [automated-backup milestone](AUTOMATED-BACKUPS.md) is implemented with private R2, Actions and Healthchecks. Daily backup jobs are not active yet. Until hosted acceptance passes, continue the manual procedure below. Automated seven-day expiry has possible scheduled-cleanup/provider delays; the deletion notice now makes that distinction explicit.
+
 The user selected manual encrypted backups on their computer, with a second copy off the computer. There is no paid backup service or automatic schedule. A backup is only as recent as the last successful manual run.
 
 From the project terminal, with Docker/Supabase running:

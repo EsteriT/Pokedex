@@ -110,7 +110,7 @@
     });
     const warning = element(
       "p",
-      "Delete removes your cloud binders, collection, artwork and sign-in account permanently. Once it starts, saving is locked until deletion finishes. Browser originals and downloaded backups remain on your devices. Encrypted operator backups may retain data for up to 7 days.",
+      "Delete removes your cloud binders, collection, artwork and sign-in account permanently. Once it starts, saving is locked until deletion finishes. Browser originals and downloaded backups remain on your devices. Encrypted operator backups expire after 7 days; scheduled cleanup and storage-provider processing can take longer.",
     );
     const deleteHeading = element("h3", "Delete account");
     const confirmationLabel = element("label", "Type DELETE to confirm");

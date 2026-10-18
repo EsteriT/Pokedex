@@ -13,15 +13,27 @@ require("./backend-env.cjs")([
   "POKEDEX_BACKUP_URL",
   "POKEDEX_BACKUP_SECRET_KEY",
 ]);
-const action = process.argv[2],
-  args = process.argv.slice(3);
+const defaultAction = process.argv[2],
+  defaultArgs = process.argv.slice(3);
 function cli(args) {
+  const env = { ...process.env };
+  for (const name of [
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "HEALTHCHECKS_PING_URL",
+    "POKEDEX_BACKUP_PASSPHRASE",
+    "POKEDEX_BACKUP_SECRET_KEY",
+  ])
+    delete env[name];
   const result = spawnSync(
     process.execPath,
     [path.join(root, "node_modules/supabase/dist/supabase.js"), ...args],
-    { cwd: root, encoding: "utf8", maxBuffer: maxBytes, timeout: 120000 },
+    { cwd: root, env, encoding: "utf8", maxBuffer: maxBytes, timeout: 120000 },
   );
-  if (result.status !== 0 && /Access token not provided/i.test(result.stderr || ""))
+  if (
+    result.status !== 0 &&
+    /Access token not provided/i.test(result.stderr || "")
+  )
     throw Error(
       "Supabase CLI is not signed in. Run npx.cmd supabase login in your terminal, then retry. The backup administrator key does not replace CLI login.",
     );
@@ -71,7 +83,7 @@ async function passphrase(confirm = false) {
     throw Error("Passphrases do not match.");
   return value;
 }
-function target() {
+function target(args) {
   if (!args.length || (args.length === 1 && args[0] === "--local"))
     return { flags: ["--local"], label: "local" };
   if (
@@ -91,12 +103,20 @@ function query(sql, t) {
   try {
     fs.writeFileSync(file, sql, { mode: 0o600, flag: "wx" });
     const result = cli([
-      "db", "query", ...t.flags, "--file", file, "--output", "json",
+      "db",
+      "query",
+      ...t.flags,
+      "--file",
+      file,
+      "--output",
+      "json",
     ]);
     // The CLI wraps rows only when agent detection is enabled.
     const rows = Array.isArray(result) ? result : result?.rows;
     if (!Array.isArray(rows))
-      throw Error("Unexpected Supabase query response. No database output was printed.");
+      throw Error(
+        "Unexpected Supabase query response. No database output was printed.",
+      );
     return rows;
   } finally {
     fs.rmSync(file, { force: true });
@@ -179,7 +199,7 @@ function portable(archive) {
       };
     });
 }
-async function main() {
+async function main(action = defaultAction, args = defaultArgs, options = {}) {
   if (action === "recover") {
     if (args.length !== 1)
       throw Error("Use backend:recover -- <encrypted-backup-file>.");
@@ -214,7 +234,7 @@ async function main() {
     );
     return;
   }
-  const t = target();
+  const t = target(args);
   const features = query(
     "select to_regclass('binder_private.account_deletions') is not null as controls, to_regclass('binder_private.operation_counts') is not null as counters;",
     t,
@@ -280,7 +300,8 @@ async function main() {
     t,
   );
   const snapshot = rows[0].snapshot,
-    files = [];
+    files = [],
+    modelImage = model().image;
   let total = Buffer.byteLength(JSON.stringify(snapshot));
   for (const object of snapshot.objects) {
     const response = await fetch(
@@ -320,7 +341,7 @@ async function main() {
   const verified = decrypt(encrypted, password);
   if (verified.files.length !== files.length)
     throw Error("Backup verification failed.");
-  const folder = path.join(scratch, "backups");
+  const folder = options.directory || path.join(scratch, "backups");
   fs.mkdirSync(folder, { recursive: true });
   const file = path.join(
     folder,
@@ -331,21 +352,22 @@ async function main() {
       ".pdxbackup",
   );
   fs.writeFileSync(file, encrypted, { mode: 0o600, flag: "wx" });
-  console.log(
-    "Encrypted, verified backup saved: " +
-      file +
-      ". Copy it off this computer. Store the passphrase separately.",
-  );
-  console.log(
-    "Retention: manually delete backups older than 7 days here and from every off-computer copy location.",
-  );
+  if (!options.quiet)
+    console.log(
+      "Encrypted, verified backup saved: " +
+        file +
+        ". Copy it off this computer. Store the passphrase separately.",
+    );
+  if (!options.quiet)
+    console.log(
+      "Retention: manually delete backups older than 7 days here and from every off-computer copy location.",
+    );
+  return file;
 }
-let modelImage;
 if (require.main === module) {
-  modelImage = model().image;
   main().catch((e) => {
     console.error(e.message);
     process.exitCode = 1;
   });
 }
-module.exports = { portable };
+module.exports = { portable, main };

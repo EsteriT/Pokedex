@@ -1,0 +1,77 @@
+# Automated encrypted backups
+
+Status: implemented on `feat/automated-backups`; the owner authorized final checks, commit, merge and push on 2026-10-19. Daily runs remain gated off pending hosted acceptance. The private Cloudflare R2 `pokedex-backups` bucket exists in Asia Pacific with Standard storage and public access disabled. The owner prepared R2 credentials and a paused Healthchecks monitor. All six protected GitHub environment secret names and main-only branch restrictions were verified in the dashboard without reading values. After fresh owner approval, lifecycle rule `expire-pokedex-backups-7-days` was saved and verified enabled on `daily/pnuovoogfjzzlgmenhnq/`. No hosted automation run, R2 recovery/alert acceptance or schedule enablement has happened yet. A $5 budget alert still needs verification.
+
+## What happens each day
+
+GitHub Actions runs the existing application/artwork snapshot tool, encrypts its output, uploads only the encrypted `.pdxbackup` to private R2, downloads it again, checks its SHA-256 and decryption, and validates the per-account recovery format. Only then does it send a success signal to Healthchecks. It never restores data automatically.
+
+The snapshot reads Supabase; it does not update schema, records, Auth settings or artwork. Temporary SQL files and encrypted local output are removed in `finally`. A disposable GitHub-hosted runner holds plaintext in process memory while building/validating the archive. No application records, emails, keys, Ping URLs or database/SDK error bodies are printed or sent to Healthchecks. Only generic stage failures and successful encrypted-object metadata are logged. Nothing is uploaded as an Actions artifact or cached.
+
+The Supabase CLI subprocess inherits its scoped database token but not the R2 keys, monitoring URL, artwork secret key or encryption passphrase. A regression check verifies that boundary. Only the parent Node process needs the other values.
+
+The existing 256 MiB uncompressed beta limit still applies. Upgrade to streaming before reaching it. This is application-data recovery, not a full database/Auth/configuration backup: Auth passwords, provider configuration, sessions and refresh tokens are excluded. A backup is a snapshot of saved cloud records; drafts and browser-only originals are excluded. Missing/changing artwork makes the run fail rather than claim a complete backup.
+
+## Private GitHub setup
+
+In [repository settings](https://github.com/EsteriT/Pokedex/settings/environments), create an environment named **backup-production**. Under deployment branches/tags, select **Selected branches and tags**, add branch **main**, and allow no other branch/tag. This restriction is required even though the workflow also checks repository/ref. Keep backup credentials out of repository-wide secrets and the separate `github-pages` environment, so website build/install steps cannot receive them.
+
+Add these six **environment secrets**, with exact names and raw values (no surrounding quotes):
+
+| Name                        | Private value and purpose                                                                                                                                                                                                                                                                                                     |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `R2_ACCESS_KEY_ID`          | S3 Access Key ID from an R2 account token scoped to Object Read & Write for **pokedex-backups only**.                                                                                                                                                                                                                         |
+| `R2_SECRET_ACCESS_KEY`      | Matching S3 Secret Access Key. This is different from the Cloudflare API token value.                                                                                                                                                                                                                                         |
+| `HEALTHCHECKS_PING_URL`     | Base `https://hc-ping.com/<check-uuid>` URL. No `/start`, `/fail` or query string. Treat it as a secret.                                                                                                                                                                                                                      |
+| `POKEDEX_BACKUP_PASSPHRASE` | Strong generated passphrase, 16–1024 characters. Keep an independent password-manager copy for disaster recovery. Rotation requires retaining old passphrases until their archives expire.                                                                                                                                    |
+| `POKEDEX_BACKUP_SECRET_KEY` | Existing modern private Supabase `sb_secret_…` operator key used to download artwork. It is privileged and must never enter browser code.                                                                                                                                                                                     |
+| `SUPABASE_ACCESS_TOKEN`     | New **scoped** PAT (`sbp_fc…`) restricted to Pokedex project `pnuovoogfjzzlgmenhnq`, **Database: Read only**. No Database Read-write, Auth, billing, API Key Secrets or other projects. Use a 90-day expiry, put a renewal reminder in your calendar, and replace before expiry. This is not the Supabase project secret key. |
+
+Supabase scoped PATs run SQL read-only without Database Read-write. The CLI uses the explicit project reference without `supabase link` or a database password. Do not broaden permissions if a call fails: inspect the missing-permission report privately and review the needed operation first. Never substitute the existing account-wide CLI login token for CI.
+
+The target Supabase reference, Cloudflare account, bucket and managed prefix are pinned in `scripts/backup-automation.cjs`. Credentials are supplied only to the backup step, after installation; the workflow pins official checkout/setup actions to immutable commits, disables persisted checkout credentials, uses `contents: read`, no shared caches/artifacts, and runs neither on pushes nor pull requests. Protect `main` and review any workflow/script/dependency change before merging: approved code running with secrets can access them.
+
+## Monitor and schedule
+
+Healthchecks: `Pokedex daily backup`, **Simple**, period **1 day**, grace **3 hours**, verified email integration. Grace accommodates GitHub scheduling delays and is also the maximum start-to-finish interval. The workflow has a shorter 30-minute job timeout. Start/fail/success signals are POST requests with no data body, three bounded attempts and no redirects. A failed success signal fails the job. The final workflow failure step also attempts `/fail` after an early install/startup/cancellation failure. If no step can run, Healthchecks detects the missing heartbeat independently.
+
+The intended daily schedule is **19:23 UTC / 02:23 Vietnam time**. The scheduled job is gated by repository Actions variable **BACKUPS_ENABLED** being exactly **true**; unset/false means scheduled jobs skip. Manual **Run workflow** on main remains available. Keep the monitor paused and this variable unset until the rollout checklist passes. A disabled schedule with an unpaused monitor will correctly alert that backups are missing.
+
+GitHub scheduling is best effort: it may be delayed, and public-repository schedules can disable after 60 days without activity. Check the workflow and monitor regularly; do not treat a green website deployment as backup evidence.
+
+## Expiry and cost
+
+The managed prefix is `daily/pnuovoogfjzzlgmenhnq/`. The script paginates listings, deletes only recognized automation filenames whose embedded creation time **and** R2 LastModified are at least seven days old, and verifies deletion. Unrelated keys/prefixes and recent copies are preserved. This cleanup runs before the new snapshot, even if today's snapshot later fails. Expired archives are not kept forever just to retain a last good copy: a missing unexpired backup is an incident.
+
+Before rollout, independently configure an **R2 Object lifecycle** rule on that prefix to delete objects after **7 days**, with no Infrequent Access transition and no bucket lock. This fallback expires files even if GitHub stops running. The existing incomplete-multipart cleanup can remain. The object-only job token cannot change lifecycle/public access settings. Cloudflare typically removes lifecycle-expired objects within another 24 hours, sometimes longer; daily job cleanup also is not instantaneous. The user-facing deletion notice therefore says seven-day expiry with possible cleanup/provider delays, not a strict seven-day erasure guarantee. Monitor expiry failures; manually remove overdue archives when needed, including old off-computer manual copies. A provider outage may delay deletion.
+
+Use Standard storage, with no public development URL, custom domain or browser CORS. The owner accepted free allowances with a $5/month planning buffer; that is **not a spending cap**. Configure a $5 R2 budget email alert and review Cloudflare billing and Supabase egress. Each daily run reads all artwork, so the source service's transfer limits still matter. Healthchecks and Actions can also have their own limits; check current provider dashboards before expanding usage.
+
+## Tests and rollout checklist
+
+Local regression: `npm.cmd run test:backup:auto`. It uses encrypted disposable fixtures with uploaded artwork, independent recovery validation and injected in-memory storage/monitor responses. It covers corruption/different valid archives, wrong project/stale data, upload/download/cleanup/monitor failures, pagination, scope-safe expiry, private errors, retry bounds, missing/incorrect credentials, main/fork guards and workflow boundaries. SDK adapter checks and real local Supabase/manual recovery checks supplement it. These are not hosted R2/Healthchecks acceptance.
+
+1. Finish local diagnostics, dependency audit and review. Keep the schedule gated off.
+2. Confirm all six environment secret **names** exist and environment branch restrictions are main-only, without revealing their values. Confirm R2 lifecycle, Standard/private status and budget alert. Keep Healthchecks paused.
+3. After owner authorization, merge/push this reviewed branch. This also triggers the existing website deployment because `main` publishes Pages. There is no new SQL migration.
+4. Run **Encrypted backend backup → Run workflow → main**. Verify green Actions, a private encrypted object and a Healthchecks success signal. Never paste raw command output if it contains credentials.
+5. Perform a recovery drill on disposable data: retrieve the encrypted archive privately, decrypt/extract with the independent passphrase, validate artwork and restore a disposable account into the local stack. Do not restore/delete a primary account or bulk-resurrect deleted accounts. Verify current ownership and reconcile later deletion requests before any real recovery.
+6. Test a failing run without changing production data, and confirm failure email. Separately test a missed heartbeat with a short-lived disposable Healthchecks check, confirm email delivery, then remove it. Test expiry only with disposable objects under a separate test prefix; never backdate or delete a real recovery archive as a test.
+7. Unpause the production monitor and set repository Actions variable `BACKUPS_ENABLED=true` only after the above passes. Verify the first actual scheduled run and independent monitoring. Record acceptance evidence and dates here.
+
+If setup or acceptance is incomplete, continue verified manual backups; do not claim daily protection is live.
+
+### Local verification record — 2026-10-19
+
+- `npm test`, repository/collection adapter checks, embedded PostgreSQL security/validation tests, and real local Supabase tests passed. Real local tests include concurrent saves, private artwork, encrypted operator backup/decrypt/extract, application/artwork recovery, resumable deletion and stale-token denial.
+- `npm run test:backup:auto` passed, including the R2 SDK adapter's download bounds, safe command scope, conditional Standard upload and deletion confirmation. Failure fixtures do not contact production services.
+- Unconfigured preview build/reference checks and a hosted-configured `dist/` packaging check passed. Source development settings were restored afterward. Only the Workspace preview content changes, for the accurate expiry notice.
+- `npm audit` reported zero vulnerabilities across pinned dependencies. A 183-candidate/generated-file scan found no configured private credentials or privileged browser keys; private configuration and working paths remain ignored. No secret values were read from GitHub.
+- Remaining acceptance: live R2/Healthchecks job, current scoped-token permissions and stored credential correctness, independent download/decryption/local recovery, delivered failure/missed-run emails, real disposable expiry test, budget-alert verification and first scheduled run. Keep the schedule gated off until these pass.
+- The pre-publication browser pass exposed test-harness races, not a changed application flow: same-URL navigation and account reload readiness could inspect the previous document, and transient notifications were inspected after their three-second lifetime. Navigation/reload checks now require a fresh document and loaded collection, and the native add-page test captures the notification in its click handler while separately checking real expiry. After those corrections, the complete source/preview frontend suite and real source/preview local cloud/account browser acceptance both passed. See the release handoff for the final verification record.
+
+## Recovery
+
+Use the existing [recovery drill](ACCOUNT-DATA-AND-RECOVERY.md#recovery-drill). Download a chosen **unexpired** R2 object into private ignored `.scratch/backups/`, then run `npm.cmd run backend:recover -- "<file>"` and enter the corresponding passphrase. Decrypted account files and owner map are sensitive. Never commit them or attach them to public issues. Extraction does not restore a database. Test locally and obtain the owner's permission before restoring their saved account data. Keep independent passphrase copies so losing GitHub access does not make R2 archives unusable.
+
+References: [R2 authentication](https://developers.cloudflare.com/r2/api/tokens/), [R2 SDK](https://developers.cloudflare.com/r2/examples/aws/aws-sdk-js-v3/), [R2 lifecycles](https://developers.cloudflare.com/r2/buckets/object-lifecycles/), [scoped Supabase PATs](https://supabase.com/docs/guides/platform/personal-access-tokens), [Actions environment secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets), [Healthchecks](https://healthchecks.io/docs/).

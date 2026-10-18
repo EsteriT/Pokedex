@@ -11,6 +11,8 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Account data and recovery](ACCOUNT-DATA-AND-RECOVERY.md) | Account export/restore/deletion, encrypted operator backups and recovery procedures |
 | [Account data audit](ACCOUNT-DATA-AUDIT.md) | Pre-merge findings, fixes, diagnostic evidence and remaining hosted release gates |
 | [Account controls rollout](ACCOUNT-DATA-ROLLOUT.md) | Authorized hosted migrations, security verification, deployment and manual acceptance |
+| [Automated backups](AUTOMATED-BACKUPS.md) | Private R2 setup, protected Actions secrets, monitoring, expiry and rollout gates |
+| [Owner cheatsheet](OPERATIONS-CHEATSHEET.md) | Which service does what, where to investigate problems, routine checks and recovery |
 | [Backend audit](BACKEND-AUDIT.md) | Final security/bug fixes and pre-commit verification |
 | [Hosted rollout](HOSTED-ROLLOUT.md) | Applied production migrations, security checks and completed binder acceptance |
 | [Deployment](DEPLOYMENT.md) | Build and publish with GitHub Pages |

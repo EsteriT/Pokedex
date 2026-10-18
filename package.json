@@ -19,12 +19,15 @@
     "test:account-backup": "node scripts/check-backup-crypto.cjs && node scripts/check-account-backup.cjs",
     "backend:backup": "node scripts/backend-ops.cjs backup",
     "backend:recover": "node scripts/backend-ops.cjs recover",
-    "backend:health": "node scripts/backend-ops.cjs health"
+    "backend:health": "node scripts/backend-ops.cjs health",
+    "backend:backup:auto": "node scripts/backend-backup-auto.cjs",
+    "test:backup:auto": "node scripts/check-backup-automation.cjs && node scripts/check-backup-r2.cjs"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "3.1152.0",
     "@electric-sql/pglite": "0.5.10",
     "esbuild": "0.28.2",
     "supabase": "2.121.0"

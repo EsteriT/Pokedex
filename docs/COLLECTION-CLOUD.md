@@ -1,6 +1,12 @@
 # Account collection storage
 
-Started 2026-10-18 on `feat/collection-cloud`. The user authorized implementation/local testing and subsequently approved the full hosted rollout. The reviewed migration is deployed to Pokedex in Singapore; website publication is in progress. Actual hosted collection UI acceptance remains pending. The deployed binder milestone remains intact.
+Started 2026-10-18 on `feat/collection-cloud`. The user authorized implementation/local testing and subsequently approved the full hosted rollout. The reviewed migration is deployed to Pokedex in Singapore, and the website is published. Actual hosted collection UI acceptance remains pending. The deployed binder milestone remains intact.
+
+## Deployment record
+
+- Feature commit `034d310` was fast-forwarded into `main` and pushed. [Deploy website run 39117541307](https://github.com/EsteriT/Pokedex/actions/runs/39117541307) passed every build/check/test/deploy step.
+- Live root/landing navigation and all four application pages were fetched after deployment. They contain the intended hosted configuration and pinned account-write safeguard; Workspace/Discover contain the collection adapter, and Workspace includes explicit browser import.
+- The user has been asked to verify actual hosted collection Save/refresh, a second browser/profile, backup restore and any available browser import. Those results remain pending; automated SQL/HTTP/source inspection does not replace that acceptance.
 
 ## User behavior
 

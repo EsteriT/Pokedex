@@ -36,8 +36,8 @@ git push
 
 ## Data and release limits
 
-With the hosted configuration, signed-in users save private binders to their own Supabase account. Existing browser-local binders are copied only through the explicit account import action. Localhost and GitHub Pages have separate browser storage and Auth environments; a local Google session does not sign you into production.
+With the hosted configuration, signed-in users save private binders and collection records to their own Supabase account. Browser-local binders and collection records are copied only through explicit import actions; browser originals are preserved. Localhost and GitHub Pages have separate browser storage and Auth environments; a local Google session does not sign you into production.
 
-Keep portable backups. Save is explicit; there is no autosave or automatic recovery draft. Unsaved edits and browser-local collection records can be lost when site data is cleared. Unconfigured builds retain the original browser-local prototype.
+Keep portable backups. Save is explicit; there is no autosave or automatic recovery draft. Unsaved edits and original browser-local records can be lost when site data is cleared. Unconfigured builds retain the original browser-local prototype.
 
-Card images use external hosts and need internet access. The catalogue and prices remain sample data. Collection synchronization, live pricing and public binder sharing are not included.
+Card images use external hosts and need internet access. The catalogue and prices remain sample data. Automatic realtime synchronization, live pricing and public binder sharing are not included. Manual account collection Save/reopen across browsers is supported; see [the collection guide](COLLECTION-CLOUD.md) for limits and acceptance status.

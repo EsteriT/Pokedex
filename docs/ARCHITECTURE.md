@@ -1,6 +1,6 @@
 # Pokedex architecture — working draft
 
-The 2026-10-18 account collection implementation on `feat/collection-cloud` is documented in [COLLECTION-CLOUD.md](COLLECTION-CLOUD.md). It adds a shared collection adapter, owner-scoped snapshot/revision storage and explicit browser import. It is tested locally; its approved hosted migration and website update are live, with actual hosted collection UI acceptance pending. The accepted hosted binder rollout remains recorded in [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md). Older browser-local-only collection descriptions below describe the prototype baseline.
+The 2026-10-18 account collection implementation on `feat/collection-cloud` is documented in [COLLECTION-CLOUD.md](COLLECTION-CLOUD.md). It adds a shared collection adapter, owner-scoped snapshot/revision storage and explicit browser import. It is tested locally; its approved hosted migration and website update are live, with user-confirmed hosted collection UI acceptance complete. The accepted hosted binder rollout remains recorded in [HOSTED-ROLLOUT.md](HOSTED-ROLLOUT.md). Older browser-local-only collection descriptions below describe the prototype baseline.
 
 Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). The 2026-10-17 binder backend implementation is documented in [BACKEND-FOUNDATION.md](BACKEND-FOUNDATION.md), including passing local service/browser tests and the remaining hosted deployment gates. Older proposals below are historical where they conflict with that contract. [HISTORY.md](HISTORY.md) records superseded prototype iterations.
 
@@ -10,7 +10,7 @@ Updated: 2026-10-12. Companion: [DESIGN.md](DESIGN.md). This document plans resp
 
 The **frontend** is the interface in the browser. The **backend** is the service that checks permissions, validates changes, stores data, and accesses providers when server credentials are needed. The **database** stores structured records. **Object storage** stores uploaded/exported files. An **API contract** specifies messages passed between frontend and backend. **Authentication** identifies someone; **authorization** determines what they may access.
 
-Current implementation: five plain HTML/CSS/JavaScript pages with a working binder editor, browser-local collection, sample catalogue, and an optional private binder backend. Google sign-in, PostgreSQL document storage and private artwork Storage are implemented and tested locally. Hosted cloud rollout is pending approval. The preview build bundles the pinned browser SDK; unconfigured builds preserve browser-local saving. Existing landing demos remain separate from the persistent editor model.
+Current implementation: five plain HTML/CSS/JavaScript pages with a working binder editor, private account collections, sample catalogue and a private Supabase backend. Google sign-in, PostgreSQL binder/collection storage and private artwork Storage are deployed with passing local tests and user-confirmed hosted acceptance. The preview build bundles the pinned browser SDK; unconfigured builds preserve browser-local saving. Existing landing demos remain separate from the persistent editor model.
 
 ## Decision status and guardrails
 

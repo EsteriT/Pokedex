@@ -1,12 +1,12 @@
 # Account collection storage
 
-Started 2026-10-18 on `feat/collection-cloud`. The user authorized implementation/local testing and subsequently approved the full hosted rollout. The reviewed migration is deployed to Pokedex in Singapore, and the website is published. Actual hosted collection UI acceptance remains pending. The deployed binder milestone remains intact.
+**Milestone accepted — 2026-10-18.** Started on `feat/collection-cloud`; the user approved the hosted rollout and confirmed all requested collection acceptance checks pass. The reviewed migration is deployed to Pokedex in Singapore, and the website is published. The deployed binder milestone remains intact.
 
 ## Deployment record
 
 - Feature commit `034d310` was fast-forwarded into `main` and pushed. [Deploy website run 39117541307](https://github.com/EsteriT/Pokedex/actions/runs/39117541307) passed every build/check/test/deploy step.
 - Live root/landing navigation and all four application pages were fetched after deployment. They contain the intended hosted configuration and pinned account-write safeguard; Workspace/Discover contain the collection adapter, and Workspace includes explicit browser import.
-- The user has been asked to verify actual hosted collection Save/refresh, a second browser/profile, backup restore and any available browser import. Those results remain pending; automated SQL/HTTP/source inspection does not replace that acceptance.
+- The user confirmed that a card saved through the hosted page survives refresh and appears after sign-in through another browser/profile. The user also confirmed hosted backup download/restore/Save and available browser-import checks pass. These are user-performed acceptance results, distinct from the automated SQL/HTTP/source checks.
 
 ## User behavior
 
@@ -29,7 +29,7 @@ An account collection records physical ownership and Wanted cards independently 
 
 Server validation enforces 5,000 groups, quantity 1–999, 2,000 UTF-16 units of notes and 20 UTF-16 units of grade, supported sample printings/finishes, enums, canonical ownership/grading fields and unique IDs/groups. Grade labels must already be trimmed so database groups cannot collapse into duplicates after client normalization. **Cloud snapshots are bounded to 16 MB**, independently of the existing 64 MB backup-file allowance. Oversized saves fail without discarding the draft. Full-snapshot reads/saves are intentional for this beta; production load has not been measured and there is no realtime/incremental synchronization.
 
-Migration: `supabase/migrations/20261018085909_collection_cloud.sql`. Only this new unpublished migration was developed; the three existing hosted binder migrations are unchanged. The local validator was refined with CREATE OR REPLACE without a database reset. Fresh migration execution is checked separately in embedded PostgreSQL.
+Migration: `supabase/migrations/20261018085909_collection_cloud.sql`. This milestone added one collection migration; the three existing hosted binder migrations are unchanged. The local validator was refined with CREATE OR REPLACE without a database reset. Fresh migration execution is checked separately in embedded PostgreSQL.
 
 ## Verification
 
@@ -42,7 +42,7 @@ Migration: `supabase/migrations/20261018085909_collection_cloud.sql`. Only this 
 
 Migration SHA-256: `cd7fbffd51674398afcf185fc23a61bec1c0402f4f9e7068764ded39ebb7591a`.
 
-## Hosted rollout ? approved 2026-10-18
+## Hosted rollout — approved and accepted 2026-10-18
 
 The user approved applying the reviewed migration, hosted verification, commit/merge/push and website deployment. No new provider or secret is required. Backend settings stay public-only; localhost configuration must never be published.
 
@@ -50,6 +50,6 @@ Hosted verification passed: owner-only reads, direct INSERT/UPDATE/DELETE denial
 
 Hosted advisors: no performance findings or collection-policy findings. Existing [default-deny private table notices](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy) remain intentional. Auth also reports [leaked-password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection); public Auth settings confirm Google enabled and Email, Phone and anonymous sign-in disabled. Password protection does not protect Google credentials, and password login has not been enabled as part of this rollout.
 
-After the website deploys, verify collection Save/refresh, another browser/profile, explicit import and backup restore on the hosted site. Binder acceptance must remain intact. Hosted SQL checks alone do not complete actual collection UI acceptance.
+The user confirmed hosted collection Save/refresh, another browser/profile, available browser import and backup restore all pass. This completes the requested collection-cloud milestone within the documented beta limits. It does not establish production load capacity or add realtime synchronization; those remain outside the verified scope.
 
 For a frontend rollback, redeploy its prior version and retain collection rows/migrations. Do not reset account data to roll back a website.

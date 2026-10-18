@@ -50,7 +50,7 @@ Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS 
 
 The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup, verified acceptance and beta limits.
 
-Account collection storage is implemented and tested on `feat/collection-cloud`; its approved hosted migration and website update are now live. See [the collection guide](docs/COLLECTION-CLOUD.md) for private saving, browser import, conflict recovery and test coverage. Actual hosted collection UI acceptance remains pending.
+Account collection storage is implemented and tested on `feat/collection-cloud`; its approved hosted migration and website update are now live. See [the collection guide](docs/COLLECTION-CLOUD.md) for private saving, browser import, conflict recovery and test coverage. The user confirmed hosted collection saving, cross-browser access, backups and available browser imports pass.
 
 ### Develop & verify
 

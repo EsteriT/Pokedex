@@ -4514,14 +4514,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   margin: 0;
   border: 0;
 }
-.collection-entry-actions {
-  display: none;
-  gap: 12px;
-  align-items: center;
-}
-.workspace:has(#collection-panel:not([hidden])) .collection-entry-actions {
-  display: flex;
-}
 .workspace-page .app-nav a[aria-current="page"],
 .workspace-page .tabs button[aria-selected="true"],
 .workspace-page .collection-switch button[aria-pressed="true"] {
@@ -4691,23 +4683,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   font-size: 14px;
   cursor: default;
 }
-.collection-card-actions {
-  display: flex;
-  gap: 4px;
-  margin: 4px 6px 0;
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-.inventory-row:hover .collection-card-actions,
-.inventory-row:focus-within .collection-card-actions {
-  opacity: 1;
-}
-#collection-panel .collection-card-actions .button {
-  flex: 1;
-
-  min-height: 40px;
-  font-size: 14px;
-}
 .collection-card-checkbox {
   display: flex;
   align-items: center;
@@ -4867,11 +4842,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   min-height: 40px;
   font-size: 14px;
 }
-@media (hover: none) {
-  .collection-card-actions {
-    opacity: 1;
-  }
-}
 @media (max-width: 1100px) {
   #collection-panel > .inventory-toolbar .collection-switch {
     order: 0;
@@ -4897,10 +4867,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   }
   .workspace-tab-row .tabs {
     width: 100%;
-  }
-  .collection-entry-actions {
-    width: 100%;
-    justify-content: flex-end;
   }
   #collection-panel .collection-heading {
     align-items: flex-start;
@@ -4946,14 +4912,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   #collection-panel .inventory-card {
     padding: 2px;
   }
-  .collection-card-actions {
-    flex-wrap: wrap;
-    margin-inline: 2px;
-    opacity: 1;
-  }
-  #collection-panel .collection-card-actions .button {
-    flex: 1 0 calc(50% - 4px);
-  }
   #collection-panel .inventory-card-info {
     min-height: 90px;
   }
@@ -4990,7 +4948,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   .inventory-art.is-loading {
     animation: none;
   }
-  .collection-card-actions,
+  .collection-card-checkbox,
   #collection-panel .inventory-card {
     transition: none;
   }
@@ -5105,32 +5063,19 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   padding: 12px 4px 0;
   margin: 0;
 }
-/* A steady card and four equally sized actions; labels remain in accessible names/tooltips. */
+/* Browsing stays steady; card editing lives in the details dialog. */
 #collection-panel .collection-list:not(.is-selecting) .inventory-card:hover {
   transform: none;
   background: transparent;
   border-color: var(--line);
 }
-#collection-panel .collection-card-actions {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  margin: 4px 6px 0;
-}
-#collection-panel .collection-card-actions .button {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 40px;
-  min-width: 0;
-  padding: 6px;
-}
 .collection-action-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  flex: none;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -5213,13 +5158,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   .form-error:empty {
   display: none;
 }
-@media (max-width: 700px) {
-  #collection-panel .collection-card-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    margin-inline: 2px;
-  }
-}
 
 @media (max-width: 700px) {
   #collection-panel .collection-more-panel {
@@ -5242,6 +5180,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 </style>
     <style>/* Shared Workspace shell and unified collection dialog. */
+@media (hover: none), (pointer: coarse) {
+  .workspace-page #collection-panel .collection-card-checkbox {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
 .workspace-page {
   --workspace-width: 1480px;
   --workspace-gutter: 64px;
@@ -5263,14 +5207,101 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   font-size: 14px;
 }
 #collection-panel .inventory-quantity {
-  display: inline;
-  min-height: 0;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  min-height: 28px;
   border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: var(--surface);
   font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 2px 8px #0003;
+}
+#collection-panel .inventory-art {
+  position: relative;
+}
+.workspace:has(#collection-panel:not([hidden])) .workspace-tab-row .tabs {
+  margin-bottom: 0;
+}
+#collection-panel .collection-heading {
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+#collection-panel .collection-save-actions {
+  gap: 8px;
+  flex: none;
+}
+#collection-panel .collection-save-actions > .button {
+  min-width: 96px;
+}
+#collection-panel #collection-add {
+  width: auto;
+}
+#collection-panel .collection-actions {
+  gap: 4px;
+  margin: 0 8px 0 0;
+}
+#collection-panel .collection-icon-button,
+#collection-panel .collection-more > summary {
+  display: grid;
+  place-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
   color: var(--muted);
+  cursor: pointer;
+}
+#collection-panel .collection-icon-button:not(:disabled):hover,
+#collection-panel .collection-more > summary:hover,
+#collection-panel .collection-more[open] > summary {
+  background: var(--soft);
+  color: var(--ink);
+}
+#collection-panel .collection-more > summary::after {
+  display: none;
+}
+#collection-panel .collection-more > summary svg {
+  fill: currentColor;
+  stroke: none;
+}
+#collection-panel .collection-summary {
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+#collection-panel .collection-summary > div {
+  flex-direction: row;
+  gap: 5px;
+}
+#collection-panel .collection-summary > div + div::before {
+  content: "·";
+  color: var(--muted);
+  margin-right: 7px;
+}
+#collection-panel .collection-summary strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+#collection-panel .collection-summary :is(strong, span) {
+  color: var(--muted);
+}
+#collection-panel .inventory-results:empty {
+  display: none;
+}
+#collection-panel .inventory-card-info {
+  min-height: 60px;
+  gap: 4px;
 }
 #collection-panel .inventory-row {
   position: relative;
@@ -5279,7 +5310,8 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   position: absolute;
   z-index: 2;
   top: 12px;
-  right: 12px;
+  left: 12px;
+  right: auto;
   margin: 0;
   padding: 10px;
   width: 40px;
@@ -5288,14 +5320,51 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+#collection-panel .inventory-row:hover .collection-card-checkbox,
+#collection-panel .inventory-row:focus-within .collection-card-checkbox,
+#collection-panel .is-selecting .collection-card-checkbox {
+  opacity: 1;
+  pointer-events: auto;
 }
 #collection-panel .collection-card-checkbox input {
   min-height: 20px;
   margin: 0;
 }
 #collection-panel .is-selected .inventory-card {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--accent);
   outline-offset: 0;
+  background: var(--soft);
+}
+#collection-panel .is-selected .collection-card-checkbox {
+  border-color: var(--accent);
+}
+@media (max-width: 700px) {
+  #collection-panel .collection-heading {
+    align-items: stretch;
+  }
+  #collection-panel .collection-save-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  #collection-panel .collection-actions {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin: 0;
+  }
+  #collection-panel .collection-save-actions > .button {
+    min-width: 80px;
+  }
+  #collection-panel .collection-card-checkbox {
+    opacity: 1;
+    pointer-events: auto;
+    top: 8px;
+    left: 8px;
+  }
 }
 #collection-panel:has(.collection-selection-actions:not([hidden])) {
   padding-bottom: var(--collection-selection-space, 160px);
@@ -6474,15 +6543,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
             Create binder
           </button>
         </div>
-        <div class="collection-entry-actions">
-          <button
-            id="collection-add"
-            class="button primary btn-primary"
-            type="button"
-          >
-            + Add cards
-          </button>
-        </div>
       </div>
       <section id="binders-panel" role="tabpanel" aria-labelledby="binders-tab">
         <div class="page-heading">
@@ -6552,29 +6612,32 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
             <div class="collection-summary" aria-label="Collection totals">
               <div>
                 <strong id="owned-total">0</strong>
-                <span id="total-card-label">Total cards</span>
+                <span id="total-card-label">cards</span>
               </div>
               <div>
                 <strong id="printing-total">0</strong>
-                <span id="unique-card-label">Unique cards</span>
+                <span id="unique-card-label">unique</span>
               </div>
               <div>
                 <strong id="sets-total">0</strong>
-                <span id="set-total-label">Sets</span>
+                <span id="set-total-label">sets</span>
               </div>
             </div>
           </div>
           <div class="collection-save-actions">
-            <span id="collection-save-status" role="status">
+            <span id="collection-save-status" class="sr-only" role="status">
               All changes saved
             </span>
+            <button id="collection-add" class="button primary" type="button">
+              + Add cards
+            </button>
             <button
               id="collection-save"
-              class="button primary btn-primary"
+              class="button secondary"
               type="button"
               title="Saved on this browser"
             >
-              Save collection
+              Save
             </button>
           </div>
         </div>
@@ -6596,25 +6659,58 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
           <div class="collection-actions">
             <button
               id="collection-undo"
-              class="button secondary"
+              class="button secondary collection-icon-button"
               type="button"
+              aria-label="Undo"
+              title="Undo"
               disabled
             >
-              Undo
+              <svg
+                class="collection-action-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="m9 5-6 6 6 6M3 11h11a6 6 0 0 1 0 12"
+                  transform="translate(0 -2)"
+                />
+              </svg>
             </button>
 
             <details class="collection-more">
-              <summary title="Redo, Backups, restore and reload">
-                Collection tools
+              <summary
+                title="Collection actions"
+                aria-label="Collection actions"
+              >
+                <svg
+                  class="collection-action-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle cx="5" cy="12" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="19" cy="12" r="1.5" />
+                </svg>
               </summary>
               <div class="collection-more-panel">
                 <button
                   id="collection-redo"
-                  class="button secondary"
+                  class="button secondary collection-icon-button"
                   type="button"
+                  aria-label="Redo"
+                  title="Redo"
                   disabled
                 >
-                  Redo
+                  <svg
+                    class="collection-action-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m15 5 6 6-6 6M21 11H10a6 6 0 0 0 0 12"
+                      transform="translate(0 -2)"
+                    />
+                  </svg>
                 </button>
                 <div class="collection-tools">
                   <button
@@ -6662,7 +6758,14 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         </div>
         <div class="inventory-toolbar">
           <label class="search">
-            <span aria-hidden="true">⌕</span>
+            <svg
+              class="collection-action-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 5 5" />
+            </svg>
             <input
               id="collection-search"
               type="search"
@@ -6678,14 +6781,6 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
               <option value="quantity">Most copies</option>
             </select>
           </label>
-          <button
-            id="collection-select"
-            class="button secondary"
-            type="button"
-            aria-pressed="false"
-          >
-            Select cards
-          </button>
         </div>
         <details class="collection-filters">
           <summary id="collection-filter-summary">Filters</summary>
@@ -6753,14 +6848,14 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
             class="button danger"
             type="button"
           >
-            Remove selected
+            Remove
           </button>
           <button
             id="collection-selection-cancel"
             class="button secondary"
             type="button"
           >
-            Done
+            Clear
           </button>
         </div>
         <p
@@ -12918,7 +13013,6 @@ window.SAMPLE_COLLECTION = {
     view = "owned",
     editing = null,
     confirmAction = null;
-  let selecting = false;
   const selected = new Set();
   let state = window.CollectionState.create(repository.empty());
   const { make, picture } = window.CollectionUI;
@@ -12937,7 +13031,14 @@ window.SAMPLE_COLLECTION = {
   toolbar.prepend(
     document.querySelector(".collection-topbar .collection-switch"),
   );
-  toolbar.append(document.querySelector(".collection-actions"));
+  const headerActions = document.querySelector(".collection-save-actions"),
+    collectionActions = document.querySelector(".collection-actions");
+  collectionActions.insertBefore(
+    $("collection-redo"),
+    document.querySelector(".collection-more"),
+  );
+  headerActions.prepend(collectionActions);
+  headerActions.append(document.querySelector(".collection-more"));
   document.querySelector(".collection-topbar").remove();
   $("collection-list").after($("collection-selection-actions"));
   const selectionBar = $("collection-selection-actions");
@@ -12954,9 +13055,7 @@ window.SAMPLE_COLLECTION = {
   };
   new ResizeObserver(sizeSelectionBar).observe(selectionBar);
   window.addEventListener("resize", sizeSelectionBar);
-  let toastTimer,
-    savedTimer,
-    savedUntil = 0;
+  let toastTimer;
   const message = (text) => {
     clearTimeout(toastTimer);
     $("collection-message-text").textContent = text;
@@ -13052,7 +13151,8 @@ window.SAMPLE_COLLECTION = {
     window.CollectionUI.options($(id), entries, all);
   function render() {
     const active = document.activeElement,
-      key = active?.dataset.record || active?.dataset.actionRecord;
+      key = active?.dataset.record || active?.dataset.actionRecord,
+      checkboxFocused = active?.matches(".collection-card-checkbox input");
     const owned = state.document.records.filter((r) => r.kind === "owned"),
       wanted = state.document.records.filter((r) => r.kind === "wanted");
     const counted = view === "owned" ? owned : wanted;
@@ -13062,11 +13162,9 @@ window.SAMPLE_COLLECTION = {
     $("owned-total").textContent = copies;
     $("printing-total").textContent = unique;
     $("sets-total").textContent = sets;
-    $("total-card-label").textContent =
-      copies === 1 ? "Total card" : "Total cards";
-    $("unique-card-label").textContent =
-      unique === 1 ? "Unique card" : "Unique cards";
-    $("set-total-label").textContent = sets === 1 ? "Set" : "Sets";
+    $("total-card-label").textContent = copies === 1 ? "card" : "cards";
+    $("unique-card-label").textContent = "unique";
+    $("set-total-label").textContent = sets === 1 ? "set" : "sets";
     document
       .querySelector(".collection-summary")
       .setAttribute(
@@ -13094,7 +13192,7 @@ window.SAMPLE_COLLECTION = {
         ? Number(!!condition) + Number(!!trade)
         : Number($("inventory-chase-filter").checked));
     $("collection-filter-summary").textContent = filterCount
-      ? "Filters (" + filterCount + ")"
+      ? "Filters · " + filterCount
       : "Filters";
     const rows = state.document.records
       .filter((r) => {
@@ -13137,14 +13235,13 @@ window.SAMPLE_COLLECTION = {
     selected.forEach((id) => {
       if (!visibleIds.has(id)) selected.delete(id);
     });
+    const selecting = selected.size > 0;
     $("collection-list").classList.toggle("is-selecting", selecting);
-    $("collection-select").setAttribute("aria-pressed", String(selecting));
     $("collection-selection-actions").hidden = !selecting;
     $("collection-selected-count").textContent = selected.size + " selected";
     $("collection-remove-selected").disabled = blocked || selected.size === 0;
     $("collection-edit-selected").disabled = blocked || selected.size === 0;
     $("collection-select-all").disabled = blocked || rows.length === 0;
-    $("collection-select").disabled = blocked;
     $("collection-list").replaceChildren(
       ...rows.map((r) => {
         const c = byId.get(r.cardId),
@@ -13189,9 +13286,7 @@ window.SAMPLE_COLLECTION = {
           make("small", "", c.setName + " · #" + c.collectorNumber),
         );
         if (r.quantity > 1)
-          info.append(
-            make("span", "inventory-quantity", r.quantity + " copies"),
-          );
+          art.append(make("span", "inventory-quantity", "×" + r.quantity));
         const purposeText =
           r.kind === "owned"
             ? { keep: "Keep", trade: "For trade", sale: "For sale" }[
@@ -13218,11 +13313,12 @@ window.SAMPLE_COLLECTION = {
           button.getAttribute("aria-label") + ", " + purposeText,
         );
         button.append(art, info);
-        if (selecting) {
+        {
           const selectionLabel = make("label", "collection-card-checkbox");
           const check = make("input");
           check.type = "checkbox";
           check.checked = selected.has(r.id);
+          check.disabled = blocked;
           check.setAttribute(
             "aria-label",
             "Select " + c.name + " #" + c.collectorNumber,
@@ -13243,90 +13339,6 @@ window.SAMPLE_COLLECTION = {
           } else openRecord(r);
         });
         row.append(button);
-        if (!selecting) {
-          const actions = make("div", "collection-card-actions");
-          actions.setAttribute("role", "group");
-          actions.setAttribute("aria-label", "Quick actions for " + c.name);
-          const quick = (text, label, action, disabled = false) => {
-            const control = make(
-              "button",
-              "button secondary btn-secondary",
-              text,
-            );
-            const iconPaths = {
-              Wanted:
-                "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z",
-              Owned: "M6 3h12v18l-6-4-6 4V3Z",
-              Details:
-                "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
-            };
-            if (iconPaths[text]) {
-              const icon = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "svg",
-              );
-              icon.setAttribute("viewBox", "0 0 24 24");
-              icon.setAttribute("class", "collection-action-icon");
-              icon.setAttribute("aria-hidden", "true");
-              const line = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "path",
-              );
-              line.setAttribute("d", iconPaths[text]);
-              icon.append(line);
-              control.replaceChildren(icon);
-            }
-            control.type = "button";
-            control.title = label;
-            control.setAttribute("aria-label", label);
-            control.dataset.actionRecord = r.id;
-            control.disabled = disabled || blocked;
-            control.addEventListener("click", action);
-            actions.append(control);
-          };
-          quick(
-            "−",
-            "One fewer copy of " + c.name,
-            () =>
-              run(
-                () => state.upsert({ ...r, quantity: r.quantity - 1 }, r.id),
-                "Quantity updated.",
-              ),
-            r.quantity <= 1,
-          );
-          quick(
-            "+",
-            "One more copy of " + c.name,
-            () =>
-              run(
-                () => state.upsert({ ...r, quantity: r.quantity + 1 }, r.id),
-                "Quantity updated.",
-              ),
-            r.quantity >= 999,
-          );
-          quick(
-            view === "owned" ? "Wanted" : "Owned",
-            "Move " + c.name + " to " + (view === "owned" ? "Wanted" : "Owned"),
-            () =>
-              run(
-                () =>
-                  state.upsert(
-                    {
-                      ...r,
-                      kind: view === "owned" ? "wanted" : "owned",
-                      tradeStatus: "keep",
-                      chase: false,
-                      grading: null,
-                      condition: "unknown",
-                    },
-                    r.id,
-                  ),
-                "Card moved. Undo is available.",
-              ),
-          );
-          quick("Details", "Open details for " + c.name, () => openRecord(r));
-          row.append(actions);
-        }
         return row;
       }),
     );
@@ -13372,7 +13384,9 @@ window.SAMPLE_COLLECTION = {
     }
     const count = state.document.records.filter((r) => r.kind === view).length;
     $("inventory-results").textContent =
-      rows.length + " " + (rows.length === 1 ? "card group" : "card groups");
+      query || filterCount
+        ? rows.length + " " + (rows.length === 1 ? "match" : "matches")
+        : "";
     $("inventory-empty").hidden = !!rows.length || loading || blocked;
     $("inventory-empty-title").textContent = count
       ? "No matching records"
@@ -13404,23 +13418,39 @@ window.SAMPLE_COLLECTION = {
           ? "Saving..."
           : !$("collection-save").disabled
             ? "Unsaved changes"
-            : Date.now() < savedUntil
-              ? "✓ Saved"
-              : "All changes saved";
+            : "All changes saved";
+    const needsSave = !blocked && (state.dirty || !persisted);
+    $("collection-save").textContent = loading
+      ? "Loading…"
+      : blocked
+        ? "Unavailable"
+        : persisting
+          ? "Saving…"
+          : needsSave
+            ? "Save"
+            : "✓ Saved";
+    for (const [id, primary] of [
+      ["collection-save", needsSave],
+      ["collection-add", !needsSave],
+    ]) {
+      $(id).classList.toggle("primary", primary);
+      $(id).classList.toggle("secondary", !primary);
+    }
     $("collection-save-status").classList.toggle(
       "is-unsaved",
       !blocked && !$("collection-save").disabled,
     );
-    $("collection-undo").disabled = !state.canUndo;
-    $("collection-undo").hidden = !state.canUndo;
-    $("collection-redo").hidden = !state.canRedo;
-    $("collection-redo").disabled = !state.canRedo;
+    $("collection-undo").disabled = blocked || !state.canUndo;
+    $("collection-redo").disabled = blocked || !state.canRedo;
     $("collection-add").disabled = blocked;
     $("collection-import").disabled = blocked || persisting;
     if (key && !active.isConnected)
       (
-        document.querySelector('[data-record="' + CSS.escape(key) + '"]') ||
-        $("collection-add")
+        document.querySelector(
+          (checkboxFocused ? '[data-action-record="' : '[data-record="') +
+            CSS.escape(key) +
+            '"]',
+        ) || $("collection-add")
       ).focus({ preventScroll: true });
   }
   function run(action, text) {
@@ -13473,9 +13503,6 @@ window.SAMPLE_COLLECTION = {
       state.save(snapshot);
       persisted = true;
       syncError();
-      savedUntil = Date.now() + 2000;
-      clearTimeout(savedTimer);
-      savedTimer = setTimeout(render, 2050);
       message(
         repository.enabled
           ? "Collection saved to your account."
@@ -13525,7 +13552,7 @@ window.SAMPLE_COLLECTION = {
   const openRecord = (record) => form.open(record);
   $("collection-empty-add").addEventListener("click", () => form.open());
   // Only purpose changes are applied in bulk; quantity, finish and notes stay intact.
-  const editSelected = make("button", "button secondary", "Edit selected");
+  const editSelected = make("button", "button secondary", "Edit");
   editSelected.id = "collection-edit-selected";
   editSelected.type = "button";
   $("collection-remove-selected").before(editSelected);
@@ -13611,16 +13638,15 @@ window.SAMPLE_COLLECTION = {
       bulkError.textContent = error.message;
     }
   });
-  $("collection-select").addEventListener("click", () => {
-    selecting = !selecting;
-    selected.clear();
-    render();
-  });
   $("collection-selection-cancel").addEventListener("click", () => {
-    selecting = false;
+    const first = selected.values().next().value;
     selected.clear();
     render();
-    $("collection-select").focus();
+    (
+      document.querySelector(
+        '[data-record="' + CSS.escape(first || "") + '"]',
+      ) || $("collection-add")
+    ).focus();
   });
   $("collection-select-all").addEventListener("click", () => {
     const ids = [...$("collection-list").querySelectorAll("[data-record]")].map(
@@ -13652,9 +13678,8 @@ window.SAMPLE_COLLECTION = {
           "Selected records removed. Undo restores them; Save keeps the change.",
         );
         selected.clear();
-        selecting = false;
         render();
-        $("collection-select").focus();
+        $("collection-add").focus();
       },
     );
   });

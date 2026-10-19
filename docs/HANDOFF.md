@@ -2,6 +2,14 @@
 
 This file describes the current implementation. [HISTORY.md](HISTORY.md) preserves earlier milestones; some older descriptions are superseded.
 
+## My collection frontend review — 2026-10-19
+
+Branch `feat/collection-ui-hierarchy` was created from main, without merging or pushing. Backup-check notes were saved separately as `143181c` on `test/backup-safety-acceptance`; those notes are not part of this UI branch. The owner explicitly retained the duplicate Add cards tile.
+
+Collection editing actions now sit beside the heading; only the most relevant Add/Save action gets primary emphasis, with Saved/Saving states inside Save. Totals and quantity badges are compact. The browsing toolbar retains Owned/Wanted, search, filters and sorting. Card checkboxes replace the selection-mode button, preserve keyboard focus after rendering, and expose batch actions only after selection. Frequent icon actions have accessible labels/tooltips; infrequent collection tools retain text inside the menu. Card details retain quantity/condition/notes and other existing edits. No backend/schema/configuration/dependency changes are included.
+
+Editable files: `src/workspace.html`, `src/scripts/collection.js`, `src/styles/collection-workspace.css` and `src/styles/collection-flow.css`. Generated standalone review page: `preview/Pokedex-workspace.html?tab=collection`. Rebuild from source rather than editing that preview. Model tests, build/reference checks and focused source/preview browser checks pass, including selection, bulk edits, manual Save/Undo/Redo/reopen, >2 MB backup restore, invalid-record rejection, filters/menu and 320/440/768/1440 widths. Real local source/preview cloud browser acceptance also passes: collection conflicts, draft retention during failed/pending saves, reopen, browser import/backup, account isolation and existing account controls. The tests use disposable loopback accounts; the hosted backend and live website were not changed. Physical phones, Safari and Firefox were not tested in this pass.
+
 ## Nightly cleanup release — 2026-10-19
 
 See [the audit report and morning handoff](NIGHTLY-AUDIT-2026-10-19.md). Verified cleanup commit `010e58d` was isolated on `chore/nightly-codebase-checkup`: sanitize malformed operator CLI JSON errors; bound private artwork downloads while reading and reject redirects; remove one unused sidebar binding; correct cloud-runtime and monitoring documentation. The owner subsequently explicitly authorized merge/push/deployment of this cleanup, superseding the audit's local-only publication status. Publish through the existing Pages workflow and verify its result and live routes. No migrations, production data/settings changes or schedule activation are included. Remaining independent recovery and monitoring acceptance is deferred to the morning; daily backups stay disabled.

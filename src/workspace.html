@@ -93,15 +93,6 @@
             Create binder
           </button>
         </div>
-        <div class="collection-entry-actions">
-          <button
-            id="collection-add"
-            class="button primary btn-primary"
-            type="button"
-          >
-            + Add cards
-          </button>
-        </div>
       </div>
       <section id="binders-panel" role="tabpanel" aria-labelledby="binders-tab">
         <div class="page-heading">
@@ -171,29 +162,32 @@
             <div class="collection-summary" aria-label="Collection totals">
               <div>
                 <strong id="owned-total">0</strong>
-                <span id="total-card-label">Total cards</span>
+                <span id="total-card-label">cards</span>
               </div>
               <div>
                 <strong id="printing-total">0</strong>
-                <span id="unique-card-label">Unique cards</span>
+                <span id="unique-card-label">unique</span>
               </div>
               <div>
                 <strong id="sets-total">0</strong>
-                <span id="set-total-label">Sets</span>
+                <span id="set-total-label">sets</span>
               </div>
             </div>
           </div>
           <div class="collection-save-actions">
-            <span id="collection-save-status" role="status">
+            <span id="collection-save-status" class="sr-only" role="status">
               All changes saved
             </span>
+            <button id="collection-add" class="button primary" type="button">
+              + Add cards
+            </button>
             <button
               id="collection-save"
-              class="button primary btn-primary"
+              class="button secondary"
               type="button"
               title="Saved on this browser"
             >
-              Save collection
+              Save
             </button>
           </div>
         </div>
@@ -215,25 +209,58 @@
           <div class="collection-actions">
             <button
               id="collection-undo"
-              class="button secondary"
+              class="button secondary collection-icon-button"
               type="button"
+              aria-label="Undo"
+              title="Undo"
               disabled
             >
-              Undo
+              <svg
+                class="collection-action-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="m9 5-6 6 6 6M3 11h11a6 6 0 0 1 0 12"
+                  transform="translate(0 -2)"
+                />
+              </svg>
             </button>
 
             <details class="collection-more">
-              <summary title="Redo, Backups, restore and reload">
-                Collection tools
+              <summary
+                title="Collection actions"
+                aria-label="Collection actions"
+              >
+                <svg
+                  class="collection-action-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle cx="5" cy="12" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="19" cy="12" r="1.5" />
+                </svg>
               </summary>
               <div class="collection-more-panel">
                 <button
                   id="collection-redo"
-                  class="button secondary"
+                  class="button secondary collection-icon-button"
                   type="button"
+                  aria-label="Redo"
+                  title="Redo"
                   disabled
                 >
-                  Redo
+                  <svg
+                    class="collection-action-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m15 5 6 6-6 6M21 11H10a6 6 0 0 0 0 12"
+                      transform="translate(0 -2)"
+                    />
+                  </svg>
                 </button>
                 <div class="collection-tools">
                   <button
@@ -281,7 +308,14 @@
         </div>
         <div class="inventory-toolbar">
           <label class="search">
-            <span aria-hidden="true">⌕</span>
+            <svg
+              class="collection-action-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 5 5" />
+            </svg>
             <input
               id="collection-search"
               type="search"
@@ -297,14 +331,6 @@
               <option value="quantity">Most copies</option>
             </select>
           </label>
-          <button
-            id="collection-select"
-            class="button secondary"
-            type="button"
-            aria-pressed="false"
-          >
-            Select cards
-          </button>
         </div>
         <details class="collection-filters">
           <summary id="collection-filter-summary">Filters</summary>
@@ -372,14 +398,14 @@
             class="button danger"
             type="button"
           >
-            Remove selected
+            Remove
           </button>
           <button
             id="collection-selection-cancel"
             class="button secondary"
             type="button"
           >
-            Done
+            Clear
           </button>
         </div>
         <p

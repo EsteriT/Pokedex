@@ -126,7 +126,52 @@ def add_discover_record(cdp, save=False):
         cdp.wait("document.getElementById('detail-collection-save').hidden")
 
 
+def check_collection_hierarchy(cdp, base, route):
+    url = f"{base}/{route}?tab=collection"
+    cdp.go(url, "!!window.CollectionStore&&!!document.getElementById('collection-add')")
+    cdp.evaluate("""(()=>{localStorage.removeItem('pokedex.collection.v1');CollectionStore.save({records:CARDS.slice(0,2).map((c,i)=>({id:'hierarchy-'+i,kind:'owned',cardId:c.id||c.collectorNumber,finish:'unknown',quantity:i?1:2,condition:'unknown',grading:null,notes:'preserve this note',chase:false,tradeStatus:'keep'}))},null)})()""")
+    cdp.go(url + '&hierarchy=1', "document.querySelectorAll('.collection-card-checkbox input').length===2&&document.getElementById('collection-save').disabled")
+    assert cdp.evaluate("!document.getElementById('collection-select')&&document.getElementById('collection-selection-actions').hidden&&!!document.querySelector('.collection-add-tile')"), 'Keep the Add tile; reveal bulk actions only after selection'
+    assert cdp.evaluate("['collection-add','collection-save','collection-undo','collection-redo'].every(id=>document.querySelector('.collection-save-actions').contains(document.getElementById(id)))"), 'Editing actions belong together'
+    assert cdp.evaluate("document.getElementById('collection-save').textContent.includes('Saved')&&document.getElementById('inventory-results').textContent===''"), 'Saved state and quiet default results'
+    assert cdp.evaluate("document.querySelector('.inventory-quantity').textContent==='×2'"), 'Copies use a compact artwork badge'
+    cdp.evaluate("document.querySelector('.collection-card-checkbox input').focus()")
+    for event in ('keyDown', 'keyUp'):
+        cdp.call('Input.dispatchKeyEvent', {'type':event,'key':' ','code':'Space','windowsVirtualKeyCode':32})
+    assert cdp.evaluate("document.getElementById('collection-selected-count').textContent==='1 selected'&&!document.getElementById('collection-selection-actions').hidden&&document.activeElement.matches('.collection-card-checkbox input')"), 'Space selects and retains checkbox focus after rendering'
+    cdp.evaluate("document.querySelectorAll('#collection-list .inventory-card')[1].click()")
+    assert cdp.evaluate("document.querySelectorAll('.inventory-row.is-selected').length===2&&!document.getElementById('inventory-dialog').open&&document.getElementById('collection-save').disabled"), 'Selection does not edit or save collection data'
+    cdp.evaluate("document.getElementById('collection-edit-selected').click();document.getElementById('collection-bulk-purpose').value='trade';document.getElementById('collection-bulk-purpose').dispatchEvent(new Event('change'));document.querySelector('.collection-bulk-edit form').requestSubmit()")
+    assert cdp.evaluate("document.querySelectorAll('.purpose-trade').length===2&&CollectionStore.read().document.records.every(r=>r.tradeStatus==='keep'&&r.notes==='preserve this note')"), 'Batch edit preserves saved originals until Save'
+    cdp.evaluate("document.getElementById('collection-undo').click();document.getElementById('collection-selection-cancel').click()")
+    assert cdp.evaluate("document.getElementById('collection-selection-actions').hidden&&document.activeElement.matches('.inventory-card')"), 'Clear selection returns focus to a card'
+    cdp.evaluate("document.querySelector('#collection-list .inventory-card').click();document.getElementById('inventory-quantity').value=3;document.getElementById('inventory-apply').click()")
+    assert cdp.evaluate("document.getElementById('collection-save').classList.contains('primary')&&!document.getElementById('collection-add').classList.contains('primary')&&CollectionStore.read().document.records[0].quantity===2"), 'Unsaved edits emphasize Save without autosaving'
+    cdp.evaluate("document.getElementById('collection-undo').click()")
+    assert cdp.evaluate("document.getElementById('collection-save').disabled&&document.getElementById('collection-save').textContent.includes('Saved')&&!document.getElementById('collection-redo').disabled"), 'Undo restores Saved state and enables Redo'
+    cdp.evaluate("document.getElementById('collection-redo').click();document.getElementById('collection-save').click()")
+    cdp.wait("document.getElementById('collection-save').disabled&&document.getElementById('collection-save').textContent.includes('Saved')")
+    assert cdp.evaluate("CollectionStore.read().document.records[0].quantity===3&&CollectionStore.read().document.records[0].notes==='preserve this note'"), 'Manual Save persists the edited quantity and notes'
+    cdp.go(url + '&reopen=1', "document.querySelectorAll('.collection-card-checkbox input').length===2&&document.getElementById('collection-save').disabled")
+    assert cdp.evaluate("document.querySelector('.inventory-quantity').textContent==='×3'"), 'Saved edits survive reopening'
+    cdp.evaluate("document.getElementById('inventory-trade-filter').value='keep';document.getElementById('inventory-trade-filter').dispatchEvent(new Event('change'))")
+    assert cdp.evaluate("document.getElementById('collection-filter-summary').textContent==='Filters · 1'&&document.querySelectorAll('.collection-filter-chip').length===1&&document.getElementById('inventory-results').textContent==='2 matches'"), 'Applied filters remain understandable'
+    cdp.evaluate("document.querySelector('.collection-filter-chip').click();document.querySelector('.collection-more>summary').click()")
+    cdp.escape()
+    assert cdp.evaluate("!document.querySelector('.collection-more').open&&document.activeElement.matches('.collection-more>summary')"), 'Icon menu supports Escape and restores focus'
+    for width in (1440, 768, 440, 320):
+        cdp.call('Emulation.setDeviceMetricsOverride', {'width':width,'height':900,'deviceScaleFactor':1,'mobile':False})
+        assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth+1"), f'Collection must not overflow at {width}px'
+        assert cdp.evaluate("['collection-add','collection-save','collection-undo','collection-redo'].every(id=>{let b=document.getElementById(id).getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1})"), 'Header controls remain within the screen'
+        if width == 320:
+            cdp.wait("getComputedStyle(document.querySelector('.collection-card-checkbox')).opacity==='1'")
+    cdp.call('Emulation.setDeviceMetricsOverride', {'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
+    assert cdp.evaluate('testErrors.length===0'), cdp.evaluate('testErrors')
+    print('PASS:', route, 'collection hierarchy, preserved Add tile, keyboard/batch selection, manual Save/Undo/Redo/reopen, filters, menu and four screen sizes', flush=True)
+
+
 def check_collection(cdp, base, route):
+    check_collection_hierarchy(cdp, base, route)
     cdp.go(f"{base}/{route}?tab=collection", "!!(window.CollectionStore&&document.getElementById('collection-add'))")
     cdp.evaluate("""(()=>{localStorage.removeItem('pokedex.collection.v1');let c=CARDS[0],doc={records:Array.from({length:1100},(_,i)=>({id:'browser-'+i,kind:'owned',cardId:c.id||c.collectorNumber,finish:'unknown',quantity:1,condition:'unknown',grading:{company:'Other',grade:'Group '+i},notes:'x'.repeat(1900),chase:false,tradeStatus:'keep'}))};CollectionStore.save(doc,null)})()""")
     cdp.call("Page.reload")
@@ -283,13 +328,13 @@ def check_cleanup(cdp, base, editor, workspace):
     expected = cdp.evaluate("SAMPLE_COLLECTION.records.filter(r=>r.kind==='owned').reduce((n,r)=>n+r.quantity,0)")
     assert cdp.evaluate("Number(document.getElementById('owned-total').textContent)")==expected, 'Storage clear must refresh a clean collection'
     assert cdp.evaluate("document.querySelectorAll('.binder-card').length===2"), 'Storage clear must refresh the binder shelf'
-    cdp.evaluate("document.getElementById('collection-tab').click();document.querySelector('[aria-label^=\"Open details for\"]').click();document.getElementById('inventory-delete').click()")
+    cdp.evaluate("document.getElementById('collection-tab').click();document.querySelector('#collection-list .inventory-card').click();document.getElementById('inventory-delete').click()")
     assert cdp.evaluate("document.getElementById('inventory-dialog').open&&document.getElementById('collection-confirm').open")
     cdp.escape()
     time.sleep(.1)
     assert cdp.evaluate("document.getElementById('inventory-dialog').open&&!document.getElementById('collection-confirm').open"), 'Escape should dismiss removal confirmation without closing the editable record'
     cdp.evaluate("document.getElementById('inventory-dialog').close()")
-    cdp.evaluate("document.getElementById('collection-tab').click();document.querySelector('[aria-label^=\"One more copy\"]').click();localStorage.clear();dispatchEvent(new StorageEvent('storage',{key:null}))")
+    cdp.evaluate("document.getElementById('collection-tab').click();document.querySelector('#collection-list .inventory-card').click();document.getElementById('inventory-quantity').valueAsNumber+=1;document.getElementById('inventory-apply').click();localStorage.clear();dispatchEvent(new StorageEvent('storage',{key:null}))")
     assert cdp.evaluate("Number(document.getElementById('owned-total').textContent)")==expected+1, 'Storage clear must preserve unsaved collection edits'
     assert cdp.evaluate("document.getElementById('collection-message-text').textContent.includes('another tab')")
     cdp.evaluate("document.getElementById('collection-toast-undo').click();document.getElementById('binders-tab').click();document.querySelector('.card-menu').open=true;[...document.querySelectorAll('.card-menu button')].find(b=>b.textContent==='Rename').click();BinderStore.write([]);document.getElementById('binder-name').value='Removed in another tab';document.getElementById('form-submit').click();document.getElementById('form-submit').click()")

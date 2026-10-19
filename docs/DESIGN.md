@@ -2,6 +2,14 @@
 
 Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). This document retains the product decisions and future integration plan; [HISTORY.md](HISTORY.md) records superseded prototype iterations.
 
+## My collection hierarchy — 19 October 2026
+
+The owner approved a frontend-only collection cleanup, explicitly retaining the card-shaped Add cards tile. Group Undo/Redo, Add cards, manual Save and the icon collection menu beside the heading. Add is primary while browsing; pending edits make Save primary. The Save button itself reports Save/Saving/Saved while its accessible status keeps detailed loading/error/save announcements. Display totals as a quiet `cards · unique · sets` line. Keep Owned/Wanted, search, Filters and the selected sort together; applied filters show a count and removable chips.
+
+Each card has a selection checkbox outside its edit button: reveal it on desktop hover/keyboard focus, retain visibility during selection, and show it directly on touch/narrow screens. Selected cards get a stronger outline; batch Edit/Remove/Clear appear only for a nonempty selection. A normal card click opens its existing details form; during selection it toggles selection. Quantities above one use an artwork badge. Extra card edits remain in the details form. Backup, restore, explicit browser import, reload and help keep readable menu labels. Existing data, validators, manual saves, conflicts and backend contracts stay unchanged.
+
+## Current editor baseline
+
 Current editor layout: keep the approved left tool hierarchy and actions, with Cards closed by default. Give the binder the full available stage height, move page previews into a collapsible vertically scrolling right sidebar, and pin existing view/zoom/history/settings controls in its footer. Page navigation sits beside the binder, with a plus at the end. Selection actions use compact accessible icon overlays; dismissible notifications float without shrinking the binder. Preserve themes, native reorder/Undo and the existing 30-page limit.
 
 **Explicitly approved binder-editor baseline:** the user approved this binder-first design and requested that it be remembered. Preserve the central binder, existing left tool hierarchy, collapsible Pages sidebar/footer and floating icon actions. Refinements soften the sidebar/selection surfaces and keep navigation arrows 16px from the outer page surface in either view. Only the selection toolbar has a bounded drag handle, keyboard movement and Home reset. Zoom, View and settings, More and account popovers remain anchored; docked drawers/sidebar stay attached and notifications remain fixed. Moving tools is session-only presentation state and never an edit or Save operation.

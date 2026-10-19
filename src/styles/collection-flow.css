@@ -1,4 +1,10 @@
 /* Shared Workspace shell and unified collection dialog. */
+@media (hover: none), (pointer: coarse) {
+  .workspace-page #collection-panel .collection-card-checkbox {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
 .workspace-page {
   --workspace-width: 1480px;
   --workspace-gutter: 64px;
@@ -20,14 +26,101 @@
   font-size: 14px;
 }
 #collection-panel .inventory-quantity {
-  display: inline;
-  min-height: 0;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  min-height: 28px;
   border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: var(--surface);
   font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 2px 8px #0003;
+}
+#collection-panel .inventory-art {
+  position: relative;
+}
+.workspace:has(#collection-panel:not([hidden])) .workspace-tab-row .tabs {
+  margin-bottom: 0;
+}
+#collection-panel .collection-heading {
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+#collection-panel .collection-save-actions {
+  gap: 8px;
+  flex: none;
+}
+#collection-panel .collection-save-actions > .button {
+  min-width: 96px;
+}
+#collection-panel #collection-add {
+  width: auto;
+}
+#collection-panel .collection-actions {
+  gap: 4px;
+  margin: 0 8px 0 0;
+}
+#collection-panel .collection-icon-button,
+#collection-panel .collection-more > summary {
+  display: grid;
+  place-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
   color: var(--muted);
+  cursor: pointer;
+}
+#collection-panel .collection-icon-button:not(:disabled):hover,
+#collection-panel .collection-more > summary:hover,
+#collection-panel .collection-more[open] > summary {
+  background: var(--soft);
+  color: var(--ink);
+}
+#collection-panel .collection-more > summary::after {
+  display: none;
+}
+#collection-panel .collection-more > summary svg {
+  fill: currentColor;
+  stroke: none;
+}
+#collection-panel .collection-summary {
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+#collection-panel .collection-summary > div {
+  flex-direction: row;
+  gap: 5px;
+}
+#collection-panel .collection-summary > div + div::before {
+  content: "·";
+  color: var(--muted);
+  margin-right: 7px;
+}
+#collection-panel .collection-summary strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+#collection-panel .collection-summary :is(strong, span) {
+  color: var(--muted);
+}
+#collection-panel .inventory-results:empty {
+  display: none;
+}
+#collection-panel .inventory-card-info {
+  min-height: 60px;
+  gap: 4px;
 }
 #collection-panel .inventory-row {
   position: relative;
@@ -36,7 +129,8 @@
   position: absolute;
   z-index: 2;
   top: 12px;
-  right: 12px;
+  left: 12px;
+  right: auto;
   margin: 0;
   padding: 10px;
   width: 40px;
@@ -45,14 +139,51 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+#collection-panel .inventory-row:hover .collection-card-checkbox,
+#collection-panel .inventory-row:focus-within .collection-card-checkbox,
+#collection-panel .is-selecting .collection-card-checkbox {
+  opacity: 1;
+  pointer-events: auto;
 }
 #collection-panel .collection-card-checkbox input {
   min-height: 20px;
   margin: 0;
 }
 #collection-panel .is-selected .inventory-card {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--accent);
   outline-offset: 0;
+  background: var(--soft);
+}
+#collection-panel .is-selected .collection-card-checkbox {
+  border-color: var(--accent);
+}
+@media (max-width: 700px) {
+  #collection-panel .collection-heading {
+    align-items: stretch;
+  }
+  #collection-panel .collection-save-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  #collection-panel .collection-actions {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin: 0;
+  }
+  #collection-panel .collection-save-actions > .button {
+    min-width: 80px;
+  }
+  #collection-panel .collection-card-checkbox {
+    opacity: 1;
+    pointer-events: auto;
+    top: 8px;
+    left: 8px;
+  }
 }
 #collection-panel:has(.collection-selection-actions:not([hidden])) {
   padding-bottom: var(--collection-selection-space, 160px);

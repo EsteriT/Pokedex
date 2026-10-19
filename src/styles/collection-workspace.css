@@ -17,14 +17,6 @@
   margin: 0;
   border: 0;
 }
-.collection-entry-actions {
-  display: none;
-  gap: 12px;
-  align-items: center;
-}
-.workspace:has(#collection-panel:not([hidden])) .collection-entry-actions {
-  display: flex;
-}
 .workspace-page .app-nav a[aria-current="page"],
 .workspace-page .tabs button[aria-selected="true"],
 .workspace-page .collection-switch button[aria-pressed="true"] {
@@ -194,23 +186,6 @@
   font-size: 14px;
   cursor: default;
 }
-.collection-card-actions {
-  display: flex;
-  gap: 4px;
-  margin: 4px 6px 0;
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-.inventory-row:hover .collection-card-actions,
-.inventory-row:focus-within .collection-card-actions {
-  opacity: 1;
-}
-#collection-panel .collection-card-actions .button {
-  flex: 1;
-
-  min-height: 40px;
-  font-size: 14px;
-}
 .collection-card-checkbox {
   display: flex;
   align-items: center;
@@ -370,11 +345,6 @@
   min-height: 40px;
   font-size: 14px;
 }
-@media (hover: none) {
-  .collection-card-actions {
-    opacity: 1;
-  }
-}
 @media (max-width: 1100px) {
   #collection-panel > .inventory-toolbar .collection-switch {
     order: 0;
@@ -400,10 +370,6 @@
   }
   .workspace-tab-row .tabs {
     width: 100%;
-  }
-  .collection-entry-actions {
-    width: 100%;
-    justify-content: flex-end;
   }
   #collection-panel .collection-heading {
     align-items: flex-start;
@@ -449,14 +415,6 @@
   #collection-panel .inventory-card {
     padding: 2px;
   }
-  .collection-card-actions {
-    flex-wrap: wrap;
-    margin-inline: 2px;
-    opacity: 1;
-  }
-  #collection-panel .collection-card-actions .button {
-    flex: 1 0 calc(50% - 4px);
-  }
   #collection-panel .inventory-card-info {
     min-height: 90px;
   }
@@ -493,7 +451,7 @@
   .inventory-art.is-loading {
     animation: none;
   }
-  .collection-card-actions,
+  .collection-card-checkbox,
   #collection-panel .inventory-card {
     transition: none;
   }
@@ -608,32 +566,19 @@
   padding: 12px 4px 0;
   margin: 0;
 }
-/* A steady card and four equally sized actions; labels remain in accessible names/tooltips. */
+/* Browsing stays steady; card editing lives in the details dialog. */
 #collection-panel .collection-list:not(.is-selecting) .inventory-card:hover {
   transform: none;
   background: transparent;
   border-color: var(--line);
 }
-#collection-panel .collection-card-actions {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  margin: 4px 6px 0;
-}
-#collection-panel .collection-card-actions .button {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 40px;
-  min-width: 0;
-  padding: 6px;
-}
 .collection-action-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  flex: none;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -715,13 +660,6 @@
   #inventory-dialog:is(.single-choosing, .batch-picker:not(.batch-reviewing))
   .form-error:empty {
   display: none;
-}
-@media (max-width: 700px) {
-  #collection-panel .collection-card-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    margin-inline: 2px;
-  }
 }
 
 @media (max-width: 700px) {

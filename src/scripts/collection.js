@@ -13,7 +13,6 @@
     view = "owned",
     editing = null,
     confirmAction = null;
-  let selecting = false;
   const selected = new Set();
   let state = window.CollectionState.create(repository.empty());
   const { make, picture } = window.CollectionUI;
@@ -32,7 +31,14 @@
   toolbar.prepend(
     document.querySelector(".collection-topbar .collection-switch"),
   );
-  toolbar.append(document.querySelector(".collection-actions"));
+  const headerActions = document.querySelector(".collection-save-actions"),
+    collectionActions = document.querySelector(".collection-actions");
+  collectionActions.insertBefore(
+    $("collection-redo"),
+    document.querySelector(".collection-more"),
+  );
+  headerActions.prepend(collectionActions);
+  headerActions.append(document.querySelector(".collection-more"));
   document.querySelector(".collection-topbar").remove();
   $("collection-list").after($("collection-selection-actions"));
   const selectionBar = $("collection-selection-actions");
@@ -49,9 +55,7 @@
   };
   new ResizeObserver(sizeSelectionBar).observe(selectionBar);
   window.addEventListener("resize", sizeSelectionBar);
-  let toastTimer,
-    savedTimer,
-    savedUntil = 0;
+  let toastTimer;
   const message = (text) => {
     clearTimeout(toastTimer);
     $("collection-message-text").textContent = text;
@@ -147,7 +151,8 @@
     window.CollectionUI.options($(id), entries, all);
   function render() {
     const active = document.activeElement,
-      key = active?.dataset.record || active?.dataset.actionRecord;
+      key = active?.dataset.record || active?.dataset.actionRecord,
+      checkboxFocused = active?.matches(".collection-card-checkbox input");
     const owned = state.document.records.filter((r) => r.kind === "owned"),
       wanted = state.document.records.filter((r) => r.kind === "wanted");
     const counted = view === "owned" ? owned : wanted;
@@ -157,11 +162,9 @@
     $("owned-total").textContent = copies;
     $("printing-total").textContent = unique;
     $("sets-total").textContent = sets;
-    $("total-card-label").textContent =
-      copies === 1 ? "Total card" : "Total cards";
-    $("unique-card-label").textContent =
-      unique === 1 ? "Unique card" : "Unique cards";
-    $("set-total-label").textContent = sets === 1 ? "Set" : "Sets";
+    $("total-card-label").textContent = copies === 1 ? "card" : "cards";
+    $("unique-card-label").textContent = "unique";
+    $("set-total-label").textContent = sets === 1 ? "set" : "sets";
     document
       .querySelector(".collection-summary")
       .setAttribute(
@@ -189,7 +192,7 @@
         ? Number(!!condition) + Number(!!trade)
         : Number($("inventory-chase-filter").checked));
     $("collection-filter-summary").textContent = filterCount
-      ? "Filters (" + filterCount + ")"
+      ? "Filters · " + filterCount
       : "Filters";
     const rows = state.document.records
       .filter((r) => {
@@ -232,14 +235,13 @@
     selected.forEach((id) => {
       if (!visibleIds.has(id)) selected.delete(id);
     });
+    const selecting = selected.size > 0;
     $("collection-list").classList.toggle("is-selecting", selecting);
-    $("collection-select").setAttribute("aria-pressed", String(selecting));
     $("collection-selection-actions").hidden = !selecting;
     $("collection-selected-count").textContent = selected.size + " selected";
     $("collection-remove-selected").disabled = blocked || selected.size === 0;
     $("collection-edit-selected").disabled = blocked || selected.size === 0;
     $("collection-select-all").disabled = blocked || rows.length === 0;
-    $("collection-select").disabled = blocked;
     $("collection-list").replaceChildren(
       ...rows.map((r) => {
         const c = byId.get(r.cardId),
@@ -284,9 +286,7 @@
           make("small", "", c.setName + " · #" + c.collectorNumber),
         );
         if (r.quantity > 1)
-          info.append(
-            make("span", "inventory-quantity", r.quantity + " copies"),
-          );
+          art.append(make("span", "inventory-quantity", "×" + r.quantity));
         const purposeText =
           r.kind === "owned"
             ? { keep: "Keep", trade: "For trade", sale: "For sale" }[
@@ -313,11 +313,12 @@
           button.getAttribute("aria-label") + ", " + purposeText,
         );
         button.append(art, info);
-        if (selecting) {
+        {
           const selectionLabel = make("label", "collection-card-checkbox");
           const check = make("input");
           check.type = "checkbox";
           check.checked = selected.has(r.id);
+          check.disabled = blocked;
           check.setAttribute(
             "aria-label",
             "Select " + c.name + " #" + c.collectorNumber,
@@ -338,90 +339,6 @@
           } else openRecord(r);
         });
         row.append(button);
-        if (!selecting) {
-          const actions = make("div", "collection-card-actions");
-          actions.setAttribute("role", "group");
-          actions.setAttribute("aria-label", "Quick actions for " + c.name);
-          const quick = (text, label, action, disabled = false) => {
-            const control = make(
-              "button",
-              "button secondary btn-secondary",
-              text,
-            );
-            const iconPaths = {
-              Wanted:
-                "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z",
-              Owned: "M6 3h12v18l-6-4-6 4V3Z",
-              Details:
-                "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
-            };
-            if (iconPaths[text]) {
-              const icon = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "svg",
-              );
-              icon.setAttribute("viewBox", "0 0 24 24");
-              icon.setAttribute("class", "collection-action-icon");
-              icon.setAttribute("aria-hidden", "true");
-              const line = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "path",
-              );
-              line.setAttribute("d", iconPaths[text]);
-              icon.append(line);
-              control.replaceChildren(icon);
-            }
-            control.type = "button";
-            control.title = label;
-            control.setAttribute("aria-label", label);
-            control.dataset.actionRecord = r.id;
-            control.disabled = disabled || blocked;
-            control.addEventListener("click", action);
-            actions.append(control);
-          };
-          quick(
-            "−",
-            "One fewer copy of " + c.name,
-            () =>
-              run(
-                () => state.upsert({ ...r, quantity: r.quantity - 1 }, r.id),
-                "Quantity updated.",
-              ),
-            r.quantity <= 1,
-          );
-          quick(
-            "+",
-            "One more copy of " + c.name,
-            () =>
-              run(
-                () => state.upsert({ ...r, quantity: r.quantity + 1 }, r.id),
-                "Quantity updated.",
-              ),
-            r.quantity >= 999,
-          );
-          quick(
-            view === "owned" ? "Wanted" : "Owned",
-            "Move " + c.name + " to " + (view === "owned" ? "Wanted" : "Owned"),
-            () =>
-              run(
-                () =>
-                  state.upsert(
-                    {
-                      ...r,
-                      kind: view === "owned" ? "wanted" : "owned",
-                      tradeStatus: "keep",
-                      chase: false,
-                      grading: null,
-                      condition: "unknown",
-                    },
-                    r.id,
-                  ),
-                "Card moved. Undo is available.",
-              ),
-          );
-          quick("Details", "Open details for " + c.name, () => openRecord(r));
-          row.append(actions);
-        }
         return row;
       }),
     );
@@ -467,7 +384,9 @@
     }
     const count = state.document.records.filter((r) => r.kind === view).length;
     $("inventory-results").textContent =
-      rows.length + " " + (rows.length === 1 ? "card group" : "card groups");
+      query || filterCount
+        ? rows.length + " " + (rows.length === 1 ? "match" : "matches")
+        : "";
     $("inventory-empty").hidden = !!rows.length || loading || blocked;
     $("inventory-empty-title").textContent = count
       ? "No matching records"
@@ -499,23 +418,39 @@
           ? "Saving..."
           : !$("collection-save").disabled
             ? "Unsaved changes"
-            : Date.now() < savedUntil
-              ? "✓ Saved"
-              : "All changes saved";
+            : "All changes saved";
+    const needsSave = !blocked && (state.dirty || !persisted);
+    $("collection-save").textContent = loading
+      ? "Loading…"
+      : blocked
+        ? "Unavailable"
+        : persisting
+          ? "Saving…"
+          : needsSave
+            ? "Save"
+            : "✓ Saved";
+    for (const [id, primary] of [
+      ["collection-save", needsSave],
+      ["collection-add", !needsSave],
+    ]) {
+      $(id).classList.toggle("primary", primary);
+      $(id).classList.toggle("secondary", !primary);
+    }
     $("collection-save-status").classList.toggle(
       "is-unsaved",
       !blocked && !$("collection-save").disabled,
     );
-    $("collection-undo").disabled = !state.canUndo;
-    $("collection-undo").hidden = !state.canUndo;
-    $("collection-redo").hidden = !state.canRedo;
-    $("collection-redo").disabled = !state.canRedo;
+    $("collection-undo").disabled = blocked || !state.canUndo;
+    $("collection-redo").disabled = blocked || !state.canRedo;
     $("collection-add").disabled = blocked;
     $("collection-import").disabled = blocked || persisting;
     if (key && !active.isConnected)
       (
-        document.querySelector('[data-record="' + CSS.escape(key) + '"]') ||
-        $("collection-add")
+        document.querySelector(
+          (checkboxFocused ? '[data-action-record="' : '[data-record="') +
+            CSS.escape(key) +
+            '"]',
+        ) || $("collection-add")
       ).focus({ preventScroll: true });
   }
   function run(action, text) {
@@ -568,9 +503,6 @@
       state.save(snapshot);
       persisted = true;
       syncError();
-      savedUntil = Date.now() + 2000;
-      clearTimeout(savedTimer);
-      savedTimer = setTimeout(render, 2050);
       message(
         repository.enabled
           ? "Collection saved to your account."
@@ -620,7 +552,7 @@
   const openRecord = (record) => form.open(record);
   $("collection-empty-add").addEventListener("click", () => form.open());
   // Only purpose changes are applied in bulk; quantity, finish and notes stay intact.
-  const editSelected = make("button", "button secondary", "Edit selected");
+  const editSelected = make("button", "button secondary", "Edit");
   editSelected.id = "collection-edit-selected";
   editSelected.type = "button";
   $("collection-remove-selected").before(editSelected);
@@ -706,16 +638,15 @@
       bulkError.textContent = error.message;
     }
   });
-  $("collection-select").addEventListener("click", () => {
-    selecting = !selecting;
-    selected.clear();
-    render();
-  });
   $("collection-selection-cancel").addEventListener("click", () => {
-    selecting = false;
+    const first = selected.values().next().value;
     selected.clear();
     render();
-    $("collection-select").focus();
+    (
+      document.querySelector(
+        '[data-record="' + CSS.escape(first || "") + '"]',
+      ) || $("collection-add")
+    ).focus();
   });
   $("collection-select-all").addEventListener("click", () => {
     const ids = [...$("collection-list").querySelectorAll("[data-record]")].map(
@@ -747,9 +678,8 @@
           "Selected records removed. Undo restores them; Save keeps the change.",
         );
         selected.clear();
-        selecting = false;
         render();
-        $("collection-select").focus();
+        $("collection-add").focus();
       },
     );
   });

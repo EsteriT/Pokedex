@@ -96,6 +96,11 @@
         $("inventory-more-details")
           .querySelector("summary")
           .after($("inventory-finish").closest("label"));
+        const detailFields = make("div", "inventory-detail-fields");
+        [...$("inventory-more-details").children]
+          .filter((node) => node.tagName !== "SUMMARY")
+          .forEach((node) => detailFields.append(node));
+        $("inventory-more-details").append(detailFields);
       }
       let quantityMinus, quantityPlus;
       function syncSingleQuantity() {

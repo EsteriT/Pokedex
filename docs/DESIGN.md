@@ -1,5 +1,7 @@
 # Pokedex design specification
 
+Collection follow-up (2026-10-19): filters use a bounded popup anchored to their button rather than a full-width overlay. Card details keeps its image geometry; the editing side pairs Add to/Quantity and Finish/Card status, with compact grading and notes fields. Narrow layouts stack fields. Footer alternatives are awaiting the owner's choice; both existing footers remain unchanged. Source changes are in `src/`, with rebuilt Workspace preview; this branch remains local and unmerged.
+
 Current frontend behavior and file ownership are documented in [HANDOFF.md](HANDOFF.md). This document retains the product decisions and future integration plan; [HISTORY.md](HISTORY.md) records superseded prototype iterations.
 
 ## My collection hierarchy — 19 October 2026

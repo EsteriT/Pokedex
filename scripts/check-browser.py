@@ -145,7 +145,9 @@ def check_collection_hierarchy(cdp, base, route):
     assert cdp.evaluate("document.querySelectorAll('.purpose-trade').length===2&&CollectionStore.read().document.records.every(r=>r.tradeStatus==='keep'&&r.notes==='preserve this note')"), 'Batch edit preserves saved originals until Save'
     cdp.evaluate("document.getElementById('collection-undo').click();document.getElementById('collection-selection-cancel').click()")
     assert cdp.evaluate("document.getElementById('collection-selection-actions').hidden&&document.activeElement.matches('.inventory-card')"), 'Clear selection returns focus to a card'
-    cdp.evaluate("document.querySelector('#collection-list .inventory-card').click();document.getElementById('inventory-quantity').value=3;document.getElementById('inventory-apply').click()")
+    cdp.evaluate("document.querySelector('#collection-list .inventory-card').click();document.getElementById('inventory-more-details').open=true")
+    assert cdp.evaluate("(()=>{let f=document.getElementById('inventory-finish').getBoundingClientRect(),s=document.getElementById('inventory-status').getBoundingClientRect();return Math.abs(f.top-s.top)<2&&f.right<s.left&&document.getElementById('inventory-notes').getBoundingClientRect().height<=85})()"), 'Record fields share compact rows with notes still editable'
+    cdp.evaluate("document.getElementById('inventory-quantity').value=3;document.getElementById('inventory-apply').click()")
     assert cdp.evaluate("document.getElementById('collection-save').classList.contains('primary')&&!document.getElementById('collection-add').classList.contains('primary')&&CollectionStore.read().document.records[0].quantity===2"), 'Unsaved edits emphasize Save without autosaving'
     cdp.evaluate("document.getElementById('collection-undo').click()")
     assert cdp.evaluate("document.getElementById('collection-save').disabled&&document.getElementById('collection-save').textContent.includes('Saved')&&!document.getElementById('collection-redo').disabled"), 'Undo restores Saved state and enables Redo'
@@ -163,6 +165,9 @@ def check_collection_hierarchy(cdp, base, route):
         cdp.call('Emulation.setDeviceMetricsOverride', {'width':width,'height':900,'deviceScaleFactor':1,'mobile':False})
         assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth+1"), f'Collection must not overflow at {width}px'
         assert cdp.evaluate("['collection-add','collection-save','collection-undo','collection-redo'].every(id=>{let b=document.getElementById(id).getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1})"), 'Header controls remain within the screen'
+        cdp.evaluate("document.querySelector('.collection-filters').open=true")
+        assert cdp.evaluate("(()=>{let b=document.querySelector('.collection-filter-fields').getBoundingClientRect();return b.width<=355&&b.left>=0&&b.right<=innerWidth+1})()"), f'Filters stay compact and inside the screen at {width}px'
+        cdp.evaluate("document.querySelector('.collection-filters').open=false")
         if width == 320:
             cdp.wait("getComputedStyle(document.querySelector('.collection-card-checkbox')).opacity==='1'")
     cdp.call('Emulation.setDeviceMetricsOverride', {'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})

@@ -1,5 +1,7 @@
 # Current project handoff
 
+Collection follow-up (2026-10-19): filters use a bounded popup anchored to their button rather than a full-width overlay. Card details keeps its image geometry; the editing side pairs Add to/Quantity and Finish/Card status, with compact grading and notes fields. Narrow layouts stack fields. Footer alternatives are awaiting the owner's choice; both existing footers remain unchanged. Source changes are in `src/`, with rebuilt Workspace preview; this branch remains local and unmerged.
+
 This file describes the current implementation. [HISTORY.md](HISTORY.md) preserves earlier milestones; some older descriptions are superseded.
 
 ## My collection frontend review — 2026-10-19

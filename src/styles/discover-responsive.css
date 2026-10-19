@@ -1,4 +1,87 @@
 /* Discover gallery and dialogs; navigation geometry lives in app-shell.css. */
+.discover-page #filters-form {
+  width: min(320px, calc(100vw - var(--app-shell-gutter) * 2));
+  padding: 16px;
+}
+.discover-page .filter-fields {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.color-tools {
+  margin: 12px 0 20px;
+}
+.color-tools > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--muted);
+  list-style: none;
+}
+.color-tools > summary::after {
+  content: "+";
+  font-size: 18px;
+}
+.color-tools[open] > summary::after {
+  content: "−";
+}
+.discover-page .color-section {
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.discover-save-tools {
+  position: relative;
+  margin-left: 0;
+}
+.discover-save-tools > summary {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+  list-style: none;
+}
+.discover-save-tools > div {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 12;
+  width: min(260px, calc(100vw - 48px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 28px #0002;
+}
+.discover-save-tools > div > button {
+  width: 100%;
+  margin: 4px 0;
+}
+.discover-save-tools:not([open]) > div {
+  display: none;
+}
+.discover-collection-bar {
+  gap: 8px 12px;
+  border-radius: 12px;
+}
+.discover-collection-bar #discover-collection-status {
+  flex: 1 1 240px;
+  font-size: 14px;
+}
+.discover-collection-bar #discover-workspace-collection {
+  font-size: 14px;
+}
 .discover-page .discover-main > *,
 .discover-page .detail-info {
   min-width: 0;

@@ -1,4 +1,71 @@
 /* Read-only binder presentation; all spacing and control sizing are local to this page. */
+@media (max-width: 620px) {
+  .viewer-page .viewer-controls { position: relative; }
+  .viewer-page .viewer-options { position: static; }
+}
+
+.viewer-page .viewer-heading {
+  margin-bottom: 16px;
+}
+.viewer-page .viewer-toolbar {
+  margin-bottom: 12px;
+}
+.viewer-page .viewer-viewport {
+  height: clamp(320px, calc(100dvh - 290px), 800px);
+}
+.viewer-page .viewer-controls {
+  padding: 8px;
+  gap: 8px 16px;
+  margin-top: 12px;
+  background: transparent;
+  border: 0;
+}
+.viewer-options {
+  position: relative;
+}
+.viewer-options > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--surface);
+  font-size: 13px;
+}
+.viewer-options > .viewer-zoom {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  width: min(300px, calc(100vw - 48px));
+  padding: 16px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px #0003;
+}
+.viewer-options:not([open]) > .viewer-zoom {
+  display: none;
+}
+.viewer-page .viewer-footer {
+  padding: 8px 24px 12px;
+}
+.viewer-footer summary {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.viewer-footer details > div {
+  max-width: 640px;
+  padding: 8px;
+  text-align: center;
+  line-height: 1.6;
+}
 .viewer-page {
   min-height: 100dvh;
   background: var(--bg);

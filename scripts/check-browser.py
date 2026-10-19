@@ -237,6 +237,10 @@ class QuietServer(http.server.SimpleHTTPRequestHandler):
 def check_discover_gallery(cdp, base, route):
     cdp.call('Emulation.setDeviceMetricsOverride',{'width':1920,'height':1080,'deviceScaleFactor':1,'mobile':False})
     cdp.go(base+'/'+route,"!!window.DiscoverCollection&&document.querySelectorAll('#card-grid > button').length===24")
+    assert cdp.evaluate("!document.getElementById('color-tools').open"), 'Advanced color tools are collapsed for ordinary browsing'
+    cdp.evaluate("document.getElementById('filters-panel').open=true")
+    assert cdp.evaluate("document.getElementById('filters-form').getBoundingClientRect().width<=355"), 'Discover filters remain a compact dropdown'
+    cdp.evaluate("document.getElementById('filters-panel').open=false")
     cdp.evaluate("localStorage.removeItem('pokedex.collection.v1')")
     cdp.call('Page.reload');time.sleep(.15)
     cdp.wait("document.querySelectorAll('#card-grid > button').length===24")
@@ -274,6 +278,7 @@ def check_discover_gallery(cdp, base, route):
     assert cdp.evaluate("document.getElementById('image-dialog').open&&document.getElementById('image-status').textContent.includes('unavailable')"),'Image viewer errors must stay usable'
     assert cdp.evaluate("document.getElementById('details-dialog').open"),'Parent details must remain open behind image viewer'
     cdp.escape();time.sleep(.1)
+    cdp.wait("document.getElementById('details-dialog').open&&document.activeElement===document.getElementById('view-image')")
     assert cdp.evaluate("document.getElementById('details-dialog').open&&document.activeElement===document.getElementById('view-image')"),'Image dismissal must return to its detail action'
     add_discover_record(cdp)
     assert cdp.evaluate("!document.getElementById('detail-collection-save').hidden&&localStorage.getItem('pokedex.collection.v1')===null"),'Collection additions must remain unsaved until manual Save'
@@ -304,7 +309,7 @@ def check_workspace_shelf(cdp, base, route):
             assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth"),(route,width,'Shelf horizontal overflow')
             assert cdp.evaluate("(()=>{let h=document.querySelector('.site-header .brand').getBoundingClientRect(),m=document.querySelector('.workspace');let edge=n=>n.getBoundingClientRect().left+parseFloat(getComputedStyle(n).paddingLeft);return Math.abs(h.left-edge(m))<1})()"),(route,width,'Workspace gutters must match')
             assert cdp.evaluate("['.binder-meta','.preview-disclosure','#limit-copy','.binder-card-actions a'].every(s=>parseFloat(getComputedStyle(document.querySelector(s)).fontSize)>=14)"),'Binder captions and actions must stay readable'
-            assert cdp.evaluate("(()=>{let v=getComputedStyle(document.querySelector('.view-binder-action')),e=getComputedStyle(document.querySelector('.edit-binder-action'));return v.backgroundColor===e.backgroundColor&&v.color===e.color})()"),'View and Edit must use the same quiet shared action style'
+            assert cdp.evaluate("!!document.querySelector('.card-menu .view-binder-action')&&document.querySelector('.binder-card-actions').children.length===1&&document.querySelector('.edit-binder-action').textContent==='Open binder'"),'One Open action; read-only View belongs in the binder menu'
             cdp.evaluate("document.querySelector('.card-menu').scrollIntoView({block:'center'});document.querySelector('.card-menu').open=true")
             time.sleep(.08)
             assert cdp.evaluate("(()=>{let r=document.querySelector('.card-menu[open] .menu-items').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight})()"),(route,width,'Binder menu must fit the viewport')
@@ -381,6 +386,15 @@ def check_cleanup(cdp, base, editor, workspace):
     cdp.go(base+'/'+viewer+'?binder='+saved_id, "!!document.querySelector('#viewer-cover-art .binder-cover-art')")
     cdp.evaluate("document.getElementById('viewer-open').click();document.getElementById('viewer-spread').click()")
     assert cdp.evaluate("document.querySelectorAll('.viewer-sheet').length===2"), 'Viewer must preserve its blank facing leaf'
+    assert cdp.evaluate("!document.querySelector('.viewer-options').open&&getComputedStyle(document.querySelector('.viewer-zoom')).display==='none'"), 'Viewer keeps zoom behind View options'
+    cdp.evaluate("document.querySelector('.viewer-options').open=true;document.getElementById('viewer-fit').focus()")
+    cdp.escape()
+    assert cdp.evaluate("!document.querySelector('.viewer-options').open&&document.activeElement===document.querySelector('.viewer-options summary')"), 'Viewer options close with Escape and restore focus'
+    for width in (320, 440, 1366):
+        cdp.call('Emulation.setDeviceMetricsOverride', {'width':width,'height':768,'deviceScaleFactor':1,'mobile':False})
+        cdp.evaluate("document.querySelector('.viewer-options').open=true")
+        assert cdp.evaluate("(()=>{let b=document.querySelector('.viewer-zoom').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth})()"), f'Viewer options stay within {width}px screen'
+        cdp.evaluate("document.querySelector('.viewer-options').open=false")
     cdp.evaluate("document.querySelector('button.viewer-pocket').click()")
     assert cdp.evaluate("document.getElementById('viewer-inspect').open")
     cdp.escape()

@@ -3032,6 +3032,89 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 </style>
     <style>/* Discover gallery and dialogs; navigation geometry lives in app-shell.css. */
+.discover-page #filters-form {
+  width: min(320px, calc(100vw - var(--app-shell-gutter) * 2));
+  padding: 16px;
+}
+.discover-page .filter-fields {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.color-tools {
+  margin: 12px 0 20px;
+}
+.color-tools > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--muted);
+  list-style: none;
+}
+.color-tools > summary::after {
+  content: "+";
+  font-size: 18px;
+}
+.color-tools[open] > summary::after {
+  content: "−";
+}
+.discover-page .color-section {
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.discover-save-tools {
+  position: relative;
+  margin-left: 0;
+}
+.discover-save-tools > summary {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+  list-style: none;
+}
+.discover-save-tools > div {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 12;
+  width: min(260px, calc(100vw - 48px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 28px #0002;
+}
+.discover-save-tools > div > button {
+  width: 100%;
+  margin: 4px 0;
+}
+.discover-save-tools:not([open]) > div {
+  display: none;
+}
+.discover-collection-bar {
+  gap: 8px 12px;
+  border-radius: 12px;
+}
+.discover-collection-bar #discover-collection-status {
+  flex: 1 1 240px;
+  font-size: 14px;
+}
+.discover-collection-bar #discover-workspace-collection {
+  font-size: 14px;
+}
 .discover-page .discover-main > *,
 .discover-page .detail-info {
   min-width: 0;
@@ -3896,21 +3979,28 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         >
           Undo
         </button>
-        <button
-          id="discover-collection-download"
-          class="button secondary"
-          type="button"
-        >
-          Download edits
-        </button>
-        <button
-          id="discover-collection-reload"
-          class="button secondary"
-          type="button"
-          hidden
-        >
-          Reload saved collection
-        </button>
+        <details class="discover-save-tools">
+          <summary aria-label="Collection actions" title="Collection actions">
+            ???
+          </summary>
+          <div>
+            <button
+              id="discover-collection-download"
+              class="button secondary"
+              type="button"
+            >
+              Download edits
+            </button>
+            <button
+              id="discover-collection-reload"
+              class="button secondary"
+              type="button"
+              hidden
+            >
+              Reload saved collection
+            </button>
+          </div>
+        </details>
         <a id="discover-workspace-collection" href="Pokedex-workspace.html">
           My collection ↗
         </a>
@@ -4019,102 +4109,108 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
             </select>
           </label>
         </div>
-        <div class="color-section">
-          <h3>Match a color</h3>
-          <label>
-            <input id="color-enabled" type="checkbox" />
-            Rank by color
-          </label>
-          <div class="color-swatches" role="group" aria-label="Color shortcuts">
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#7eac91"
-              style="--swatch: #7eac91"
-              aria-label="Match green"
-              title="Match green"
-              aria-pressed="false"
+        <details id="color-tools" class="color-tools">
+          <summary>Match a color</summary>
+          <div class="color-section">
+            <label>
+              <input id="color-enabled" type="checkbox" />
+              Rank by color
+            </label>
+            <div
+              class="color-swatches"
+              role="group"
+              aria-label="Color shortcuts"
             >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#5f9bc2"
-              style="--swatch: #5f9bc2"
-              aria-label="Match blue"
-              title="Match blue"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#cf5d6a"
-              style="--swatch: #cf5d6a"
-              aria-label="Match red"
-              title="Match red"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#b8afe0"
-              style="--swatch: #b8afe0"
-              aria-label="Match lavender"
-              title="Match lavender"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#e1bf62"
-              style="--swatch: #e1bf62"
-              aria-label="Match yellow"
-              title="Match yellow"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#525762"
-              style="--swatch: #525762"
-              aria-label="Match charcoal"
-              title="Match charcoal"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#ddd5bf"
-              style="--swatch: #ddd5bf"
-              aria-label="Match cream"
-              title="Match cream"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#7eac91"
+                style="--swatch: #7eac91"
+                aria-label="Match green"
+                title="Match green"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#5f9bc2"
+                style="--swatch: #5f9bc2"
+                aria-label="Match blue"
+                title="Match blue"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#cf5d6a"
+                style="--swatch: #cf5d6a"
+                aria-label="Match red"
+                title="Match red"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#b8afe0"
+                style="--swatch: #b8afe0"
+                aria-label="Match lavender"
+                title="Match lavender"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#e1bf62"
+                style="--swatch: #e1bf62"
+                aria-label="Match yellow"
+                title="Match yellow"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#525762"
+                style="--swatch: #525762"
+                aria-label="Match charcoal"
+                title="Match charcoal"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#ddd5bf"
+                style="--swatch: #ddd5bf"
+                aria-label="Match cream"
+                title="Match cream"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="color-control">
+              <input
+                id="chosen-color"
+                type="color"
+                value="#7eac91"
+                aria-label="Color to match"
+              />
+              <output id="color-value" for="chosen-color">#7EAC91</output>
+            </div>
+            <p>Curated sample palettes · artwork analysis coming later.</p>
           </div>
-          <div class="color-control">
-            <input
-              id="chosen-color"
-              type="color"
-              value="#7eac91"
-              aria-label="Color to match"
-            />
-            <output id="color-value" for="chosen-color">#7EAC91</output>
-          </div>
-          <p>Curated sample palettes · artwork analysis coming later.</p>
-        </div>
+        </details>
         <div class="discover-layout">
           <section class="results-main" aria-labelledby="results-heading">
             <div class="results-toolbar">
@@ -9021,6 +9117,13 @@ window.SAMPLE_COLLECTION = {
     $("discover-collection-undo").hidden = !state.canUndo;
     $("detail-collection-undo").hidden = !state.canUndo;
     $("discover-collection-download").hidden = !state.dirty;
+    const tools = document.querySelector(".discover-save-tools");
+    tools.hidden = !state.dirty && $("discover-collection-reload").hidden;
+    if (tools.hidden) {
+      tools.open = false;
+      if (tools.contains(document.activeElement))
+        $("discover-workspace-collection").focus();
+    }
   }
   async function load(onlyIfChanged = false) {
     if (persisting) return;
@@ -9383,6 +9486,7 @@ window.SAMPLE_COLLECTION = {
     ).length;
     $("filter-count").textContent = count ? "· " + count + " active" : "";
     $("color-value").textContent = f.color.toUpperCase();
+    if (f.colorEnabled) $("color-tools").open = true;
     document.querySelectorAll(".color-swatch").forEach((button) => {
       button.setAttribute(
         "aria-pressed",
@@ -9837,17 +9941,23 @@ window.SAMPLE_COLLECTION = {
   }
   $("retry").addEventListener("click", () => location.reload());
   document.addEventListener("click", (event) => {
-    if ($("filters-panel").open && !$("filters-panel").contains(event.target))
-      $("filters-panel").open = false;
+    for (const menu of [
+      $("filters-panel"),
+      document.querySelector(".discover-save-tools"),
+    ])
+      if (menu.open && !menu.contains(event.target)) menu.open = false;
   });
   document.addEventListener("keydown", (event) => {
     if (
       event.key === "Escape" &&
       !document.querySelector("dialog[open]") &&
-      $("filters-panel").open
+      document.querySelector(".discover-save-tools[open], #filters-panel[open]")
     ) {
-      $("filters-panel").open = false;
-      $("filters-title").focus({ preventScroll: true });
+      const menu = document.querySelector(
+        ".discover-save-tools[open], #filters-panel[open]",
+      );
+      menu.open = false;
+      menu.querySelector("summary").focus({ preventScroll: true });
       event.preventDefault();
     }
   });

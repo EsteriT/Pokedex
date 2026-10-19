@@ -41,6 +41,13 @@
     $("discover-collection-undo").hidden = !state.canUndo;
     $("detail-collection-undo").hidden = !state.canUndo;
     $("discover-collection-download").hidden = !state.dirty;
+    const tools = document.querySelector(".discover-save-tools");
+    tools.hidden = !state.dirty && $("discover-collection-reload").hidden;
+    if (tools.hidden) {
+      tools.open = false;
+      if (tools.contains(document.activeElement))
+        $("discover-workspace-collection").focus();
+    }
   }
   async function load(onlyIfChanged = false) {
     if (persisting) return;

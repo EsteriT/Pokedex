@@ -1,4 +1,30 @@
 /* Calm editor: one canvas, quiet tools, existing application colors. */
+@media (min-width: 901px) {
+  .calm-editor .editor-rail > .layout-settings,
+  .calm-editor .editor-rail #download-backup,
+  .calm-editor .editor-rail #discover-nav {
+    margin-top: 10px;
+  }
+  .calm-editor .editor-rail .ui-symbol {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+  }
+  .calm-editor .editor-shell.cards-open > .card-picker {
+    border: 1px solid var(--line);
+  }
+  .calm-editor .editor-shell.has-selection .selection-status {
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+    box-shadow: 0 8px 24px #0002;
+  }
+  .calm-editor .editor-shell.merge-mode .selection-status {
+    border: 1px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  }
+  .calm-editor .editor-shell.customizing > .cover-customizer {
+    border: 1px solid var(--line);
+  }
+}
 html:has(> body.calm-editor) {
   scrollbar-gutter: auto;
   overflow: hidden;

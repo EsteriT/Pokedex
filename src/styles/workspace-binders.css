@@ -1,4 +1,20 @@
 /* Minimal, cover-first My binders. */
+.workspace-page #binders-panel .page-heading {
+  margin-bottom: 12px;
+}
+.workspace-page #binders-panel .toolbar {
+  margin-bottom: 24px;
+}
+#binder-grid .binder-card-actions .edit-binder-action {
+  width: 100%;
+  min-height: 40px;
+}
+#binder-grid .menu-items .view-binder-action {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+}
 #binder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 240px));
@@ -180,12 +196,12 @@
   }
 }
 
-/* Primary binder destinations stay visible; the menu holds secondary actions. */
+/* Open stays visible; read-only View and management actions live in the menu. */
 #binder-grid .binder-card-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 #binder-grid .binder-card-actions a {
   display: flex;

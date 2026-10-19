@@ -480,6 +480,17 @@
     $("viewer-inspect").scrollTop = 0;
     $("viewer-inspect-close").focus();
   }
+  const viewOptions = document.querySelector(".viewer-options");
+  document.addEventListener("pointerdown", (event) => {
+    if (!viewOptions.contains(event.target)) viewOptions.open = false;
+  });
+  viewOptions.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !viewOptions.open) return;
+    viewOptions.open = false;
+    viewOptions.querySelector("summary").focus();
+    event.preventDefault();
+    event.stopPropagation();
+  });
   $("viewer-open").addEventListener("click", () => turn(0));
   $("viewer-previous").addEventListener("click", () => advance(-1));
   $("viewer-next").addEventListener("click", () => advance(1));

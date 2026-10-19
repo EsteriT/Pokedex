@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <title>Binder viewer — Pokedex</title>
     <style>* {
   box-sizing: border-box;
@@ -1957,6 +1960,73 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 }
 </style>
     <style>/* Read-only binder presentation; all spacing and control sizing are local to this page. */
+@media (max-width: 620px) {
+  .viewer-page .viewer-controls { position: relative; }
+  .viewer-page .viewer-options { position: static; }
+}
+
+.viewer-page .viewer-heading {
+  margin-bottom: 16px;
+}
+.viewer-page .viewer-toolbar {
+  margin-bottom: 12px;
+}
+.viewer-page .viewer-viewport {
+  height: clamp(320px, calc(100dvh - 290px), 800px);
+}
+.viewer-page .viewer-controls {
+  padding: 8px;
+  gap: 8px 16px;
+  margin-top: 12px;
+  background: transparent;
+  border: 0;
+}
+.viewer-options {
+  position: relative;
+}
+.viewer-options > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--surface);
+  font-size: 13px;
+}
+.viewer-options > .viewer-zoom {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  width: min(300px, calc(100vw - 48px));
+  padding: 16px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px #0003;
+}
+.viewer-options:not([open]) > .viewer-zoom {
+  display: none;
+}
+.viewer-page .viewer-footer {
+  padding: 8px 24px 12px;
+}
+.viewer-footer summary {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.viewer-footer details > div {
+  max-width: 640px;
+  padding: 8px;
+  text-align: center;
+  line-height: 1.6;
+}
 .viewer-page {
   min-height: 100dvh;
   background: var(--bg);
@@ -2459,10 +2529,12 @@ button.viewer-pocket:focus-visible {
   <body class="viewer-page">
     <a class="skip-link" href="#viewer-main">Skip to binder</a>
     <header class="viewer-header">
-      <a class="brand" href="Pokedex-landing-page.html"
-        ><span class="brand-ball" aria-hidden="true"></span>Pokedex</a
-      ><a class="button secondary" href="Pokedex-workspace.html">Back to workspace</a
-      ><select id="theme-choice" aria-label="Color theme">
+      <a class="brand" href="Pokedex-landing-page.html">
+        <span class="brand-ball" aria-hidden="true"></span>
+        Pokedex
+      </a>
+      <a class="button secondary" href="Pokedex-workspace.html">Back to workspace</a>
+      <select id="theme-choice" aria-label="Color theme">
         <option value="light">Light</option>
         <option value="dark">Dark</option>
         <option value="system">System</option>
@@ -2518,32 +2590,40 @@ button.viewer-pocket:focus-visible {
         <div id="viewer-controls" class="viewer-controls" hidden>
           <div class="viewer-navigation">
             <button id="viewer-previous" class="button secondary" type="button">
-              Previous</button
-            ><label class="viewer-picker"
-              ><span class="sr-only">Choose binder page</span
-              ><select
+              Previous
+            </button>
+            <label class="viewer-picker">
+              <span class="sr-only">Choose binder page</span>
+              <select
                 id="viewer-page-picker"
                 aria-label="Choose binder page"
-              ></select></label
-            ><button id="viewer-next" class="button secondary" type="button">
+              ></select>
+            </label>
+            <button id="viewer-next" class="button secondary" type="button">
               Next
             </button>
           </div>
-          <div class="viewer-zoom">
-            <button id="viewer-fit" class="button secondary" type="button">
-              Fit page</button
-            ><label for="viewer-zoom"
-              >Zoom <output id="viewer-zoom-value">100%</output></label
-            ><input
-              id="viewer-zoom"
-              type="range"
-              min="1"
-              max="3"
-              step=".25"
-              value="1"
-              aria-label="Binder page zoom"
-            />
-          </div>
+          <details class="viewer-options">
+            <summary>View options</summary>
+            <div class="viewer-zoom">
+              <button id="viewer-fit" class="button secondary" type="button">
+                Fit page
+              </button>
+              <label for="viewer-zoom">
+                Zoom
+                <output id="viewer-zoom-value">100%</output>
+              </label>
+              <input
+                id="viewer-zoom"
+                type="range"
+                min="1"
+                max="3"
+                step=".25"
+                value="1"
+                aria-label="Binder page zoom"
+              />
+            </div>
+          </details>
         </div>
       </section>
       <p
@@ -2554,12 +2634,22 @@ button.viewer-pocket:focus-visible {
       ></p>
     </main>
     <footer class="viewer-footer">
-      Browser-local preview · unlisted sharing comes later.<span
-        >Independent Pokémon fan project · Card images:
-        <a href="https://tcgdex.dev" target="_blank" rel="noopener noreferrer"
-          >TCGdex</a
-        ></span
-      >
+      <details>
+        <summary>About this preview</summary>
+        <div>
+          Browser-local preview · unlisted sharing comes later.
+          <span>
+            Independent Pokémon fan project · Card images:
+            <a
+              href="https://tcgdex.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              TCGdex
+            </a>
+          </span>
+        </div>
+      </details>
     </footer>
     <dialog id="viewer-inspect" aria-labelledby="viewer-inspect-title">
       <div class="viewer-inspect-heading">
@@ -6240,6 +6330,17 @@ PERFORMANCE OF THIS SOFTWARE.
     $("viewer-inspect").scrollTop = 0;
     $("viewer-inspect-close").focus();
   }
+  const viewOptions = document.querySelector(".viewer-options");
+  document.addEventListener("pointerdown", (event) => {
+    if (!viewOptions.contains(event.target)) viewOptions.open = false;
+  });
+  viewOptions.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !viewOptions.open) return;
+    viewOptions.open = false;
+    viewOptions.querySelector("summary").focus();
+    event.preventDefault();
+    event.stopPropagation();
+  });
   $("viewer-open").addEventListener("click", () => turn(0));
   $("viewer-previous").addEventListener("click", () => advance(-1));
   $("viewer-next").addEventListener("click", () => advance(1));

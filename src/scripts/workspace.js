@@ -249,10 +249,13 @@
     const destination = new URL($("viewer-route").href);
     destination.searchParams.set("binder", b.id);
     view.href = destination.href;
-    view.textContent = "View";
+    view.textContent = "View binder";
     view.setAttribute("aria-label", "View " + b.name);
     view.dataset.focusKey = b.id + ":view";
-    items.append(button("Customize", "", () => openBinder(b, true)));
+    items.append(
+      view,
+      button("Customize", "", () => openBinder(b, true)),
+    );
     for (const [label, delta] of [
       ["Move earlier", -1],
       ["Move later", 1],
@@ -307,11 +310,15 @@
       .querySelector(".meta-separator")
       .setAttribute("aria-hidden", "true");
     const actions = el("div", "binder-card-actions");
-    const editLink = el("a", "edit-binder-action button secondary", "Edit");
+    const editLink = el(
+      "a",
+      "edit-binder-action button secondary",
+      "Open binder",
+    );
     editLink.href = binderDestination(b);
-    editLink.setAttribute("aria-label", "Edit " + b.name);
+    editLink.setAttribute("aria-label", "Open " + b.name + " in editor");
     editLink.dataset.focusKey = b.id + ":edit";
-    actions.append(view, editLink);
+    actions.append(editLink);
     info.append(top, metadata, actions);
     article.append(art, info);
     return article;

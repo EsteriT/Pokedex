@@ -89,21 +89,28 @@
         >
           Undo
         </button>
-        <button
-          id="discover-collection-download"
-          class="button secondary"
-          type="button"
-        >
-          Download edits
-        </button>
-        <button
-          id="discover-collection-reload"
-          class="button secondary"
-          type="button"
-          hidden
-        >
-          Reload saved collection
-        </button>
+        <details class="discover-save-tools">
+          <summary aria-label="Collection actions" title="Collection actions">
+            ???
+          </summary>
+          <div>
+            <button
+              id="discover-collection-download"
+              class="button secondary"
+              type="button"
+            >
+              Download edits
+            </button>
+            <button
+              id="discover-collection-reload"
+              class="button secondary"
+              type="button"
+              hidden
+            >
+              Reload saved collection
+            </button>
+          </div>
+        </details>
         <a id="discover-workspace-collection" href="workspace.html">
           My collection ↗
         </a>
@@ -212,102 +219,108 @@
             </select>
           </label>
         </div>
-        <div class="color-section">
-          <h3>Match a color</h3>
-          <label>
-            <input id="color-enabled" type="checkbox" />
-            Rank by color
-          </label>
-          <div class="color-swatches" role="group" aria-label="Color shortcuts">
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#7eac91"
-              style="--swatch: #7eac91"
-              aria-label="Match green"
-              title="Match green"
-              aria-pressed="false"
+        <details id="color-tools" class="color-tools">
+          <summary>Match a color</summary>
+          <div class="color-section">
+            <label>
+              <input id="color-enabled" type="checkbox" />
+              Rank by color
+            </label>
+            <div
+              class="color-swatches"
+              role="group"
+              aria-label="Color shortcuts"
             >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#5f9bc2"
-              style="--swatch: #5f9bc2"
-              aria-label="Match blue"
-              title="Match blue"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#cf5d6a"
-              style="--swatch: #cf5d6a"
-              aria-label="Match red"
-              title="Match red"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#b8afe0"
-              style="--swatch: #b8afe0"
-              aria-label="Match lavender"
-              title="Match lavender"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#e1bf62"
-              style="--swatch: #e1bf62"
-              aria-label="Match yellow"
-              title="Match yellow"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#525762"
-              style="--swatch: #525762"
-              aria-label="Match charcoal"
-              title="Match charcoal"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
-            <button
-              type="button"
-              class="color-swatch"
-              data-color="#ddd5bf"
-              style="--swatch: #ddd5bf"
-              aria-label="Match cream"
-              title="Match cream"
-              aria-pressed="false"
-            >
-              <span aria-hidden="true"></span>
-            </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#7eac91"
+                style="--swatch: #7eac91"
+                aria-label="Match green"
+                title="Match green"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#5f9bc2"
+                style="--swatch: #5f9bc2"
+                aria-label="Match blue"
+                title="Match blue"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#cf5d6a"
+                style="--swatch: #cf5d6a"
+                aria-label="Match red"
+                title="Match red"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#b8afe0"
+                style="--swatch: #b8afe0"
+                aria-label="Match lavender"
+                title="Match lavender"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#e1bf62"
+                style="--swatch: #e1bf62"
+                aria-label="Match yellow"
+                title="Match yellow"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#525762"
+                style="--swatch: #525762"
+                aria-label="Match charcoal"
+                title="Match charcoal"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                type="button"
+                class="color-swatch"
+                data-color="#ddd5bf"
+                style="--swatch: #ddd5bf"
+                aria-label="Match cream"
+                title="Match cream"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="color-control">
+              <input
+                id="chosen-color"
+                type="color"
+                value="#7eac91"
+                aria-label="Color to match"
+              />
+              <output id="color-value" for="chosen-color">#7EAC91</output>
+            </div>
+            <p>Curated sample palettes · artwork analysis coming later.</p>
           </div>
-          <div class="color-control">
-            <input
-              id="chosen-color"
-              type="color"
-              value="#7eac91"
-              aria-label="Color to match"
-            />
-            <output id="color-value" for="chosen-color">#7EAC91</output>
-          </div>
-          <p>Curated sample palettes · artwork analysis coming later.</p>
-        </div>
+        </details>
         <div class="discover-layout">
           <section class="results-main" aria-labelledby="results-heading">
             <div class="results-toolbar">

@@ -163,6 +163,7 @@
     ).length;
     $("filter-count").textContent = count ? "· " + count + " active" : "";
     $("color-value").textContent = f.color.toUpperCase();
+    if (f.colorEnabled) $("color-tools").open = true;
     document.querySelectorAll(".color-swatch").forEach((button) => {
       button.setAttribute(
         "aria-pressed",
@@ -617,17 +618,23 @@
   }
   $("retry").addEventListener("click", () => location.reload());
   document.addEventListener("click", (event) => {
-    if ($("filters-panel").open && !$("filters-panel").contains(event.target))
-      $("filters-panel").open = false;
+    for (const menu of [
+      $("filters-panel"),
+      document.querySelector(".discover-save-tools"),
+    ])
+      if (menu.open && !menu.contains(event.target)) menu.open = false;
   });
   document.addEventListener("keydown", (event) => {
     if (
       event.key === "Escape" &&
       !document.querySelector("dialog[open]") &&
-      $("filters-panel").open
+      document.querySelector(".discover-save-tools[open], #filters-panel[open]")
     ) {
-      $("filters-panel").open = false;
-      $("filters-title").focus({ preventScroll: true });
+      const menu = document.querySelector(
+        ".discover-save-tools[open], #filters-panel[open]",
+      );
+      menu.open = false;
+      menu.querySelector("summary").focus({ preventScroll: true });
       event.preventDefault();
     }
   });

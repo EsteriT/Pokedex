@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <title>Binder viewer — Pokedex</title>
     <link rel="stylesheet" href="styles/workspace.css" />
     <link rel="stylesheet" href="styles/app-header.css" />
@@ -16,10 +19,12 @@
   <body class="viewer-page">
     <a class="skip-link" href="#viewer-main">Skip to binder</a>
     <header class="viewer-header">
-      <a class="brand" href="index.html"
-        ><span class="brand-ball" aria-hidden="true"></span>Pokedex</a
-      ><a class="button secondary" href="workspace.html">Back to workspace</a
-      ><select id="theme-choice" aria-label="Color theme">
+      <a class="brand" href="index.html">
+        <span class="brand-ball" aria-hidden="true"></span>
+        Pokedex
+      </a>
+      <a class="button secondary" href="workspace.html">Back to workspace</a>
+      <select id="theme-choice" aria-label="Color theme">
         <option value="light">Light</option>
         <option value="dark">Dark</option>
         <option value="system">System</option>
@@ -75,32 +80,40 @@
         <div id="viewer-controls" class="viewer-controls" hidden>
           <div class="viewer-navigation">
             <button id="viewer-previous" class="button secondary" type="button">
-              Previous</button
-            ><label class="viewer-picker"
-              ><span class="sr-only">Choose binder page</span
-              ><select
+              Previous
+            </button>
+            <label class="viewer-picker">
+              <span class="sr-only">Choose binder page</span>
+              <select
                 id="viewer-page-picker"
                 aria-label="Choose binder page"
-              ></select></label
-            ><button id="viewer-next" class="button secondary" type="button">
+              ></select>
+            </label>
+            <button id="viewer-next" class="button secondary" type="button">
               Next
             </button>
           </div>
-          <div class="viewer-zoom">
-            <button id="viewer-fit" class="button secondary" type="button">
-              Fit page</button
-            ><label for="viewer-zoom"
-              >Zoom <output id="viewer-zoom-value">100%</output></label
-            ><input
-              id="viewer-zoom"
-              type="range"
-              min="1"
-              max="3"
-              step=".25"
-              value="1"
-              aria-label="Binder page zoom"
-            />
-          </div>
+          <details class="viewer-options">
+            <summary>View options</summary>
+            <div class="viewer-zoom">
+              <button id="viewer-fit" class="button secondary" type="button">
+                Fit page
+              </button>
+              <label for="viewer-zoom">
+                Zoom
+                <output id="viewer-zoom-value">100%</output>
+              </label>
+              <input
+                id="viewer-zoom"
+                type="range"
+                min="1"
+                max="3"
+                step=".25"
+                value="1"
+                aria-label="Binder page zoom"
+              />
+            </div>
+          </details>
         </div>
       </section>
       <p
@@ -111,12 +124,22 @@
       ></p>
     </main>
     <footer class="viewer-footer">
-      Browser-local preview · unlisted sharing comes later.<span
-        >Independent Pokémon fan project · Card images:
-        <a href="https://tcgdex.dev" target="_blank" rel="noopener noreferrer"
-          >TCGdex</a
-        ></span
-      >
+      <details>
+        <summary>About this preview</summary>
+        <div>
+          Browser-local preview · unlisted sharing comes later.
+          <span>
+            Independent Pokémon fan project · Card images:
+            <a
+              href="https://tcgdex.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              TCGdex
+            </a>
+          </span>
+        </div>
+      </details>
     </footer>
     <dialog id="viewer-inspect" aria-labelledby="viewer-inspect-title">
       <div class="viewer-inspect-heading">

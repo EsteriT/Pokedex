@@ -135,6 +135,24 @@ def check_collection_hierarchy(cdp, base, route):
     assert cdp.evaluate("['collection-add','collection-save','collection-undo','collection-redo'].every(id=>document.querySelector('.collection-save-actions').contains(document.getElementById(id)))"), 'Editing actions belong together'
     assert cdp.evaluate("document.getElementById('collection-save').textContent.includes('Saved')&&document.getElementById('inventory-results').textContent===''"), 'Saved state and quiet default results'
     assert cdp.evaluate("document.querySelector('.inventory-quantity').textContent==='×2'"), 'Copies use a compact artwork badge'
+    cdp.evaluate("document.querySelector('.account').open=true;document.querySelector('.app-info-links button').click()")
+    assert cdp.evaluate("document.getElementById('app-credits').open&&!document.querySelector('footer')&&document.getElementById('app-credits').textContent.includes('TCGdex')&&!!document.querySelector('.app-info-links a[href$=\"#faq\"]')"), 'Credits and FAQ stay accessible without a page footer'
+    cdp.escape()
+    cdp.evaluate("document.querySelector('.account').open=false;document.getElementById('collection-add').click();document.querySelector('.collection-picker-filters summary').click()")
+    assert cdp.evaluate("document.querySelector('.collection-picker-filter-fields').getBoundingClientRect().width<=335&&document.querySelectorAll('.collection-pick-card').length>0"), 'Add cards filters use a bounded popup'
+    cdp.escape()
+    assert cdp.evaluate("document.getElementById('inventory-dialog').open&&!document.querySelector('.collection-picker-filters').open"), 'Escape closes filters before the card picker'
+    for width in (1366, 440, 320):
+        cdp.call('Emulation.setDeviceMetricsOverride', {'width':width,'height':900,'deviceScaleFactor':1,'mobile':False})
+        cdp.evaluate("document.querySelector('.collection-picker-filters').open=true")
+        assert cdp.evaluate("(()=>{let p=document.querySelector('.collection-picker-filter-fields').getBoundingClientRect();return p.left>=0&&p.right<=innerWidth&&p.bottom<=document.getElementById('inventory-dialog').getBoundingClientRect().bottom})()"), f'Picker filters fit at {width}px'
+        cdp.evaluate("document.querySelector('.collection-picker-filters').open=false")
+    cdp.call('Emulation.setDeviceMetricsOverride', {'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
+    cdp.evaluate("[...document.querySelectorAll('.collection-pick-card')].slice(0,2).forEach(b=>b.click());document.getElementById('inventory-apply').click()")
+    assert cdp.evaluate("document.getElementById('inventory-dialog').classList.contains('batch-reviewing')&&document.querySelectorAll('.collection-review-row').length===2"), 'The simplified picker retains multi-card review'
+    cdp.evaluate("document.getElementById('inventory-cancel').click()")
+    assert cdp.evaluate("document.querySelectorAll('.collection-pick-card[aria-pressed=true]').length===2"), 'Returning from review retains both selected cards'
+    cdp.evaluate("document.getElementById('inventory-cancel').click()")
     cdp.evaluate("document.querySelector('.collection-card-checkbox input').focus()")
     for event in ('keyDown', 'keyUp'):
         cdp.call('Input.dispatchKeyEvent', {'type':event,'key':' ','code':'Space','windowsVirtualKeyCode':32})
@@ -241,7 +259,7 @@ def check_discover_gallery(cdp, base, route):
             cdp.evaluate("document.documentElement.dataset.theme="+json.dumps(theme)+";document.getElementById('cards-tab').click()")
             time.sleep(.08)
             assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth"),(route,width,theme,'Discover horizontal overflow')
-            assert cdp.evaluate("(()=>{let h=document.querySelector('.site-header .brand').getBoundingClientRect(),m=document.querySelector('.discover-main'),f=document.querySelector('.app-footer');let edge=n=>n.getBoundingClientRect().left+parseFloat(getComputedStyle(n).paddingLeft);return Math.abs(h.left-edge(m))<1&&Math.abs(h.left-edge(f))<1})()"),(route,width,'Navigation/content/footer must share gutters')
+            assert cdp.evaluate("(()=>{let h=document.querySelector('.site-header .brand').getBoundingClientRect(),m=document.querySelector('.discover-main');let edge=n=>n.getBoundingClientRect().left+parseFloat(getComputedStyle(n).paddingLeft);return Math.abs(h.left-edge(m))<1})()"),(route,width,'Navigation/content must share gutters')
             assert cdp.evaluate("getComputedStyle(document.querySelector('.discover-card')).backgroundColor==='rgba(0, 0, 0, 0)'"),'Artwork tiles must not retain boxed backgrounds'
             cdp.evaluate("document.getElementById('filters-panel').open=true")
             assert cdp.evaluate("(()=>{let r=document.getElementById('filters-form').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.width>0})()"),(route,width,'Filter panel must fit the viewport')
@@ -284,7 +302,7 @@ def check_workspace_shelf(cdp, base, route):
         for theme in ('light','dark'):
             cdp.evaluate("document.documentElement.dataset.theme="+json.dumps(theme))
             assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth"),(route,width,'Shelf horizontal overflow')
-            assert cdp.evaluate("(()=>{let h=document.querySelector('.site-header .brand').getBoundingClientRect(),m=document.querySelector('.workspace'),f=document.querySelector('.workspace-footer');let edge=n=>n.getBoundingClientRect().left+parseFloat(getComputedStyle(n).paddingLeft);return Math.abs(h.left-edge(m))<1&&Math.abs(h.left-edge(f))<1})()"),(route,width,'Workspace gutters must match')
+            assert cdp.evaluate("(()=>{let h=document.querySelector('.site-header .brand').getBoundingClientRect(),m=document.querySelector('.workspace');let edge=n=>n.getBoundingClientRect().left+parseFloat(getComputedStyle(n).paddingLeft);return Math.abs(h.left-edge(m))<1})()"),(route,width,'Workspace gutters must match')
             assert cdp.evaluate("['.binder-meta','.preview-disclosure','#limit-copy','.binder-card-actions a'].every(s=>parseFloat(getComputedStyle(document.querySelector(s)).fontSize)>=14)"),'Binder captions and actions must stay readable'
             assert cdp.evaluate("(()=>{let v=getComputedStyle(document.querySelector('.view-binder-action')),e=getComputedStyle(document.querySelector('.edit-binder-action'));return v.backgroundColor===e.backgroundColor&&v.color===e.color})()"),'View and Edit must use the same quiet shared action style'
             cdp.evaluate("document.querySelector('.card-menu').scrollIntoView({block:'center'});document.querySelector('.card-menu').open=true")

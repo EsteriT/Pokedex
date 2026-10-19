@@ -337,26 +337,33 @@
   margin-right: auto;
   font-size: 14px;
 }
+.workspace-page #inventory-dialog.batch-picker .collection-bulk-bar > a {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--muted);
+}
 .workspace-page
   #inventory-dialog.batch-picker:not(.batch-reviewing)
   .collection-card-grid {
-  grid-template-columns: repeat(auto-fill, minmax(134px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
   scrollbar-gutter: stable;
   padding: 6px;
 }
 .workspace-page #inventory-dialog.batch-picker .collection-pick-card {
   display: grid;
-  grid-template-rows: 128px 20px 36px;
+  grid-template-rows: 160px 20px 18px;
   gap: 4px;
-  height: 216px;
+  height: 224px;
+  background: transparent;
   padding: 8px;
   border: 2px solid transparent;
   border-radius: 10px;
 }
 .workspace-page #inventory-dialog.batch-picker .collection-pick-art {
   width: 100%;
-  height: 128px;
+  height: 160px;
+  background: transparent;
   aspect-ratio: auto;
   display: flex;
   justify-content: center;
@@ -378,6 +385,8 @@
   font-size: 14px;
   line-height: 18px;
   color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
 }
 .workspace-page
@@ -552,11 +561,11 @@
 }
 @media (max-height: 800px) and (min-width: 701px) {
   .workspace-page #inventory-dialog.batch-picker .collection-pick-card {
-    grid-template-rows: 112px 20px 36px;
-    height: 200px;
+    grid-template-rows: 140px 20px 18px;
+    height: 204px;
   }
   .workspace-page #inventory-dialog.batch-picker .collection-pick-art {
-    height: 112px;
+    height: 140px;
   }
 }
 @media (max-width: 1100px) {
@@ -1017,9 +1026,7 @@
     max-height: none;
     overflow: visible;
   }
-  .workspace-page
-    #inventory-dialog.record-detail
-    .inventory-detail-fields {
+  .workspace-page #inventory-dialog.record-detail .inventory-detail-fields {
     grid-template-columns: minmax(0, 1fr);
   }
   .workspace-page #inventory-dialog.record-detail .inventory-kind-switch {

@@ -243,6 +243,16 @@
       });
       filterFields.append(clearFilters);
       pickerFilters.append(filterSummary, filterFields);
+      $("inventory-dialog").addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || !pickerFilters.open) return;
+        event.preventDefault();
+        event.stopPropagation();
+        pickerFilters.open = false;
+        filterSummary.focus();
+      });
+      $("inventory-dialog").addEventListener("pointerdown", (event) => {
+        if (!pickerFilters.contains(event.target)) pickerFilters.open = false;
+      });
       $("inventory-picker-area")
         .querySelector(".collection-picker-heading")
         .append(pickerFilters);
@@ -264,6 +274,8 @@
       );
       clearSelection.type = "button";
       bulkBar.append($("inventory-picker-results"), bulkCount, clearSelection);
+      const browseDiscover = $("inventory-browse-discover");
+      if (settings.applyMany && browseDiscover) bulkBar.append(browseDiscover);
       const reviewList = make("div", "collection-bulk-review");
       reviewList.id = "collection-bulk-review";
       $("inventory-picker-area").insertBefore(
@@ -315,7 +327,9 @@
               (count === 1 ? " card" : " cards") +
               " to " +
               target
-            : "Review " + count + (count === 1 ? " card" : " cards");
+            : count
+              ? "Review " + count + (count === 1 ? " card" : " cards")
+              : "Review cards";
         } else
           $("inventory-apply").textContent = editing
             ? "Update record"
@@ -391,6 +405,7 @@
         }
         reviewList.hidden = !batch || !reviewing || single;
         bulkCount.textContent = chosenCards.size + " selected";
+        bulkCount.hidden = chosenCards.size === 0;
         $("inventory-dialog").classList.toggle(
           "batch-picker",
           batch && !single,

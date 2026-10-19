@@ -685,6 +685,7 @@
   position: relative;
 }
 .collection-picker-filters {
+  position: relative;
   margin: 0;
   flex-shrink: 0;
 }
@@ -703,11 +704,13 @@
 }
 .collection-picker-filters[open] .collection-picker-filter-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  top: calc(100% + 8px);
+  width: min(300px, calc(100vw - 80px));
+  max-height: min(420px, 60dvh);
+  overflow-y: auto;
   right: 0;
   z-index: 6;
   padding: 16px;

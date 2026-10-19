@@ -421,12 +421,17 @@
         aria-live="polite"
       ></p>
     </main>
-    <footer class="app-footer">
-      <span>
+    <dialog
+      id="app-credits"
+      class="app-credits"
+      aria-labelledby="app-credits-title"
+    >
+      <h2 id="app-credits-title">About &amp; credits</h2>
+      <p>
         Independent fan project. Pokémon © Nintendo / Creatures Inc. / GAME
         FREAK inc. Not affiliated with the rights holders.
-      </span>
-      <span>
+      </p>
+      <p>
         Card images:
         <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a>
         · Sample artwork:
@@ -437,9 +442,12 @@
         >
           Pokémon
         </a>
-      </span>
+      </p>
       <a href="index.html#faq">FAQ</a>
-    </footer>
+      <form method="dialog">
+        <button class="button secondary">Close</button>
+      </form>
+    </dialog>
     <dialog
       id="details-dialog"
       class="details-dialog"
@@ -913,6 +921,7 @@
     <script src="scripts/discover-collection.js"></script>
     <script src="scripts/discover.js"></script>
     <script src="scripts/discover-sets.js"></script>
+    <script src="scripts/app-info.js"></script>
     <script src="scripts/ui-controls.js"></script>
   </body>
 </html>

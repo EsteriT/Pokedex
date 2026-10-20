@@ -1,6 +1,6 @@
 # Pokedex owner cheatsheet
 
-**Current state:** cloud binders, collection and account data controls are live and accepted. One hosted encrypted backup to private R2 passed upload/download/decryption verification. Automated daily backups are implemented; they are **not active yet**, pending independent recovery and alert acceptance. Check [automation rollout](AUTOMATED-BACKUPS.md) before relying on them. Image-loading improvements remain deferred.
+**Current state:** daily backups are now enabled, with the production monitor active/Up and email notifications on. Independent recovery, warning emails and automatic expiry have passed. The next nominal daily run is 21 October 2026 at 02:23 Vietnam time. Its success, new verified archive and matching healthy monitor signal remain pending; see [backup safety acceptance](BACKUP-SAFETY-ACCEPTANCE.md).
 
 ## Which service does what?
 

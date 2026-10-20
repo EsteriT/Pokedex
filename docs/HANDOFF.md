@@ -1,5 +1,14 @@
 # Current project handoff
 
+## Daily backup rollout enabled - 20 October 2026
+
+The owner authorized the six rollout checks. Healthchecks already showed Up/active, email ON, one-day period and three-hour grace. `BACKUPS_ENABLED=true` was saved/read back in GitHub at 11:00:16 UTC. Next nominal run: 20 October 19:23 UTC / 21 October 02:23 Vietnam time; GitHub can start it later. First actual scheduled success, its new verified R2 archive and post-run monitor health remain pending. No manual run was substituted. See BACKUP-SAFETY-ACCEPTANCE.md and ignored `.scratch/qa/backup-daily-rollout.json`. Notes are on local `test/backup-expiry-acceptance`; no application code, deployment, database or secret changes.
+
+
+## Backup expiry acceptance complete - 20 October 2026
+
+Fresh Cloudflare API listing plus direct retrieval proved the expiring test marker absent (404) while its control remained present (200). After recording the pass, only the disposable control marker and test lifecycle rule were removed; the dated test prefix is empty. Both production lifecycle rules and all three real backup objects' metadata were preserved. See [BACKUP-SAFETY-ACCEPTANCE.md](BACKUP-SAFETY-ACCEPTANCE.md). This expiry-only check did not enable scheduling or change monitor settings. Evidence documentation is local on `test/backup-expiry-acceptance`; no merge/push/deployment was requested for this task.
+
 ## Catalogue release authorized - 20 October 2026
 
 The owner approved merge, push and deployment of the reviewed catalogue/image-loading work. This supersedes its local-only review restrictions below. A fresh encrypted R2 backup passed (run `39403631647`); hosted migration `20261020095147_card_catalogue.sql` and all ten sets / 1,291 public records are applied. Public API, bounds and access-denial smoke checks passed. My collection now shows Loading and disables editing until its data is ready. Release-time model/backend/repository and real local source/preview backend browser checks passed after the loading fix; secret scanning passed. Website merge/deployment is the remaining release step. See CARD-CATALOGUE.md for security-advisor interpretation and the release boundary.

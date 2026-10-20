@@ -56,7 +56,7 @@ The reviewed ten-set English catalogue (1,291 printings) and faster Discover ima
 
 ### Develop & verify
 
-Automated encrypted R2 backups and independent Healthchecks monitoring are implemented, with daily runs gated off pending hosted acceptance. See the [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
+Automated encrypted R2 backups are enabled, with the Healthchecks monitor active. Recovery, alert delivery and automatic expiry have passed; the first actual daily scheduled-run acceptance is pending. See the [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
 
 The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Both database migrations and the website update are deployed and verified. Hosted account backup/restore and fresh Google sign-in followed by deletion/sign-out passed user acceptance on October 19, 2026; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md).
 

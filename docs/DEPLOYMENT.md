@@ -14,7 +14,7 @@ The workflow publishes only `dist/`. Source, tests and documentation remain in t
 
 ```sh
 npm run build:pages
-python -m http.server 5500 --directory dist
+python -m http.server 5500 --bind 127.0.0.1 --directory dist
 ```
 
 Open [localhost:5500](http://localhost:5500/). The build uses the existing standalone previews, with embedded scripts, styles, fonts and cover artwork. The landing page is also copied to `index.html` for the root URL. Links stay relative so GitHub's `/Pokedex/` project path works.
@@ -40,4 +40,4 @@ With the hosted configuration, signed-in users save private binders and collecti
 
 Keep portable backups. Save is explicit; there is no autosave or automatic recovery draft. Unsaved edits and original browser-local records can be lost when site data is cleared. Unconfigured builds retain the original browser-local prototype.
 
-Card images use external hosts and need internet access. The catalogue and prices remain sample data. Automatic realtime synchronization, live pricing and public binder sharing are not included. Manual account collection Save/reopen across browsers is supported; see [the collection guide](COLLECTION-CLOUD.md) for limits and acceptance status.
+Card images use external hosts and need internet access. The connected beta includes 1,291 English printings across ten trial sets; unconfigured demos retain 55 sample printings, and prices remain fictional examples. Automatic realtime synchronization, live pricing and public binder sharing are not included. Manual account collection Save/reopen across browsers is supported; see [the collection guide](COLLECTION-CLOUD.md) for limits and acceptance status.

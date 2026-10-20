@@ -25,34 +25,34 @@ Arrange your collection, customize every detail, and make a binder that feels li
 | **Build your binder** | Arrange cards in one or two page views. Add, reorder and resize pages; merge connected pockets. |
 | **Move things naturally** | Drag cards to swap pockets, push a row toward an empty space, or keep displaced cards in Overflow. Select batches and copy cards between binders. |
 | **Make it yours** | Choose covers, including transparent; add titles and artwork; style cards with sleeves and toploaders. |
-| **Find what fits** | Explore the sample catalogue through search, filters and curated color matching. Track your collection in Workspace. |
+| **Find what fits** | Explore the catalogue through search and filters, with curated sample color matching. Track your collection in Workspace. |
 | **Keep your work** | Save, download a backup, and restore it later. Open a read-only view of your saved binder. |
 
 ### Before you begin
 
-This is the **frontend MVP**, accepted on October 16, 2026. It includes **55 sample card printings**; prices are fictional interface examples.
+The **frontend MVP** was accepted on October 16, 2026. Unconfigured demos contain **55 sample printings**; the hosted beta now includes **1,291 English printings across 10 trial sets**. Prices remain fictional interface examples.
 
 The hosted cloud beta adds **Google sign-in, private binders and account collections**. Use **Save** to keep edits and **Download backup** for a portable copy. Existing browser binders and collection records are imported explicitly, preserving their browser originals. Unconfigured builds keep the original local prototype. Actual hosted login/Save acceptance is tracked in the [rollout record](docs/HOSTED-ROLLOUT.md).
 
 ### Run locally
 
-Requires Node.js 22+ and a local web server. Install the pinned dependencies before building.
+Requires Node.js 22+. The included local server and browser checks also use Python 3. Install the pinned dependencies before building.
 
 ```sh
 git clone https://github.com/EsteriT/Pokedex.git
 cd Pokedex
 npm ci
 npm run build
-python -m http.server 5500
+npm run dev
 ```
 
-Open **[localhost:5500/src/](http://localhost:5500/src/)**. You can also use VS Code Live Server on `src/index.html`, or open the generated `preview/Pokedex-landing-page.html`. Card images require an internet connection.
+Open **[localhost:5500/src/](http://localhost:5500/src/)**. The included server listens only on this computer and serves `src/`, `assets/` and `preview/`; private configuration, Git files and `.scratch/` stay inaccessible. Use `npm run dev -- --port 5501` for a browser-only preview if the default port is occupied. Google sign-in needs matching local Supabase redirect settings, so keep port 5500 for the existing cloud-login setup. Avoid serving the whole repository with an unrestricted server. Card images require an internet connection.
 
 The audited binder backend foundation and hosted database are deployed. Google provider settings are configured, and the Pages workflow supplies the public backend configuration. Unconfigured builds keep browser-local saving. See the [backend foundation guide](docs/BACKEND-FOUNDATION.md) and [hosted rollout](docs/HOSTED-ROLLOUT.md) for setup, verified acceptance and beta limits.
 
 Account collection storage is implemented and tested on `feat/collection-cloud`; its approved hosted migration and website update are now live. See [the collection guide](docs/COLLECTION-CLOUD.md) for private saving, browser import, conflict recovery and test coverage. The user confirmed hosted collection saving, cross-browser access, backups and available browser imports pass.
 
-The reviewed ten-set English catalogue (1,291 printings) and faster Discover image scheduling are approved for release from `feat/card-catalogue`. The hosted catalogue data is applied; see [the catalogue guide](docs/CARD-CATALOGUE.md) for scope, verification and rollout details.
+The ten-set English catalogue (1,291 printings) and faster Discover image scheduling are deployed as `793169a`. The hosted catalogue data is applied; see [the catalogue guide](docs/CARD-CATALOGUE.md) for scope, verification and rollout details.
 
 ### Develop & verify
 
@@ -64,6 +64,8 @@ Edit the files in `src/`; generated previews are rebuilt from those sources.
 
 | Command | Purpose |
 | :--- | :--- |
+| `npm run dev` | Start the loopback-only public-file development server (Python 3). |
+| `npm run test:server` | Check private-file denial, Host protection and public development routes. |
 | `npm run build` | Rebuild the five standalone previews. |
 | `npm run check` | Validate references, JavaScript, assets and preview links. |
 | `npm test` | Check binder, collection, catalogue and customization behavior. |
@@ -92,7 +94,7 @@ docs/       Design decisions, architecture and project records
 - [Deployment](docs/DEPLOYMENT.md) — GitHub Pages setup and publishing.
 - [Design](docs/DESIGN.md) · [Architecture](docs/ARCHITECTURE.md) · [Current handoff](docs/HANDOFF.md).
 
-Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Live catalogue/pricing, automatic realtime synchronization, public sharing and print/image export remain future work.
+Desktop and phone-size layouts have been checked in Chromium browsers. Physical mobile devices, Safari and Firefox still need manual verification. Remaining English catalogue coverage, live pricing, automatic realtime synchronization, public sharing and print/image export remain future work.
 
 ---
 

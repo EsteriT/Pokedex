@@ -27,9 +27,9 @@ The existing six sample sets plus four older sets exercise legacy saves, set-loc
 2. Apply pending migrations locally with `npx.cmd supabase db push --local`. Do not reset the database or use `--linked`.
 3. Run `npm.cmd run catalogue:import:local`. The importer has no hosted mode. It fetches all ten sets, checks them, then upserts the catalogue in one local transaction. A failed download does not alter the database.
 4. Keep the source public configuration pointed at `http://127.0.0.1:54321`, using the local publishable key. No private key belongs in a frontend file.
-5. Serve the repository and open `http://localhost:5500/src/discover.html?view=sets`. Workspace, editor and viewer source pages use the same catalogue. Google sign-in is needed for account saving, not public catalogue search.
+5. Run `npm.cmd run dev` (the loopback-only public-file server) and open `http://localhost:5500/src/discover.html?view=sets`. Workspace, editor and viewer source pages use the same catalogue. Google sign-in is needed for account saving, not public catalogue search.
 
-`src/` contains editable code. Tracked `preview/` files are generated, unconfigured browser-only demonstrations and continue showing the sample catalogue. A preview built with a local configuration can also use the local catalogue, but must never be published. `dist/` is not updated by this work.
+`src/` contains editable code. Tracked `preview/` files are generated, unconfigured browser-only demonstrations and continue showing the sample catalogue. A preview built with a local configuration can also use the local catalogue, but must never be published. During local review `dist/` was not updated; the approved release subsequently rebuilt and deployed the hosted package through Pages.
 
 ## Security and efficiency
 
@@ -60,15 +60,15 @@ Temporary public downloads, raw card responses, diagnostics and review screensho
 
 ## Image loading follow-up (20 October 2026)
 
-Discover tiles, set previews, collection tiles and editor picker thumbnails now request TCGdex's 245?337 `low.webp`; large details and binder artwork keep canonical 600?825 `high.webp`. URLs are derived only for the approved TCGdex image host; other artwork URLs remain unchanged. No saved card metadata or hosted database changes are needed.
+Discover tiles, set previews, collection tiles and editor picker thumbnails now request TCGdex's 245 x 337 `low.webp`; large details and binder artwork keep canonical 600 x 825 `high.webp`. URLs are derived only for the approved TCGdex image host; other artwork URLs remain unchanged. No saved card metadata or hosted database changes are needed.
 
-A six-request local network sample across three cards measured 201,274 bytes for full-size artwork versus 55,662 bytes for thumbnails (72% fewer bytes). Individual response times varied from 1,809?2,408 ms for full-size and 349?2,299 ms for thumbnails; these sequential samples are diagnostic, not a controlled speed benchmark. Upstream latency remains outside this frontend fix. Browser HTTP caching is already enabled by the provider with immutable long-lived responses. No service worker, private artwork cache or paid image service was introduced.
+A six-request local network sample across three cards measured 201,274 bytes for full-size artwork versus 55,662 bytes for thumbnails (72% fewer bytes). Individual response times varied from 1,809-2,408 ms for full-size and 349-2,299 ms for thumbnails; these sequential samples are diagnostic, not a controlled speed benchmark. Upstream latency remains outside this frontend fix. Browser HTTP caching is already enabled by the provider with immutable long-lived responses. No service worker, private artwork cache or paid image service was introduced.
 
 ### Discover request scheduling
 
 Discover prepares the TCGdex asset connection in the page head. Visible thumbnails start immediately; the first receives high fetch priority. An IntersectionObserver starts other thumbnails within 200 pixels of the viewport. Images in hidden tabs receive no source URL until their view becomes visible, including direct `?view=sets` visits. Related printings use the same scheduling; large details remain full quality. No new hosting, persistent cache, dependency or backend change.
 
-Focused source/preview browser regressions cover desktop/phone scheduling, scrolling, direct Sets visits, keyboard switching, full-size details, and existing Discover search/filter/collection/navigation behavior. A real 1440?1000 browser sample started 12 thumbnails, deferred 12 and started zero hidden Sets images. At the two-second observation, 4/12 visible images were complete on the cold visit and 12/12 on the repeat visit. This is a single diagnostic sample, not a controlled before/after speed guarantee; upstream first-visit delays remain. Run `POKEDEX_BROWSER_SUITE=discover` with `python scripts/check-browser.py` for focused regression checks (set the variable using your shell's syntax). The regression suite disables actual image downloads; the separate real-network sample did not.
+Focused source/preview browser regressions cover desktop/phone scheduling, scrolling, direct Sets visits, keyboard switching, full-size details, and existing Discover search/filter/collection/navigation behavior. A real 1440 x 1000 browser sample started 12 thumbnails, deferred 12 and started zero hidden Sets images. At the two-second observation, 4/12 visible images were complete on the cold visit and 12/12 on the repeat visit. This is a single diagnostic sample, not a controlled before/after speed guarantee; upstream first-visit delays remain. Run `POKEDEX_BROWSER_SUITE=discover` with `python scripts/check-browser.py` for focused regression checks (set the variable using your shell's syntax). The regression suite disables actual image downloads; the separate real-network sample did not.
 
 ## Hosted release preparation - 20 October 2026
 

@@ -4,6 +4,8 @@
   "private": true,
   "description": "A Pokémon binder workshop with private cloud saving, customization, collection tools and portable backups.",
   "scripts": {
+    "dev": "python scripts/serve-local.py",
+    "test:server": "python scripts/check-local-server.py",
     "build": "node scripts/build-backend.cjs && node scripts/build-preview.cjs",
     "check": "node scripts/check-project.cjs",
     "test": "node scripts/test-project.cjs",

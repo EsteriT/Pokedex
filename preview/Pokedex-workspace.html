@@ -14875,10 +14875,14 @@ window.SAMPLE_COLLECTION = {
       if (!selected) throw Error("Choose an account backup first.");
       if (selected.size > window.AccountBackup.maxBytes)
         throw Error("Backup exceeds 80 MB.");
-      let data;
+      let input, data;
       try {
-        const input = JSON.parse(await selected.text());
-        await window.CardCatalogue?.ensure(input);
+        input = JSON.parse(await selected.text());
+      } catch {
+        throw Error("This file is not a valid account backup.");
+      }
+      await window.CardCatalogue?.ensure(input);
+      try {
         data = window.AccountBackup.validate(input);
       } catch {
         throw Error("This file is not a valid account backup.");

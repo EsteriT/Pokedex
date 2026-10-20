@@ -21,6 +21,7 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Architecture](ARCHITECTURE.md) | Modules, state and persistence |
 | [Product scope](WEBSITE-GOALS-AND-FUNCTIONS.md) | Goals and feature boundaries |
 | [History](HISTORY.md) | Earlier decisions and milestones |
+| [Integrity audit - 2026-10-20](INTEGRITY-AUDIT-2026-10-20.md) | Verified local-server security and restore-error fixes, cleanup and diagnostic coverage |
 | [Codebase audit](CODEBASE-AUDIT.md) | Recorded audit findings and follow-up |
 | [Nightly checkup — 2026-10-19](NIGHTLY-AUDIT-2026-10-19.md) | Operator privacy/download fixes, static cleanup, diagnostics and morning handoff |
 

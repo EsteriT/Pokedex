@@ -618,20 +618,7 @@ window.EditorReady = (async () => {
       image,
       el("strong", "", nameOf(content.cardId)),
       el("small", "", data.setName + " · #" + data.collectorNumber),
-      el(
-        "small",
-        "",
-        content.variant
-          ? {
-              normal: "Normal",
-              reverse: "Reverse holo",
-              holo: "Holo",
-              firstEdition: "First edition",
-            }[content.variant]
-          : "Finish unspecified",
-      ),
     );
-    b.lastElementChild.remove();
     b.addEventListener("click", () => setPending(source));
     drag(b, source);
     return b;

@@ -1,6 +1,10 @@
-(() => {
+(async () => {
   "use strict";
+  await window.CardCatalogue?.ready;
   const $ = (id) => document.getElementById(id);
+  if (window.CardCatalogue?.enabled)
+    $("sets-note").textContent =
+      "Browse the ten English trial sets. More sets will follow after review.";
   const tabs = [$("cards-tab"), $("sets-tab")];
   const grouped = new Map();
   for (const card of window.CARDS || []) {
@@ -12,9 +16,12 @@
       });
     grouped.get(card.setId).cards.push(card);
   }
-  const sets = [...grouped.values()].sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
+  const sets = (
+    window.CardCatalogue?.info?.sets.map((set) => ({
+      ...set,
+      cards: set.preview,
+    })) || [...grouped.values()]
+  ).sort((a, b) => a.name.localeCompare(b.name));
   let lastSetButton = null;
   function showView(view, focus = false) {
     const isSets = view === "sets";
@@ -25,6 +32,7 @@
     });
     $("discover-cards-panel").hidden = isSets;
     $("discover-sets-panel").hidden = !isSets;
+    window.DiscoverImages.watch();
     const url = new URL(location.href);
     if (isSets) url.searchParams.set("view", "sets");
     else url.searchParams.delete("view");
@@ -65,8 +73,8 @@
           "Browse " +
             set.name +
             ", " +
-            set.cards.length +
-            (set.cards.length === 1 ? " sample printing" : " sample printings"),
+            (set.count || set.cards.length) +
+            (set.cards.length === 1 ? " printing" : " printings"),
         );
         const art = document.createElement("span");
         art.className = "set-art";
@@ -77,7 +85,11 @@
         );
         set.cards.slice(0, 3).forEach((card, index) => {
           const img = document.createElement("img");
-          img.src = card.imageUrl;
+          img.dataset.cardSrc =
+            window.CardCatalogue?.thumbnail(card) || card.imageUrl;
+          img.width = 245;
+          img.height = 337;
+          img.decoding = "async";
           img.alt = "";
           img.loading = "lazy";
           img.style.setProperty("--card-index", index);
@@ -90,19 +102,24 @@
         name.textContent = set.name;
         const count = document.createElement("span");
         count.textContent =
-          set.cards.length +
-          (set.cards.length === 1 ? " sample printing" : " sample printings");
+          (set.count || set.cards.length) +
+          (set.cards.length === 1 ? " printing" : " printings");
         const badge = document.createElement("small");
-        badge.textContent = "Full set coming later";
+        badge.textContent = set.count
+          ? set.missingImages
+            ? set.missingImages + " images unavailable"
+            : "English - TCGdex"
+          : "Sample set";
         meta.append(name, count, badge);
         button.append(art, meta);
         button.addEventListener("click", () => openSet(set, button));
         return button;
       }),
     );
+    window.DiscoverImages.watch($("sets-grid"));
     $("sets-empty").hidden = matches.length > 0;
     $("sets-count").textContent =
-      matches.length + " sample " + (matches.length === 1 ? "set" : "sets");
+      matches.length + " " + (matches.length === 1 ? "set" : "sets");
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener("click", () => showView(index ? "sets" : "cards"));

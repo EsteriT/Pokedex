@@ -128,22 +128,31 @@ function cliQuery(sql, t) {
     fs.rmSync(file, { force: true });
   }
 }
-function model() {
+function model(catalogue = []) {
+  if (!Array.isArray(catalogue) || catalogue.length > 10000)
+    throw Error("Invalid backup catalogue.");
   const scope = { window: {}, crypto: webcrypto, atob, structuredClone, Blob };
   for (const name of [
     "data/sample-cards.js",
     "data/sample-card-details.js",
+    "scripts/card-catalogue.js",
     "data/sample-collection.js",
     "scripts/binder-schema.js",
     "scripts/editor-state.js",
     "scripts/binder-store.js",
     "scripts/collection-state.js",
     "scripts/account-backup.js",
-  ])
+  ]) {
+    if (name === "scripts/binder-schema.js")
+      for (let start = 0; start < catalogue.length; start += 100)
+        scope.window.CardCatalogue.register(
+          catalogue.slice(start, start + 100),
+        );
     vm.runInNewContext(
       fs.readFileSync(path.join(root, "src", name), "utf8"),
       scope,
     );
+  }
   return scope.window.AccountBackup;
 }
 function portable(archive) {
@@ -163,7 +172,7 @@ function portable(archive) {
       throw Error("Invalid or duplicate artwork path.");
     files.set(file.path, file.src);
   }
-  const validate = model().validate;
+  const validate = model(archive.catalogue).validate;
   return archive.accounts
     .filter((a) => !a.deleting)
     .map((account) => {
@@ -223,6 +232,12 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
         JSON.stringify(account.backup),
         { mode: 0o600, flag: "wx" },
       );
+    if (archive.catalogue?.length)
+      fs.writeFileSync(
+        path.join(folder, "catalogue.json"),
+        JSON.stringify(archive.catalogue),
+        { mode: 0o600, flag: "wx" },
+      );
     fs.writeFileSync(
       path.join(folder, "owner-map.json"),
       JSON.stringify(
@@ -244,7 +259,7 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
   const t = target(args);
   const features = (
     await query(
-      "select to_regclass('binder_private.account_deletions') is not null as controls, to_regclass('binder_private.operation_counts') is not null as counters;",
+      "select to_regclass('binder_private.account_deletions') is not null as controls, to_regclass('binder_private.operation_counts') is not null as counters, exists(select 1 from information_schema.columns where table_schema='binder_private' and table_name='catalogue' and column_name='record') as catalogue;",
       t,
     )
   )[0];
@@ -307,6 +322,7 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
     'id',u.id,'email',u.email,'deleting',${features.controls ? "exists(select 1 from binder_private.account_deletions where owner_id=u.id)" : "false"},
     'binders',coalesce((select jsonb_agg(jsonb_build_object('document',document) order by position) from public.binders where owner_id=u.id),'[]'::jsonb),
     'collection',(select jsonb_build_object('document',document) from public.collections where owner_id=u.id))) from auth.users u),'[]'::jsonb),
+    'catalogue',${features.catalogue ? "coalesce((select jsonb_agg(record || jsonb_build_object('variants',variants)) from binder_private.catalogue where record is not null),'[]'::jsonb)" : "'[]'::jsonb"},
     'objects',coalesce((select jsonb_agg(jsonb_build_object('path',name,'type',metadata->>'mimetype','size',metadata->>'size')) from storage.objects where bucket_id='binder-artwork'),'[]'::jsonb)) as snapshot;`,
     t,
   );
@@ -352,6 +368,7 @@ async function main(action = defaultAction, args = defaultArgs, options = {}) {
     createdAt: new Date().toISOString(),
     target: t.label,
     accounts: snapshot.accounts,
+    catalogue: snapshot.catalogue || [],
     files,
   };
   portable(archive);

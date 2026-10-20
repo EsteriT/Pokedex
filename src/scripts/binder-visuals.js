@@ -1,8 +1,8 @@
 (() => {
   "use strict";
-  const cards = new Map(
-    window.CARDS.map((c) => [c.id || c.collectorNumber, c]),
-  );
+  const cards =
+    window.CardCatalogue?.byId ||
+    new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
   const palettes = {
     poke: ["#cf5965", "#f2ece5", "#30313a"],
     great: ["#447fb9", "#edf1ef", "#d85d6a"],

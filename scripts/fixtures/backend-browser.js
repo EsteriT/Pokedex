@@ -3,6 +3,7 @@
   const config = {
     url: "http://127.0.0.1:54321",
     publishableKey: "browser-test",
+    catalogue: false,
   };
   const key = "pokedex.test-cloud";
   const read = () => JSON.parse(sessionStorage.getItem(key) || "[]");

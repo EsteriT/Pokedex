@@ -122,6 +122,8 @@
       return doc;
     });
     ctx.guard();
+    await window.CardCatalogue?.ensure({ binders, collection: snapshot.collection?.document });
+    ctx.guard();
     return window.AccountBackup.validate({
       format: "pokedex-account",
       version: 1,
@@ -132,6 +134,7 @@
     });
   }
   async function restoreData(input) {
+    await window.CardCatalogue?.ensure(input);
     const backup = window.AccountBackup.validate(input),
       ctx = await context(),
       snapshot = await rpc("account_snapshot", {}, ctx);

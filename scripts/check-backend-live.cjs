@@ -134,6 +134,7 @@ async function browserAcceptance() {
 }
 async function main() {
   try {
+    await require("./check-catalogue-live.cjs")(createClient(url, publicKey, options));
     for (let i = 0; i < 2; i++) {
       await testAccount("test");
     }

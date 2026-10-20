@@ -176,13 +176,19 @@
           </div>
           <div class="collection-save-actions">
             <span id="collection-save-status" class="sr-only" role="status">
-              All changes saved
+              Loading collection...
             </span>
-            <button id="collection-add" class="button primary" type="button">
+            <button
+              id="collection-add"
+              class="button primary"
+              type="button"
+              disabled
+            >
               + Add cards
             </button>
             <button
               id="collection-save"
+              disabled
               class="button secondary"
               type="button"
               title="Saved on this browser"
@@ -830,11 +836,12 @@
     <a id="editor-route" href="editor.html" hidden>Binder editor</a>
     <script src="data/sample-cards.js"></script>
     <script src="data/sample-card-details.js"></script>
+    <script src="vendor/backend-config.js"></script>
+    <script src="scripts/card-catalogue.js"></script>
     <script src="data/sample-binders.js"></script>
     <script src="scripts/binder-schema.js"></script>
     <script src="scripts/binder-store.js"></script>
     <script src="scripts/editor-state.js"></script>
-    <script src="vendor/backend-config.js"></script>
     <script src="vendor/supabase.js"></script>
     <script src="scripts/binder-cloud-media.js"></script>
     <script src="scripts/binder-repository.js"></script>

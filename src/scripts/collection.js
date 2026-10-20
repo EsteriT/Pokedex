@@ -3,7 +3,9 @@
   const $ = (id) => document.getElementById(id),
     repository = window.CollectionRepository,
     cards = window.CARDS,
-    byId = new Map(cards.map((c) => [c.id || c.collectorNumber, c]));
+    byId =
+      window.CardCatalogue?.byId ||
+      new Map(cards.map((c) => [c.id || c.collectorNumber, c]));
   let revision = null,
     persisted = false,
     blocked = true,
@@ -791,9 +793,9 @@
     try {
       if (file.size > window.CollectionState.limits.importBytes)
         throw Error("Choose a backup file up to 64 MB.");
-      const doc = window.CollectionState.validate(
-        JSON.parse(await file.text()),
-      );
+      const input = JSON.parse(await file.text());
+      await window.CardCatalogue?.ensure(input);
+      const doc = window.CollectionState.validate(input);
       confirm(
         "Import collection?",
         `Replace the current inventory with ${doc.records.length} groups? Saved data is unchanged until Save. Undo is available.`,
@@ -955,23 +957,28 @@
       else load();
     }
   });
+  render();
+  await window.CardCatalogue?.ready;
   options(
     "inventory-set-filter",
-    [...new Map(cards.map((c) => [c.setId, c.setName])).entries()].sort(
-      (a, b) => a[1].localeCompare(b[1]),
-    ),
+    (
+      window.CardCatalogue?.sets().map((set) => [set.id, set.name]) || [
+        ...new Map(cards.map((c) => [c.setId, c.setName])).entries(),
+      ]
+    ).sort((a, b) => a[1].localeCompare(b[1])),
     "All sets",
   );
   if (repository.enabled)
     $("collection-storage-help").textContent =
-      "Private account collection. Save keeps edits. Browser imports never add overlapping quantities automatically. Download backups to keep a portable copy. Sample catalogue; live prices are unavailable.";
+      "Private account collection. Save keeps edits. Browser imports never add overlapping quantities automatically. Download backups to keep a portable copy. Live prices are unavailable.";
   await load();
   if (location.hash) {
     try {
       const selection = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+      await window.CardCatalogue?.ensure(selection);
       const card = byId.get(selection.cardId);
       if (!card)
-        throw Error("That printing is unavailable in this sample catalogue.");
+        throw Error("That printing is unavailable in the available catalogue.");
       if (!["owned", "wanted"].includes(selection.kind))
         selection.kind = "owned";
       if (selection.finish !== "unknown" && !card.variants?.[selection.finish])

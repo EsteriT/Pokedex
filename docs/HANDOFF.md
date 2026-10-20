@@ -1,5 +1,14 @@
 # Current project handoff
 
+## Catalogue release authorized - 20 October 2026
+
+The owner approved merge, push and deployment of the reviewed catalogue/image-loading work. This supersedes its local-only review restrictions below. A fresh encrypted R2 backup passed (run `39403631647`); hosted migration `20261020095147_card_catalogue.sql` and all ten sets / 1,291 public records are applied. Public API, bounds and access-denial smoke checks passed. My collection now shows Loading and disables editing until its data is ready. Release-time model/backend/repository and real local source/preview backend browser checks passed after the loading fix; secret scanning passed. Website merge/deployment is the remaining release step. See CARD-CATALOGUE.md for security-advisor interpretation and the release boundary.
+
+
+Image loading follow-up: Discover now prepares the artwork connection early, prioritizes visible cards, defers distant images and leaves unopened tab artwork unfetched. Focused source/preview browser regressions and real cold/repeat browser samples pass; cold upstream requests can still take seconds. Browsing thumbnails use smaller TCGdex artwork; large details and binders retain full quality. Three sampled images require 72% fewer bytes as thumbnails, but upstream response latency remains variable. Local-only change on `feat/card-catalogue`; no hosted changes.
+
+Catalogue trial (20 October 2026): work is isolated on `feat/card-catalogue`. Ten English TCGdex sets (1,291 printings) are imported into the local Docker database only. Public paged search, legacy ID compatibility, document hydration and backup recovery metadata are implemented. The complete frontend suite and real local source/preview backend browser acceptance pass, including selection across result pages, new-card saves/reloads, backups and account isolation; local database advisors report no issues. See [CARD-CATALOGUE.md](CARD-CATALOGUE.md) for setup, security boundaries and limits. No merge, push, hosted database change or deployment in this task.
+
 ## UI release authorization ? 2026-10-19
 
 The owner explicitly authorized verification, commit, merge, push and deployment of the UI updates. This supersedes the local-only restrictions in the review notes below. The interrupted feature-branch push completed at `d52bfbb`; main matched origin before integration. Full isolated source/preview frontend browser checks and the final focused pass already passed; release-time project tests and build/reference checks passed again. Publish through the existing `Deploy website` workflow and verify the resulting live routes. No database migration, backend settings, backup schedule or landing-page change is part of this release.

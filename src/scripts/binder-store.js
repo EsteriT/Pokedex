@@ -3,10 +3,12 @@
   "use strict";
   const key = "pokedex.workspace.v1",
     copy = (value) => JSON.parse(JSON.stringify(value));
-  const known = new Set(window.CARDS.map((c) => c.id || c.collectorNumber));
-  const metadata = new Map(
-    window.CARDS.map((c) => [c.id || c.collectorNumber, c]),
-  );
+  const known =
+    window.CardCatalogue?.byId ||
+    new Set(window.CARDS.map((c) => c.id || c.collectorNumber));
+  const metadata =
+    window.CardCatalogue?.byId ||
+    new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
   function validate(input) {
     const doc = input?.format === "pokedex-binder" ? input.document : input;
     if (
@@ -76,7 +78,7 @@
         throw Error("Invalid pocket content type.");
       if (!value || !known.has(value.cardId))
         throw Error(
-          "This file contains cards outside the current sample catalogue.",
+          "This file contains cards outside the available catalogue.",
         );
       if (
         value.variant &&
@@ -88,7 +90,7 @@
         metadata.get(value.cardId)?.variants &&
         !metadata.get(value.cardId).variants[value.variant]
       )
-        throw Error("This finish is unavailable for the selected sample card.");
+        throw Error("This finish is unavailable for the selected card.");
       return {
         id: identifier(value.id),
         cardId: value.cardId,

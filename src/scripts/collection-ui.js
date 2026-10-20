@@ -7,9 +7,11 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
-  function picture(card) {
+  function picture(card, large = false) {
     const image = make("img");
-    image.src = card.imageUrl;
+    image.src = large
+      ? card.imageUrl
+      : window.CardCatalogue?.thumbnail(card) || card.imageUrl;
     image.alt = "";
     image.loading = "lazy";
     image.addEventListener(

@@ -4,9 +4,9 @@
   if (repository.enabled) await repository.ready;
   const $ = (id) => document.getElementById(id);
   const binderId = new URLSearchParams(location.search).get("binder");
-  const cards = new Map(
-    window.CARDS.map((c) => [c.id || c.collectorNumber, c]),
-  );
+  const cards =
+    window.CardCatalogue?.byId ||
+    new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
   let doc,
     index = -1,
     zoom = 1,

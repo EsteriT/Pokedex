@@ -234,7 +234,31 @@ class QuietServer(http.server.SimpleHTTPRequestHandler):
 
 
 
+def check_discover_loading(cdp, base, route):
+    for width, height in ((1440, 900), (440, 956)):
+        cdp.call('Emulation.setDeviceMetricsOverride', {'width': width, 'height': height, 'deviceScaleFactor': 1, 'mobile': width < 700})
+        cdp.go(base+'/'+route, "document.querySelectorAll('#card-grid > button').length===24&&document.querySelectorAll('.set-tile').length>0")
+        assert cdp.evaluate("!!document.querySelector('link[rel=preconnect][href=\"https://assets.tcgdex.net\"]')"), 'Prepare the public artwork connection early'
+        assert cdp.evaluate("[...document.querySelectorAll('#sets-grid img')].every(i=>!i.hasAttribute('src')&&!!i.dataset.cardSrc)"), 'Hidden Sets must not request artwork on a Cards visit'
+        assert cdp.evaluate("(()=>{let i=document.querySelector('#card-grid img');return i.src.endsWith('/low.webp')&&i.loading==='eager'&&i.fetchPriority==='high'})()"), 'First visible card starts immediately with priority and small artwork'
+        assert cdp.evaluate("!!document.querySelector('#card-grid img[data-card-src]')"), 'Distant cards remain deferred'
+        cdp.evaluate("document.querySelector('#card-grid > button:last-child').scrollIntoView({block:'center'})")
+        cdp.wait("document.querySelector('#card-grid > button:last-child img').hasAttribute('src')")
+        assert cdp.evaluate("[...document.querySelectorAll('#sets-grid img')].every(i=>!i.hasAttribute('src'))"), 'Scrolling cards must not fetch the hidden Sets artwork'
+        cdp.go(base+'/'+route+'?view=sets', "document.querySelectorAll('#card-grid > button').length===24&&document.querySelectorAll('.set-tile').length>0")
+        assert cdp.evaluate("[...document.querySelectorAll('#card-grid img')].every(i=>!i.hasAttribute('src')&&!!i.dataset.cardSrc)"), 'A direct Sets visit must not fetch hidden Cards artwork'
+        cdp.wait("!!document.querySelector('#sets-grid img[src]')")
+        cdp.evaluate("document.getElementById('sets-tab').focus();document.getElementById('sets-tab').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}))")
+        cdp.wait("!!document.querySelector('#card-grid img[src]')")
+        cdp.evaluate("document.querySelector('#card-grid > button').click()")
+        assert cdp.evaluate("document.querySelector('#detail-art img').src.endsWith('/high.webp')"), 'Details retain full-quality artwork'
+        cdp.escape()
+        assert cdp.evaluate('testErrors.length===0'), cdp.evaluate('testErrors')
+    print('PASS:', route, 'visible-first artwork, hidden-view isolation, scrolling, direct Sets visits, keyboard switching and full-quality details', flush=True)
+
+
 def check_discover_gallery(cdp, base, route):
+    check_discover_loading(cdp, base, route)
     cdp.call('Emulation.setDeviceMetricsOverride',{'width':1920,'height':1080,'deviceScaleFactor':1,'mobile':False})
     cdp.go(base+'/'+route,"!!window.DiscoverCollection&&document.querySelectorAll('#card-grid > button').length===24")
     assert cdp.evaluate("!document.getElementById('color-tools').open"), 'Advanced color tools are collapsed for ordinary browsing'
@@ -1017,6 +1041,9 @@ def main():
             cdp.call("Emulation.setDeviceMetricsOverride", {"width": 1366, "height": 768, "deviceScaleFactor": 1, "mobile": False})
             base = f"http://127.0.0.1:{server.server_port}"
             for editor, workspace in (("src/editor.html", "src/workspace.html"), ("preview/Pokedex-editor.html", "preview/Pokedex-workspace.html")):
+                if os.environ.get('POKEDEX_BROWSER_SUITE') == 'discover':
+                    check_discover_gallery(cdp, base, 'src/discover.html' if editor.startswith('src/') else 'preview/Pokedex-discover.html')
+                    continue
                 if os.environ.get('POKEDEX_BROWSER_SUITE') == 'cloud':
                     check_cloud_contract(cdp, base, workspace, editor)
                     continue

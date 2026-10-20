@@ -1056,3 +1056,23 @@
     min-height: 64px;
   }
 }
+
+.catalogue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  flex: 0 0 auto;
+}
+.catalogue-pagination[hidden] {
+  display: none;
+}
+.catalogue-pagination button {
+  min-height: 36px;
+  padding: 6px 12px;
+}
+.catalogue-pagination span {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}

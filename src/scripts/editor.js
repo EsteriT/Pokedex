@@ -3,8 +3,19 @@ window.EditorReady = (async () => {
   const repository = window.BinderRepository || window.BinderStore;
   if (repository.enabled) await repository.ready;
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  await window.CardCatalogue?.ready;
+  try {
+    if (location.hash)
+      await window.CardCatalogue?.ensure(
+        JSON.parse(decodeURIComponent(location.hash.slice(1))),
+      );
+  } catch (error) {
+    console.warn(error.message);
+  }
   const $ = (id) => document.getElementById(id),
-    cards = new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
+    cards =
+      window.CardCatalogue?.byId ||
+      new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
   let seed = {
     name: "My first binder",
     pages: 1,
@@ -599,7 +610,7 @@ window.EditorReady = (async () => {
     )
       b.classList.add("is-selected");
     const image = el("img");
-    image.src = data?.imageUrl || "";
+    image.src = window.CardCatalogue?.thumbnail(data) || data?.imageUrl || "";
     image.alt = nameOf(content.cardId);
     image.draggable = false;
     image.loading = "lazy";
@@ -625,25 +636,77 @@ window.EditorReady = (async () => {
     drag(b, source);
     return b;
   }
-  let catalogueQuery = null;
-  function renderResults() {
+  let catalogueQuery = null,
+    resultPage = 1,
+    resultRequest = 0;
+  const resultPager = el("div", "catalogue-pagination");
+  const previousCards = el("button", "button secondary", "Previous");
+  const nextCards = el("button", "button secondary", "Next");
+  const resultPageLabel = el("span");
+  previousCards.type = nextCards.type = "button";
+  resultPager.append(previousCards, resultPageLabel, nextCards);
+  resultPager.hidden = true;
+  $("card-results").after(resultPager);
+  previousCards.addEventListener("click", () => {
+    resultPage--;
+    renderResults();
+  });
+  nextCards.addEventListener("click", () => {
+    resultPage++;
+    renderResults();
+  });
+  async function renderResults() {
     const focus = focusKey(),
       scroll = $("card-results").scrollTop;
     const q = $("card-search").value.trim().toLowerCase(),
       type = $("type-filter").value,
-      set = $("set-filter").value,
-      results = window.CARDS.filter(
-        (c) =>
-          (!q ||
-            c.name.toLowerCase().includes(q) ||
-            c.collectorNumber === q ||
-            c.setName.toLowerCase().includes(q) ||
-            String(Number(c.collectorNumber)) === q) &&
-          (!type || c.pokemonTypes.includes(type)) &&
-          (!set || c.setName === set),
-      );
-    $("result-count").textContent =
-      results.length + (results.length === 1 ? " card" : " cards");
+      set = $("set-filter").value;
+    const signature = JSON.stringify([q, type, set]);
+    if (signature !== catalogueQuery) resultPage = 1;
+    catalogueQuery = signature;
+    let results, total;
+    const request = ++resultRequest;
+    try {
+      if (window.CardCatalogue?.enabled) {
+        previousCards.disabled = nextCards.disabled = true;
+        $("result-count").textContent = "Loading cards...";
+        const result = await window.CardCatalogue.search(
+          { q, type, set },
+          resultPage,
+        );
+        if (request !== resultRequest) return;
+        results = result.cards;
+        total = result.total;
+        resultPager.hidden = total <= 24;
+        resultPageLabel.textContent =
+          resultPage + " / " + Math.max(1, Math.ceil(total / 24));
+        previousCards.disabled = resultPage === 1;
+        nextCards.disabled = resultPage * 24 >= total;
+      } else {
+        results = window.CARDS.filter(
+          (c) =>
+            (!q ||
+              [c.name, c.collectorNumber, c.setName]
+                .join(" ")
+                .toLowerCase()
+                .includes(q) ||
+              String(Number(c.collectorNumber)) === q) &&
+            (!type || c.pokemonTypes.includes(type)) &&
+            (!set || c.setName === set),
+        );
+        total = results.length;
+      }
+    } catch (error) {
+      if (request !== resultRequest) return;
+      $("result-count").textContent = error.message;
+      const retry = el("button", "button secondary", "Retry search");
+      retry.type = "button";
+      retry.addEventListener("click", () => renderResults());
+      $("card-results").replaceChildren(retry);
+      resultPager.hidden = true;
+      return;
+    }
+    $("result-count").textContent = total + (total === 1 ? " card" : " cards");
     $("card-results").replaceChildren(
       ...results.map((c) =>
         catalogueCard(
@@ -657,12 +720,10 @@ window.EditorReady = (async () => {
         el(
           "p",
           "empty-results",
-          "No sample matches. Try another name or clear the type filter.",
+          "No matches. Try another name or clear the filters.",
         ),
       );
-    const signature = JSON.stringify([q, type, set]);
-    $("card-results").scrollTop = signature === catalogueQuery ? scroll : 0;
-    catalogueQuery = signature;
+    $("card-results").scrollTop = scroll;
     renderCoverControls();
     restoreFocus(focus);
   }
@@ -1711,6 +1772,9 @@ window.EditorReady = (async () => {
         String(artDraft?.fit === fit),
       );
   }
+  let placeholderQuery = null,
+    placeholderMatches = [],
+    placeholderRequest = 0;
   function renderPlaceholderChoices() {
     $("placeholder-style-options").replaceChildren(
       ...["outline", "soft", "ball"].map((style) => {
@@ -1737,15 +1801,32 @@ window.EditorReady = (async () => {
         return b;
       }),
     );
-    const q = $("placeholder-search").value.trim().toLowerCase(),
-      results = window.CARDS.filter(
-        (c) =>
-          !q ||
-          [c.name, c.setName, c.collectorNumber]
-            .join(" ")
-            .toLowerCase()
-            .includes(q),
-      ).slice(0, 6);
+    const q = $("placeholder-search").value.trim().toLowerCase();
+    if (window.CardCatalogue?.enabled && placeholderQuery !== q) {
+      placeholderQuery = q;
+      placeholderMatches = [];
+      const request = ++placeholderRequest;
+      void window.CardCatalogue.search({ q })
+        .then((result) => {
+          if (request !== placeholderRequest) return;
+          placeholderMatches = result.cards.slice(0, 6);
+          renderPlaceholderChoices();
+        })
+        .catch((error) => {
+          if (request === placeholderRequest)
+            $("placeholder-target-note").textContent = error.message;
+        });
+    }
+    const results = window.CardCatalogue?.enabled
+      ? placeholderMatches
+      : window.CARDS.filter(
+          (c) =>
+            !q ||
+            [c.name, c.setName, c.collectorNumber]
+              .join(" ")
+              .toLowerCase()
+              .includes(q),
+        ).slice(0, 6);
     $("placeholder-card-options").replaceChildren(
       ...results.map((c) => {
         const b = el("button", "placeholder-card-choice");
@@ -1760,7 +1841,7 @@ window.EditorReady = (async () => {
           String(placeholderDraft.cardId === b.dataset.placeholderCard),
         );
         const img = el("img");
-        img.src = c.imageUrl;
+        img.src = window.CardCatalogue?.thumbnail(c) || c.imageUrl;
         img.alt = "";
         img.loading = "lazy";
         b.append(
@@ -1786,7 +1867,7 @@ window.EditorReady = (async () => {
         ". This does not change your collection or Wanted records."
       : results.length
         ? "Reserve a space without a target card."
-        : "No matching sample cards.";
+        : "No matching cards.";
   }
   function setPocketTab(tab) {
     pocketTab = tab;
@@ -2033,9 +2114,19 @@ window.EditorReady = (async () => {
     syncToastAction();
     restoreFocus(focus);
   }
-  $("card-search").addEventListener("input", renderResults);
+  let cardSearchTimer;
+  $("card-search").addEventListener("input", () => {
+    if (!window.CardCatalogue?.enabled) return renderResults();
+    clearTimeout(cardSearchTimer);
+    resultRequest++;
+    cardSearchTimer = setTimeout(renderResults, 250);
+  });
   $("type-filter").addEventListener("change", renderResults);
-  for (const name of [...new Set(window.CARDS.map((c) => c.setName))].sort()) {
+  for (const name of (
+    window.CardCatalogue?.sets().map((set) => set.name) || [
+      ...new Set(window.CARDS.map((c) => c.setName)),
+    ]
+  ).sort()) {
     const option = el("option", "", name);
     option.value = name;
     $("set-filter").append(option);
@@ -2253,7 +2344,9 @@ window.EditorReady = (async () => {
     try {
       if (file.size > window.BinderSchema.limits.importBytes)
         throw Error("Choose a binder backup file up to 8 MB.");
-      const doc = window.BinderStore.validate(JSON.parse(await file.text()));
+      const input = JSON.parse(await file.text());
+      await window.CardCatalogue?.ensure(input);
+      const doc = window.BinderStore.validate(input);
       confirm(
         "Import binder?",
         `Replace the current editor contents with “${doc.name}” (${doc.pages.length} pages)? Your saved binder is unchanged until Save. Undo is available.`,

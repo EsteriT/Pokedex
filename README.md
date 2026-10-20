@@ -52,6 +52,8 @@ The audited binder backend foundation and hosted database are deployed. Google p
 
 Account collection storage is implemented and tested on `feat/collection-cloud`; its approved hosted migration and website update are now live. See [the collection guide](docs/COLLECTION-CLOUD.md) for private saving, browser import, conflict recovery and test coverage. The user confirmed hosted collection saving, cross-browser access, backups and available browser imports pass.
 
+The reviewed ten-set English catalogue (1,291 printings) and faster Discover image scheduling are approved for release from `feat/card-catalogue`. The hosted catalogue data is applied; see [the catalogue guide](docs/CARD-CATALOGUE.md) for scope, verification and rollout details.
+
 ### Develop & verify
 
 Automated encrypted R2 backups and independent Healthchecks monitoring are implemented, with daily runs gated off pending hosted acceptance. See the [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).

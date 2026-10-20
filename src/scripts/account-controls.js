@@ -89,7 +89,9 @@
         throw Error("Backup exceeds 80 MB.");
       let data;
       try {
-        data = window.AccountBackup.validate(JSON.parse(await selected.text()));
+        const input = JSON.parse(await selected.text());
+        await window.CardCatalogue?.ensure(input);
+        data = window.AccountBackup.validate(input);
       } catch {
         throw Error("This file is not a valid account backup.");
       }

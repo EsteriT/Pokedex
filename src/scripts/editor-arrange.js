@@ -227,15 +227,27 @@
     const paste = button(
       "paste-copied-cards",
       "Paste copied cards",
-      () => {
-        h.run(() => {
-          h.state.addCards(copied.cards, h.page().id);
-          copied = null;
-          paste.hidden = true;
-          try {
-            sessionStorage.removeItem(clipboardKey);
-          } catch {}
-        }, "Copied cards added. Save this binder to keep them.");
+      async () => {
+        const handoff = copied;
+        try {
+          if (window.CardCatalogue?.enabled) {
+            paste.disabled = true;
+            await window.CardCatalogue.ensure(handoff);
+          }
+          if (!handoff || copied !== handoff) return;
+          h.run(() => {
+            h.state.addCards(handoff.cards, h.page().id);
+            copied = null;
+            paste.hidden = true;
+            try {
+              sessionStorage.removeItem(clipboardKey);
+            } catch {}
+          }, "Copied cards added. Save this binder to keep them.");
+        } catch (error) {
+          h.notify(error.message, true);
+        } finally {
+          paste.disabled = false;
+        }
       },
       "button primary",
     );

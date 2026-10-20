@@ -34,6 +34,8 @@
       .maybeSingle();
     check();
     if (error) throw requestError(error);
+    await window.CardCatalogue?.ensure(data);
+    check();
     return data
       ? { revision: data.revision, document: model.validate(data.document) }
       : null;

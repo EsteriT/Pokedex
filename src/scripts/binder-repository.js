@@ -97,6 +97,7 @@
     assertSession();
     if (user.id !== owner)
       throw Error("Account changed. Reload before continuing.");
+    await window.CardCatalogue?.ensure(data);
     const next = [];
     for (const row of data)
       next.push(entry({ ...row, document: await media.hydrate(row.document) }));

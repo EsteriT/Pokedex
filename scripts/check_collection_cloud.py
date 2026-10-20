@@ -9,6 +9,7 @@ def check_collection_cloud(cdp, base, route, discover, root):
     ready = "!!window.CollectionRepository&&document.getElementById('collection-save-status').textContent.includes('saved')"
     cdp.go(url, ready)
     original = cdp.evaluate("localStorage.getItem('pokedex.collection.v1')")
+    saved_before = cdp.evaluate("(async()=>JSON.stringify(await CollectionRepository.read()))()")
     assert cdp.evaluate("document.querySelectorAll('#collection-list .inventory-card').length===0"), 'Cloud account starts empty, without sample ownership'
 
     def saved():
@@ -24,7 +25,7 @@ def check_collection_cloud(cdp, base, route, discover, root):
     cdp.call('Page.navigate', {'url': url+'&select=1#'+selection})
     cdp.wait("document.getElementById('inventory-dialog').open")
     cdp.evaluate("document.getElementById('inventory-quantity').value=2;document.getElementById('inventory-condition').value='nm';document.getElementById('inventory-apply').click()")
-    assert cdp.evaluate("(async()=>await CollectionRepository.read()===null)()"), 'Adding is a draft only'
+    assert cdp.evaluate("(async()=>JSON.stringify(await CollectionRepository.read()))()") == saved_before, 'Adding a draft must leave the saved collection and revision unchanged'
     cdp.evaluate("document.getElementById('collection-save').click()")
     saved()
     assert quantity() == 2

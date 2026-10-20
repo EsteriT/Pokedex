@@ -8,9 +8,9 @@
     notes: 2000,
     importBytes: 64 * 1024 * 1024,
   });
-  const cards = new Map(
-    window.CARDS.map((c) => [c.id || c.collectorNumber, c]),
-  );
+  const cards =
+    window.CardCatalogue?.byId ||
+    new Map(window.CARDS.map((c) => [c.id || c.collectorNumber, c]));
   const conditions = ["unknown", "nm", "lp", "mp", "hp", "damaged"];
   const key = (r) =>
     JSON.stringify([

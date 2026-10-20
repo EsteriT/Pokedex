@@ -1,5 +1,6 @@
 require("./check-editor.cjs");
 require("./check-discover.cjs");
+require("./check-catalogue.cjs");
 require("./check-collection.cjs");
 
 require("./check-covers.cjs");

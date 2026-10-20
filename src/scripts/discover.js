@@ -22,7 +22,16 @@
   function image(card, large = false) {
     const holder = make("div", "card-image" + (large ? " large-image" : "")),
       img = make("img");
-    img.src = card.imageUrl;
+    if (large) {
+      img.src = card.imageUrl;
+      img.fetchPriority = "high";
+    } else {
+      img.dataset.cardSrc =
+        window.CardCatalogue?.thumbnail(card) || card.imageUrl;
+      img.width = 245;
+      img.height = 337;
+    }
+    img.decoding = "async";
     img.alt = card.name + " — " + card.setName + " #" + card.collectorNumber;
     img.loading = large ? "eager" : "lazy";
     img.addEventListener(
@@ -94,14 +103,43 @@
     });
     return b;
   }
-  function refresh(resetPage = true) {
+  let searchRequest = 0;
+  async function refresh(resetPage = true) {
     if (!ready) return;
     const focusId = document.activeElement?.dataset.cardId;
     if (resetPage) page = 1;
     const f = filters();
-    filtered = catalogue.search(cards, f);
-    page = Math.min(page, Math.max(1, Math.ceil(filtered.length / pageSize)));
-    const shown = filtered.slice((page - 1) * pageSize, page * pageSize);
+    const request = ++searchRequest;
+    let shown, total;
+    try {
+      if (window.CardCatalogue?.enabled) {
+        $("results-state").hidden = false;
+        $("results-state").textContent = "Searching cards...";
+        const result = await window.CardCatalogue.search(f, page);
+        if (request !== searchRequest) return;
+        total = result.total;
+        const lastPage = Math.max(1, Math.ceil(total / pageSize));
+        if (page > lastPage) {
+          page = lastPage;
+          return refresh(false);
+        }
+        shown = result.cards;
+      } else {
+        filtered = catalogue.search(cards, f);
+        total = filtered.length;
+        page = Math.min(page, Math.max(1, Math.ceil(total / pageSize)));
+        shown = filtered.slice((page - 1) * pageSize, page * pageSize);
+      }
+    } catch (error) {
+      if (request !== searchRequest) return;
+      $("results-state").hidden = false;
+      $("results-state").textContent = error.message;
+      $("retry").hidden = false;
+      $("card-grid").hidden = true;
+      $("pagination").hidden = true;
+      return;
+    }
+    $("retry").hidden = true;
     $("card-grid").replaceChildren(
       ...shown.map((c) => {
         const b = make("button", "discover-card");
@@ -123,14 +161,15 @@
       }),
     );
     $("card-grid").hidden = !shown.length;
+    window.DiscoverImages.watch($("card-grid"));
     $("no-results").hidden = !!shown.length;
     $("results-state").hidden = true;
     $("result-count").textContent =
-      `${filtered.length} ${filtered.length === 1 ? "card" : "cards"}${f.colorEnabled ? " · ranked by curated sample colors" : ""}`;
+      `${total} ${total === 1 ? "card" : "cards"}${f.colorEnabled ? " · ranked by curated sample colors" : ""}`;
     $("page-status").textContent =
-      `Page ${page} of ${Math.max(1, Math.ceil(filtered.length / pageSize))}`;
+      `Page ${page} of ${Math.max(1, Math.ceil(total / pageSize))}`;
     $("previous-results").disabled = page === 1;
-    $("next-results").disabled = page * pageSize >= filtered.length;
+    $("next-results").disabled = page * pageSize >= total;
     $("pagination").hidden = !shown.length;
     $("active-filters").replaceChildren();
     if (f.q)
@@ -226,11 +265,12 @@
       document.querySelector(".detail-scroll").scrollTop = 0;
       $("detail-title").focus({ preventScroll: true });
     }
+    window.DiscoverImages.watch($("related-list"));
   }
   function renderRelated(card) {
     const related = catalogue.related(cards, card);
     $("related-description").textContent = related.length
-      ? "Other printings in this sample catalogue. Choose one to view its details."
+      ? "Other loaded printings. Choose one to view its details."
       : "No other printings in this sample. More will appear with the full catalogue.";
     $("related-list").replaceChildren(
       ...related.map((c) => {
@@ -470,7 +510,14 @@
     e.preventDefault();
     refresh();
   });
-  $("card-query").addEventListener("input", () => refresh());
+  let queryTimer;
+  $("card-query").addEventListener("input", () => {
+    clearTimeout(queryTimer);
+    searchRequest++;
+    if (window.CardCatalogue?.enabled)
+      queryTimer = setTimeout(() => refresh(), 250);
+    else refresh();
+  });
   for (const id of [
     "set-filter",
     "type-filter",
@@ -505,7 +552,7 @@
   ])
     $(id).addEventListener("click", () => {
       page += delta;
-      refresh(false);
+      void refresh(false);
       $("results-heading").focus();
       $("results-heading").scrollIntoView({
         block: "start",
@@ -558,27 +605,33 @@
         .querySelectorAll(".account[open]")
         .forEach((d) => (d.open = false));
   });
-  function initialize() {
+  async function initialize() {
     try {
+      await window.CardCatalogue?.ready;
+      const info = window.CardCatalogue?.info;
       if (!cards?.length || !catalogue)
         throw Error("Sample catalogue is unavailable.");
       options(
         "set-filter",
-        [...new Map(cards.map((c) => [c.setId, c.setName])).entries()].sort(
-          (a, b) => a[1].localeCompare(b[1]),
-        ),
+        (
+          window.CardCatalogue?.sets().map((set) => [set.id, set.name]) || [
+            ...new Map(cards.map((c) => [c.setId, c.setName])).entries(),
+          ]
+        ).sort((a, b) => a[1].localeCompare(b[1])),
         "All sets",
       );
       options(
         "type-filter",
-        [...new Set(cards.flatMap((c) => c.pokemonTypes))]
+        (info?.types || [...new Set(cards.flatMap((c) => c.pokemonTypes))])
           .sort()
           .map((v) => [v, v]),
         "All types",
       );
       options(
         "rarity-filter",
-        [...new Set(cards.map((c) => c.rarity))].sort().map((v) => [v, v]),
+        (info?.rarities || [...new Set(cards.map((c) => c.rarity))])
+          .sort()
+          .map((v) => [v, v]),
         "All rarities",
       );
       options(
@@ -607,9 +660,10 @@
       }
       page = Math.max(1, parseInt(params.get("page"), 10) || 1);
       ready = true;
-      refresh(false);
-      $("catalogue-note").textContent =
-        `${cards.length} sample printings across ${new Set(cards.map((c) => c.setId)).size} sets · full catalogue and live prices coming later.`;
+      await refresh(false);
+      $("catalogue-note").textContent = info
+        ? `${info.count} English printings across ${info.sets.length} trial sets. TCGdex data; live prices unavailable. Color matching covers the curated sample only.`
+        : `${cards.length} sample printings. Connected catalogue unavailable or not configured.`;
     } catch (error) {
       $("results-state").hidden = false;
       $("results-state").textContent = error.message;

@@ -373,6 +373,7 @@ async function main() {
       "Exposed wrapper does not bypass RLS",
     );
     await require("./check-account-backend.cjs")(db, as, document);
+    await require("./check-catalogue-backend.cjs")(db, as, document);
     console.log(
       "Backend PostgreSQL checks passed: ownership, privileges, document validation, limits, stale saves, atomic rollback, independent accounts, Storage policies/reservations/cleanup.",
     );

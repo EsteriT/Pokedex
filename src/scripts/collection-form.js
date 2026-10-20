@@ -4,7 +4,9 @@
     create(settings) {
       const $ = (id) => document.getElementById(id),
         cards = window.CARDS,
-        byId = new Map(cards.map((c) => [c.id || c.collectorNumber, c]));
+        byId =
+          window.CardCatalogue?.byId ||
+          new Map(cards.map((c) => [c.id || c.collectorNumber, c]));
       let editing = null,
         focusBefore = null,
         batch = false,
@@ -365,6 +367,11 @@
           }
         } else currentSingleId = null;
         bulkBar.hidden = !batch || single;
+        pager.hidden =
+          !window.CardCatalogue?.enabled ||
+          reviewing ||
+          !!editing ||
+          pickerTotal <= 24;
         clearSelection.hidden = !chosenCards.size || reviewing;
         clearSelection.disabled = !chosenCards.size;
         $("inventory-cancel").textContent =
@@ -537,10 +544,12 @@
       }
       const options = (id, entries, all) =>
         window.CollectionUI.options($(id), entries, all);
-      function renderPicker() {
-        const matches = [...$("inventory-card").options]
-          .slice(1)
-          .map((o) => byId.get(o.value));
+      function renderPicker(remoteMatches) {
+        const matches =
+          remoteMatches ||
+          [...$("inventory-card").options]
+            .slice(1)
+            .map((o) => byId.get(o.value));
         $("inventory-picker-results").textContent =
           matches.length + (matches.length === 1 ? " card" : " cards");
         $("inventory-card-grid").replaceChildren(
@@ -620,6 +629,87 @@
           b.tabIndex = b === entry ? 0 : -1;
         });
       }
+      let pickerPage = 1,
+        pickerSignature = "",
+        pickerRequest = 0,
+        pickerTotal = 0;
+      const pager = make("div", "catalogue-pagination");
+      const previous = make("button", "button secondary", "Previous");
+      const next = make("button", "button secondary", "Next");
+      const pageLabel = make("span");
+      previous.type = next.type = "button";
+      pager.append(previous, pageLabel, next);
+      pager.hidden = true;
+      $("inventory-card-grid").after(pager);
+      previous.addEventListener("click", () => {
+        pickerPage--;
+        cardOptions($("inventory-card").value);
+      });
+      next.addEventListener("click", () => {
+        pickerPage++;
+        cardOptions($("inventory-card").value);
+      });
+      async function loadPicker(selected, filters, signature) {
+        if (signature !== pickerSignature) {
+          pickerPage = 1;
+          pickerSignature = signature;
+        }
+        const request = ++pickerRequest;
+        previous.disabled = next.disabled = true;
+        $("inventory-picker-results").textContent = "Searching cards...";
+        try {
+          const result = await window.CardCatalogue.search(filters, pickerPage);
+          if (request !== pickerRequest || reviewing || editing) return;
+          pickerTotal = result.total;
+          const matches = [...result.cards];
+          // Keep record editing and selected batch review independent of the search page.
+          const retained = new Set([selected, ...chosenCards.keys()]);
+          const available = [...matches];
+          for (const id of retained)
+            if (id && byId.has(id) && !available.some((c) => c.id === id))
+              available.push(byId.get(id));
+          options(
+            "inventory-card",
+            available.map((c) => [
+              c.id,
+              c.name + " - " + setLabel(c) + " #" + c.collectorNumber,
+            ]),
+            "Choose a card",
+          );
+          if (byId.has(selected)) $("inventory-card").value = selected;
+          renderPicker(matches);
+          $("inventory-picker-results").textContent = result.total + " cards";
+          pager.hidden = result.total <= 24 || reviewing || !!editing;
+          pageLabel.textContent =
+            "Page " +
+            pickerPage +
+            " of " +
+            Math.max(1, Math.ceil(result.total / 24));
+          previous.disabled = pickerPage === 1;
+          next.disabled = pickerPage * 24 >= result.total;
+        } catch (error) {
+          if (request !== pickerRequest) return;
+          $("inventory-picker-results").textContent = error.message;
+          $("inventory-card-grid").replaceChildren();
+          pager.hidden = true;
+        }
+      }
+      window.CardCatalogue?.ready.then(() => {
+        const info = window.CardCatalogue.info;
+        if (!info) return;
+        for (const [key, entries] of [
+          ["set", info.sets.map((s) => [s.id, s.name])],
+          ["type", info.types.map((v) => [v, v])],
+          ["rarity", info.rarities.map((v) => [v, v])],
+        ])
+          window.CollectionUI.options(
+            pickerFilterControls[key],
+            entries,
+            "All " + (key === "rarity" ? "rarities" : key + "s"),
+          );
+        if ($("inventory-dialog").open && !editing && !reviewing)
+          cardOptions($("inventory-card").value);
+      });
       function cardOptions(selected = "") {
         const q = $("inventory-card-search").value.trim().toLowerCase();
         const filters = Object.fromEntries(
@@ -632,6 +722,24 @@
         filterSummary.textContent = count
           ? "Filters (" + count + ")"
           : "Filters";
+        if (window.CardCatalogue?.enabled) {
+          const chosen = byId.get(selected);
+          if (chosen) {
+            options(
+              "inventory-card",
+              [[selected, chosen.name]],
+              "Choose a card",
+            );
+            $("inventory-card").value = selected;
+          }
+          if (editing || reviewing) {
+            pager.hidden = true;
+            return;
+          }
+          const query = { ...filters, q };
+          void loadPicker(selected, query, JSON.stringify(query));
+          return;
+        }
         options(
           "inventory-card",
           cards
@@ -673,7 +781,7 @@
         $("inventory-finish").value = finish;
         updateOwnershipContext();
         if (c) {
-          const artwork = picture(c);
+          const artwork = picture(c, true);
           artwork.loading = "eager";
           $("inventory-preview").append(
             artwork,
@@ -800,6 +908,8 @@
         syncSingleQuantity();
       }
       function openRecord(record = null, selection = null) {
+        pickerPage = 1;
+        pickerSignature = "";
         editing = record?.id || null;
         currentSingleId = null;
         $("inventory-dialog").classList.remove("single-review");
@@ -956,7 +1066,17 @@
             $("inventory-finish").value;
         updateOwnershipContext();
       });
+      let searchTimer;
       $("inventory-card-search").addEventListener("input", () => {
+        if (window.CardCatalogue?.enabled) {
+          clearTimeout(searchTimer);
+          pickerRequest++;
+          searchTimer = setTimeout(
+            () => cardOptions($("inventory-card").value),
+            250,
+          );
+          return;
+        }
         const chosen = $("inventory-card").value,
           finish = $("inventory-finish").value;
         cardOptions(chosen);

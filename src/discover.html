@@ -11,6 +11,7 @@
       content="Explore Pokémon card printings, artwork, and sample price-checking controls."
     />
     <title>Discover — Pokedex</title>
+    <link rel="preconnect" href="https://assets.tcgdex.net" />
     <link rel="stylesheet" href="styles/workspace.css" />
     <link rel="stylesheet" href="styles/app-header.css" />
     <link rel="stylesheet" href="styles/collection.css" />
@@ -91,7 +92,7 @@
         </button>
         <details class="discover-save-tools">
           <summary aria-label="Collection actions" title="Collection actions">
-            ???
+            &#8943;
           </summary>
           <div>
             <button
@@ -386,7 +387,9 @@
         <div class="sets-toolbar">
           <div>
             <h2>Browse sets</h2>
-            <p>Explore sample cards. Full sets are coming later.</p>
+            <p id="sets-note">
+              Explore sample cards. Full sets are coming later.
+            </p>
           </div>
           <label class="search">
             <input
@@ -917,10 +920,11 @@
     <a id="editor-route" href="editor.html" hidden>Binder editor</a>
     <script src="data/sample-cards.js"></script>
     <script src="data/sample-card-details.js"></script>
+    <script src="vendor/backend-config.js"></script>
+    <script src="scripts/card-catalogue.js"></script>
     <script src="data/sample-binders.js"></script>
     <script src="scripts/binder-schema.js"></script>
     <script src="scripts/binder-store.js"></script>
-    <script src="vendor/backend-config.js"></script>
     <script src="vendor/supabase.js"></script>
     <script src="scripts/binder-cloud-media.js"></script>
     <script src="scripts/binder-repository.js"></script>
@@ -932,6 +936,7 @@
     <script src="scripts/collection-ui.js"></script>
     <script src="scripts/collection-form.js"></script>
     <script src="scripts/discover-collection.js"></script>
+    <script src="scripts/discover-images.js"></script>
     <script src="scripts/discover.js"></script>
     <script src="scripts/discover-sets.js"></script>
     <script src="scripts/app-info.js"></script>

@@ -15,6 +15,7 @@ import threading
 import time
 from check_collection_cloud import check_collection_cloud
 from check_account_cloud import check_account_cloud
+from check_catalogue_cloud import check_catalogue_cloud
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 
@@ -75,6 +76,8 @@ def main():
                 owner_session, other_session = config['sessions'][index*2:index*2+2]
                 auth(owner_session)
                 workspace(folder+workspace_name)
+                check_catalogue_cloud(cdp, base, folder, workspace_name, editor_name, viewer_name)
+                workspace(folder+workspace_name)
                 cdp.evaluate("(async()=>{const c=BinderRepository.client,r=await c.from('binders').select('*');if(r.error)throw Error(r.error.message);const result=await c.rpc('commit_binders',{expected:r.data.map(b=>({id:b.id,revision:b.revision})),documents:[]});if(result.error)throw Error(result.error.message)})()")
                 cdp.evaluate("(()=>{const d=BinderState.create({name:'Local original',rows:2,columns:2,cards:['001']}).document;BinderStore.write([{id:crypto.randomUUID(),revision:1,name:d.name,pages:1,rows:2,columns:2,cards:['001'],document:d}]);if(!localStorage.getItem('pokedex.collection.v1'))CollectionStore.save({records:[]},null)})()")
                 original = cdp.evaluate("localStorage.getItem('pokedex.workspace.v1')")
@@ -83,7 +86,7 @@ def main():
                 cdp.evaluate("document.getElementById('create-binder').click();document.getElementById('binder-name').value='Live browser binder';document.getElementById('binder-rows').value=2;document.getElementById('binder-columns').value=2;document.getElementById('form-submit').click()")
                 cdp.wait("document.querySelectorAll('#binder-grid .binder-card').length===1&&!document.getElementById('edit-dialog').open",timeout=35)
                 cdp.evaluate("document.querySelector('.edit-binder-action').click()")
-                cdp.wait("!!window.EditorLayout&&document.getElementById('binder-title').textContent==='Live browser binder'",timeout=35)
+                cdp.wait("!!window.EditorLayout&&document.getElementById('binder-title').textContent==='Live browser binder'&&document.querySelectorAll('#card-results .catalogue-card').length===24",timeout=35)
                 cdp.evaluate("EditorLayout.setCards(true);document.querySelector('#card-results .catalogue-card').click();document.querySelector('#binder-page .editor-pocket').click();document.getElementById('save').click()")
                 saved()
                 reload_editor('Live browser binder')

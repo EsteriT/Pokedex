@@ -2,7 +2,7 @@
 
 ## Step 2E authorized and staged - 21 October 2026
 
-The owner approved a controlled hosted trial and explicitly deferred the unresolved 2C investigation. See [USAGE-ROLLOUT.md](USAGE-ROLLOUT.md) for current status; it supersedes older local-only/activation restrictions for this release. Fresh verified encrypted backup passed; all three reviewed migrations and Edge function version 1 are deployed, enforcement off. Bounded hosted account/artwork/Save/export/restore checks pass and disposable data was removed. Pages publication, actual owner Google/UI acceptance, enforcement and post-activation checks remain pending. Hardware pressure remains an unproven explanation for the earlier failures; 2C is not closed.
+The owner approved a controlled hosted trial and explicitly deferred the unresolved 2C investigation. See [USAGE-ROLLOUT.md](USAGE-ROLLOUT.md) for current status; it supersedes older local-only/activation restrictions for this release. Fresh verified encrypted backup passed; all three reviewed migrations and Edge function version 1 are deployed, enforcement off. Bounded hosted account/artwork/Save/export/restore checks pass and disposable data was removed. Commit `4139e57` is merged/pushed; Pages run `39619713318` passed and live app routes contain the checkpoint configuration. Actual owner Google/UI acceptance, enforcement and post-activation checks remain pending. Hardware pressure remains an unproven explanation for the earlier failures; 2C is not closed.
 
 ## Scheduled backup acceptance passed - 21 October 2026
 

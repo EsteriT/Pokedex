@@ -1,6 +1,6 @@
 # Step 2E: controlled hosted request protection
 
-Status on 21 October 2026: authorized by the owner. The checkpoint is deployed with origin enforcement **off**. Website publication and owner acceptance are in progress. This record supersedes earlier local-only rollout restrictions for this specific release.
+Status on 21 October 2026: authorized by the owner. The checkpoint and website are deployed with origin enforcement **off**. Owner interface acceptance is pending before enabling the trial. This record supersedes earlier local-only rollout restrictions for this specific release.
 
 ## Decision and scope
 
@@ -23,11 +23,13 @@ Passed 21 October at 21:43 Vietnam time, using two disposable accounts and 23 ch
 
 Disposable accounts, sessions and artwork were cleaned up. The real account remained at one account, two binders and one collection before testing. Detailed aggregate receipts are ignored under `.scratch/qa/usage-hosted-*.json`; temporary operator/test scripts and private configuration stay ignored under `.scratch/`.
 
+Post-publication readback confirmed zero disposable trial accounts, zero incompatible existing collections and enforcement still off. Aggregate function logs for the staging window contained normal log-level entries; this is a short observation, not ongoing monitoring or a guarantee of future reliability.
+
 Security advisors flag intentional public SECURITY DEFINER entry points (bounded catalogue functions, the pre-request hook and secret-checked admission) and deliberately policy-free private tables with privileges revoked. These are reviewed architectural choices, not claims of a zero-warning scan. Password leak checking is also flagged; this beta uses Google login rather than password sign-in. See [Supabase function-exposure guidance](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
 
 ## Remaining acceptance
 
-- [ ] Publish the reviewed branch and confirm the Pages build uses the checkpoint.
+- [x] Commit `4139e57` fast-forwarded into main and pushed. [Pages deployment 39619713318](https://github.com/EsteriT/Pokedex/actions/runs/39619713318) passed build, reference, model, database, repository and gateway checks. Live landing and all four app pages return HTTP 200; each app page contains the enabled checkpoint build flag and route adapter. Generated standalone previews remain unconfigured demos.
 - [ ] Owner checks actual Google sign-in, Save/refresh, artwork and portable backups on the deployed interface. Save or download any old open-tab drafts before refreshing.
 - [ ] Enable enforcement for the controlled trial only after hosted checks and owner interface acceptance pass.
 - [ ] Verify direct GET/HEAD, GraphQL and private Storage denial; checkpoint traffic and account isolation still succeed.

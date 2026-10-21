@@ -56,6 +56,8 @@ The ten-set English catalogue (1,291 printings) and faster Discover image schedu
 
 ### Develop & verify
 
+The request checkpoint is deployed and the live app routes through it. Direct-origin enforcement remains off pending owner interface acceptance for the controlled beta trial. See [step 2E](docs/USAGE-ROLLOUT.md) for verified checks, current switch state and rollback; earlier intermittent local load failures remain deferred.
+
 Automated encrypted R2 backups are enabled, with the Healthchecks monitor active. Recovery, alert delivery, automatic expiry and the first actual scheduled-run acceptance have passed. The scheduled run on 21 October succeeded, its fresh verified archive is present, and the owner confirmed the monitor Up afterward. See the [backup acceptance record](docs/BACKUP-SAFETY-ACCEPTANCE.md), [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
 
 The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Both database migrations and the website update are deployed and verified. Hosted account backup/restore and fresh Google sign-in followed by deletion/sign-out passed user acceptance on October 19, 2026; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md).

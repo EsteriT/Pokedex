@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <title>Pokedex — Your collection. Your way.</title>
+    <title>Binder Minder — Your collection. Your way.</title>
     <meta
       name="description"
       content="A personal canvas for Pokémon cards. Arrange, customize, discover, collect, and share."
@@ -87,25 +87,7 @@ a:focus-visible {
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.mark {
-  width: 26px;
-  height: 26px;
-  border: 2px solid #bdc8f7;
-  border-radius: 50%;
-  background: linear-gradient(#bdc8f7 0 44%, #15171d 44% 56%, #15171d 56%);
-  position: relative;
-}
-.mark:after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  left: 6px;
-  top: 6px;
-  background: #15171d;
-  border: 2px solid #bdc8f7;
-  border-radius: 50%;
-}
+
 .topbar nav {
   display: flex;
   align-items: center;
@@ -427,9 +409,6 @@ a:focus-visible {
   margin-top: 16px;
   font-size: 10px;
   line-height: 1.7;
-}
-.footer .mark {
-  background: linear-gradient(#bdc8f7 0 44%, #0e1117 44%);
 }
 
 @media (min-width: 1650px) {
@@ -2149,14 +2128,7 @@ h3 {
 .brand {
   color: var(--ink);
 }
-.mark {
-  border-color: var(--accent);
-  background: linear-gradient(var(--accent) 0 44%, var(--bg) 44%);
-}
-.mark:after {
-  background: var(--bg);
-  border-color: var(--accent);
-}
+
 .cta {
   background: var(--accent);
   color: #fff;
@@ -2370,13 +2342,7 @@ h3 {
 .footer .brand {
   color: var(--ink);
 }
-.footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
-  border-color: var(--accent);
-}
-.footer .mark:after {
-  background: #edf1f6;
-}
+
 .legal {
   border-color: #dce2ec;
   color: #667184;
@@ -2661,12 +2627,7 @@ html[data-theme="dark"] .collection-mark:disabled {
 html[data-theme="dark"] .footer {
   background: #14151a;
 }
-html[data-theme="dark"] .footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
-}
-html[data-theme="dark"] .footer .mark:after {
-  background: #14151a;
-}
+
 html[data-theme="dark"] .legal {
   border-color: #343844;
   color: #b0b6c4;
@@ -2712,26 +2673,7 @@ html[data-theme="dark"] .arrange-stage .arrange-selected {
   letter-spacing: -0.8px;
   color: var(--ink);
 }
-.site-footer .mark {
-  position: relative;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
-}
-.site-footer .mark::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  left: 6px;
-  top: 6px;
-  background: #edf1f6;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .site-footer h3 {
   margin: 0 0 16px;
   font:
@@ -2784,12 +2726,7 @@ html[data-theme="dark"] .arrange-stage .arrange-selected {
 html[data-theme="dark"] .site-footer {
   background: #14151a;
 }
-html[data-theme="dark"] .site-footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
-}
-html[data-theme="dark"] .site-footer .mark::after {
-  background: #14151a;
-}
+
 html[data-theme="dark"] .site-footer .legal {
   border-color: #343844;
   color: #b0b6c4;
@@ -3294,21 +3231,20 @@ button.icon-button svg,
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.site-header .brand-ball,
-.topbar .mark,
-.site-footer .mark {
+.brand-placeholder {
+  display: inline-grid;
+  place-items: center;
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
-}
-.site-header .brand-ball::after,
-.topbar .mark::after,
-.site-footer .mark::after {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  flex: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
 }
 .type-filter {
   gap: 12px;
@@ -6348,8 +6284,8 @@ html[data-theme="dark"]
     <a class="landing-skip" href="#intro">Skip to content</a>
     <header class="topbar">
       <a class="brand" href="#intro">
-        <span class="mark" aria-hidden="true"></span>
-        Pokedex
+        <span class="brand-placeholder" aria-hidden="true">?</span>
+        Binder Minder
       </a>
       <button
         type="button"
@@ -6377,7 +6313,7 @@ html[data-theme="dark"]
           </select>
         </label>
         <a class="cta" href="Pokedex-workspace.html">
-          Explore Pokedex
+          Explore Binder Minder
         </a>
       </nav>
     </header>
@@ -6815,8 +6751,8 @@ html[data-theme="dark"]
     <footer class="footer compact-footer site-footer">
       <div>
         <a class="brand" href="#intro">
-          <span class="mark" aria-hidden="true"></span>
-          Pokedex
+          <span class="brand-placeholder" aria-hidden="true">?</span>
+          Binder Minder
         </a>
         <p>Made for the joy of collecting.</p>
       </div>

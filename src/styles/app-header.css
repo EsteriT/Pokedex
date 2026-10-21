@@ -17,29 +17,7 @@
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.brand-ball {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(
-    var(--accent) 0 44%,
-    var(--bg) 44% 56%,
-    var(--bg) 56%
-  );
-  position: relative;
-}
-.brand-ball:after {
-  content: "";
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  left: 7px;
-  top: 7px;
-  background: var(--bg);
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .header-tools {
   display: flex;
   gap: 24px;

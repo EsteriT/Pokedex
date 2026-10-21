@@ -54,7 +54,7 @@
     $("viewer-source").textContent = repository.enabled
       ? "Private binder"
       : "Local preview";
-    document.title = "Binder viewer — Pokedex";
+    document.title = "Binder viewer — Binder Minder";
     $("viewer-fullscreen").hidden = true;
     $("viewer-cover-art").replaceChildren();
     $("viewer-page-art").replaceChildren();
@@ -78,7 +78,7 @@
       $("viewer-error").hidden = true;
       $("viewer-shell").hidden = false;
       $("viewer-title").textContent = doc.name;
-      document.title = doc.name + " — Pokedex viewer";
+      document.title = doc.name + " — Binder Minder viewer";
       $("viewer-source").textContent = binder.document
         ? repository.enabled
           ? "Private cloud binder"

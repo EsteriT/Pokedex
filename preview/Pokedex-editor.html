@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <title>Binder editor — Pokedex</title>
+    <title>Binder editor — Binder Minder</title>
     <style>
       #editor-startup {
         display: none;
@@ -601,29 +601,7 @@ body {
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.brand-ball {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(
-    var(--accent) 0 44%,
-    var(--bg) 44% 56%,
-    var(--bg) 56%
-  );
-  position: relative;
-}
-.brand-ball:after {
-  content: "";
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  left: 7px;
-  top: 7px;
-  background: var(--bg);
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .header-tools {
   display: flex;
   gap: 24px;
@@ -2131,21 +2109,20 @@ button.icon-button svg,
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.site-header .brand-ball,
-.topbar .mark,
-.site-footer .mark {
+.brand-placeholder {
+  display: inline-grid;
+  place-items: center;
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
-}
-.site-header .brand-ball::after,
-.topbar .mark::after,
-.site-footer .mark::after {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  flex: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
 }
 .type-filter {
   gap: 12px;
@@ -7230,8 +7207,8 @@ body.editor-page.calm-editor {
       <div class="editor-identity">
         <div class="editor-return">
           <a class="workspace-back" href="Pokedex-workspace.html">← Workspace</a>
-          <a class="brand" href="Pokedex-landing-page.html" aria-label="Pokedex home">
-            <span class="brand-ball" aria-hidden="true"></span>
+          <a class="brand" href="Pokedex-landing-page.html" aria-label="Binder Minder home">
+            <span class="brand-placeholder" aria-hidden="true">?</span>
           </a>
         </div>
         <button
@@ -15284,7 +15261,7 @@ PERFORMANCE OF THIS SOFTWARE.
     const index = state.document.pages.findIndex((n) => n.id === p.id);
     $("binder-title").textContent = state.document.name;
     $("binder-title").title = state.document.name;
-    document.title = state.document.name + " — Pokedex editor";
+    document.title = state.document.name + " — Binder Minder editor";
 
     $("page-rows").value = p.rows;
     $("page-columns").value = p.columns;

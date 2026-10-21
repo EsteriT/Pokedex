@@ -77,25 +77,7 @@ a:focus-visible {
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.mark {
-  width: 26px;
-  height: 26px;
-  border: 2px solid #bdc8f7;
-  border-radius: 50%;
-  background: linear-gradient(#bdc8f7 0 44%, #15171d 44% 56%, #15171d 56%);
-  position: relative;
-}
-.mark:after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  left: 6px;
-  top: 6px;
-  background: #15171d;
-  border: 2px solid #bdc8f7;
-  border-radius: 50%;
-}
+
 .topbar nav {
   display: flex;
   align-items: center;
@@ -417,9 +399,6 @@ a:focus-visible {
   margin-top: 16px;
   font-size: 10px;
   line-height: 1.7;
-}
-.footer .mark {
-  background: linear-gradient(#bdc8f7 0 44%, #0e1117 44%);
 }
 
 @media (min-width: 1650px) {

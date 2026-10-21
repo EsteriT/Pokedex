@@ -1,7 +1,11 @@
 /* Read-only binder presentation; all spacing and control sizing are local to this page. */
 @media (max-width: 620px) {
-  .viewer-page .viewer-controls { position: relative; }
-  .viewer-page .viewer-options { position: static; }
+  .viewer-page .viewer-controls {
+    position: relative;
+  }
+  .viewer-page .viewer-options {
+    position: static;
+  }
 }
 
 .viewer-page .viewer-heading {
@@ -89,11 +93,7 @@
   font-size: 24px;
   font-weight: 700;
 }
-.viewer-header .brand-ball {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-}
+
 .viewer-page .button {
   min-height: 44px;
   border-radius: 10px;

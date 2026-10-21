@@ -437,21 +437,20 @@ button.icon-button svg,
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.site-header .brand-ball,
-.topbar .mark,
-.site-footer .mark {
+.brand-placeholder {
+  display: inline-grid;
+  place-items: center;
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
-}
-.site-header .brand-ball::after,
-.topbar .mark::after,
-.site-footer .mark::after {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  flex: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
 }
 .type-filter {
   gap: 12px;

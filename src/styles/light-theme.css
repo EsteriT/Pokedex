@@ -38,14 +38,7 @@ h3 {
 .brand {
   color: var(--ink);
 }
-.mark {
-  border-color: var(--accent);
-  background: linear-gradient(var(--accent) 0 44%, var(--bg) 44%);
-}
-.mark:after {
-  background: var(--bg);
-  border-color: var(--accent);
-}
+
 .cta {
   background: var(--accent);
   color: #fff;
@@ -259,13 +252,7 @@ h3 {
 .footer .brand {
   color: var(--ink);
 }
-.footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
-  border-color: var(--accent);
-}
-.footer .mark:after {
-  background: #edf1f6;
-}
+
 .legal {
   border-color: #dce2ec;
   color: #667184;

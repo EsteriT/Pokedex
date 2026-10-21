@@ -1978,7 +1978,7 @@ window.EditorReady = (async () => {
     const index = state.document.pages.findIndex((n) => n.id === p.id);
     $("binder-title").textContent = state.document.name;
     $("binder-title").title = state.document.name;
-    document.title = state.document.name + " — Pokedex editor";
+    document.title = state.document.name + " — Binder Minder editor";
 
     $("page-rows").value = p.rows;
     $("page-columns").value = p.columns;

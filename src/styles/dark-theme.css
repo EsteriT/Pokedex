@@ -151,12 +151,7 @@ html[data-theme="dark"] .collection-mark:disabled {
 html[data-theme="dark"] .footer {
   background: #14151a;
 }
-html[data-theme="dark"] .footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
-}
-html[data-theme="dark"] .footer .mark:after {
-  background: #14151a;
-}
+
 html[data-theme="dark"] .legal {
   border-color: #343844;
   color: #b0b6c4;

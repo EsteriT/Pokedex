@@ -18,26 +18,7 @@
   letter-spacing: -0.8px;
   color: var(--ink);
 }
-.site-footer .mark {
-  position: relative;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
-}
-.site-footer .mark::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  left: 6px;
-  top: 6px;
-  background: #edf1f6;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .site-footer h3 {
   margin: 0 0 16px;
   font:
@@ -90,12 +71,7 @@
 html[data-theme="dark"] .site-footer {
   background: #14151a;
 }
-html[data-theme="dark"] .site-footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
-}
-html[data-theme="dark"] .site-footer .mark::after {
-  background: #14151a;
-}
+
 html[data-theme="dark"] .site-footer .legal {
   border-color: #343844;
   color: #b0b6c4;

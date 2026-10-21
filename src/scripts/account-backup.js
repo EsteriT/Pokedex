@@ -24,7 +24,7 @@
       !Array.isArray(input.artwork) ||
       input.artwork.length > 60
     )
-      throw Error("This is not a supported Pokedex account backup.");
+      throw Error("This is not a supported Binder Minder account backup.");
     const collection = window.CollectionState.validate(input.collection);
     if (new Blob([JSON.stringify(collection)]).size > 16 * 1024 * 1024)
       throw Error("Account collections are limited to 16 MB.");

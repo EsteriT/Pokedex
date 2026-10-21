@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <title>My binders — Pokedex</title>
+    <title>My binders — Binder Minder</title>
     <meta
       name="description"
       content="Your personal Pokémon binder workspace."
@@ -564,29 +564,7 @@ body {
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.brand-ball {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(
-    var(--accent) 0 44%,
-    var(--bg) 44% 56%,
-    var(--bg) 56%
-  );
-  position: relative;
-}
-.brand-ball:after {
-  content: "";
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  left: 7px;
-  top: 7px;
-  background: var(--bg);
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .header-tools {
   display: flex;
   gap: 24px;
@@ -2294,26 +2272,7 @@ body {
   letter-spacing: -0.8px;
   color: var(--ink);
 }
-.site-footer .mark {
-  position: relative;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: linear-gradient(var(--accent) 0 44%, #edf1f6 44%);
-}
-.site-footer .mark::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  left: 6px;
-  top: 6px;
-  background: #edf1f6;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-}
+
 .site-footer h3 {
   margin: 0 0 16px;
   font:
@@ -2366,12 +2325,7 @@ body {
 html[data-theme="dark"] .site-footer {
   background: #14151a;
 }
-html[data-theme="dark"] .site-footer .mark {
-  background: linear-gradient(var(--accent) 0 44%, #14151a 44%);
-}
-html[data-theme="dark"] .site-footer .mark::after {
-  background: #14151a;
-}
+
 html[data-theme="dark"] .site-footer .legal {
   border-color: #343844;
   color: #b0b6c4;
@@ -2876,21 +2830,20 @@ button.icon-button svg,
   font-weight: 600;
   letter-spacing: -0.8px;
 }
-.site-header .brand-ball,
-.topbar .mark,
-.site-footer .mark {
+.brand-placeholder {
+  display: inline-grid;
+  place-items: center;
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
-}
-.site-header .brand-ball::after,
-.topbar .mark::after,
-.site-footer .mark::after {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  flex: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
 }
 .type-filter {
   gap: 12px;
@@ -6631,8 +6584,8 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
     <header class="site-header">
       <div class="header-main">
         <a class="brand" href="Pokedex-landing-page.html">
-          <span class="brand-ball" aria-hidden="true"></span>
-          Pokedex
+          <span class="brand-placeholder" aria-hidden="true">?</span>
+          Binder Minder
         </a>
         <nav class="app-nav" aria-label="Application navigation">
           <a href="Pokedex-workspace.html" aria-current="page">Workspace</a>
@@ -14664,7 +14617,7 @@ window.SAMPLE_COLLECTION = {
       !Array.isArray(input.artwork) ||
       input.artwork.length > 60
     )
-      throw Error("This is not a supported Pokedex account backup.");
+      throw Error("This is not a supported Binder Minder account backup.");
     const collection = window.CollectionState.validate(input.collection);
     if (new Blob([JSON.stringify(collection)]).size > 16 * 1024 * 1024)
       throw Error("Account collections are limited to 16 MB.");

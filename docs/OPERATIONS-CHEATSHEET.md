@@ -1,6 +1,6 @@
 # Pokedex owner cheatsheet
 
-**Request protection (21 October):** the deployed website uses the new checkpoint; direct-origin enforcement is off pending owner acceptance. See [step 2E](USAGE-ROLLOUT.md) for tests, current state and the enforcement-off rollback command. Earlier 2C intermittent failures remain deferred.
+**Request protection (21 October):** the deployed website uses the new checkpoint; direct-origin enforcement is **on** after owner acceptance and hosted checks. Excessive actions receive a wait/retry message. See [step 2E](USAGE-ROLLOUT.md) for tests, current state and the enforcement-off rollback command. Earlier 2C intermittent failures remain deferred.
 
 **Current state (21 October 2026):** daily backups are enabled. The first actual scheduled run succeeded at 05:26 Vietnam time, its new verified R2 archive is present, and the owner confirmed the monitor Up with a matching recent ping. Independent recovery, warning emails and automatic expiry passed earlier. The next nominal daily run is 22 October at 02:23 Vietnam time; GitHub can start it later. Continue checking daily success rather than assuming future runs will pass; see [backup safety acceptance](BACKUP-SAFETY-ACCEPTANCE.md).
 

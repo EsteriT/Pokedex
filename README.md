@@ -56,7 +56,7 @@ The ten-set English catalogue (1,291 printings) and faster Discover image schedu
 
 ### Develop & verify
 
-The request checkpoint is deployed and the live app routes through it. Direct-origin enforcement remains off pending owner interface acceptance for the controlled beta trial. See [step 2E](docs/USAGE-ROLLOUT.md) for verified checks, current switch state and rollback; earlier intermittent local load failures remain deferred.
+The request checkpoint is deployed and direct-origin enforcement is **on** for the controlled beta trial after owner acceptance and hosted checks. See [step 2E](docs/USAGE-ROLLOUT.md) for verified checks, current switch state and rollback; earlier intermittent local load failures remain deferred.
 
 Automated encrypted R2 backups are enabled, with the Healthchecks monitor active. Recovery, alert delivery, automatic expiry and the first actual scheduled-run acceptance have passed. The scheduled run on 21 October succeeded, its fresh verified archive is present, and the owner confirmed the monitor Up afterward. See the [backup acceptance record](docs/BACKUP-SAFETY-ACCEPTANCE.md), [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
 

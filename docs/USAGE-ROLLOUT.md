@@ -1,6 +1,6 @@
 # Step 2E: controlled hosted request protection
 
-Status on 21 October 2026: authorized by the owner. The checkpoint and website are deployed with origin enforcement **off**. Owner interface acceptance is pending before enabling the trial. This record supersedes earlier local-only rollout restrictions for this specific release.
+Status on 21 October 2026: the owner confirmed all staged interface checks pass. Origin enforcement is now **on** for the controlled beta trial, and post-activation hosted checks pass. This record supersedes earlier local-only rollout restrictions for this specific release.
 
 ## Decision and scope
 
@@ -30,11 +30,19 @@ Security advisors flag intentional public SECURITY DEFINER entry points (bounded
 ## Remaining acceptance
 
 - [x] Commit `4139e57` fast-forwarded into main and pushed. [Pages deployment 39619713318](https://github.com/EsteriT/Pokedex/actions/runs/39619713318) passed build, reference, model, database, repository and gateway checks. Live landing and all four app pages return HTTP 200; each app page contains the enabled checkpoint build flag and route adapter. Generated standalone previews remain unconfigured demos.
-- [ ] Owner checks actual Google sign-in, Save/refresh, artwork and portable backups on the deployed interface. Save or download any old open-tab drafts before refreshing.
-- [ ] Enable enforcement for the controlled trial only after hosted checks and owner interface acceptance pass.
-- [ ] Verify direct GET/HEAD, GraphQL and private Storage denial; checkpoint traffic and account isolation still succeed.
-- [ ] Verify bounded excessive writes receive 429 with Retry-After, saved data survives and another account remains independent.
-- [ ] Review error logs and latency; record final trial state and release commit.
+- [x] The owner confirmed Google sign-in, binder and collection Save/refresh, artwork upload and portable backup download/restore all pass on the staged live interface.
+- [x] Enabled enforcement after that acceptance and read back `enabled = true`.
+- [x] Verified direct GET/HEAD denial (403), GraphQL and private Storage denial; checkpoint traffic and account isolation still succeed.
+- [x] A bounded invalid-write burst received 429 with Retry-After; saved documents survived, another account stayed independent, and an explicit valid Save succeeded after waiting.
+- [x] Reviewed aggregate error levels and request timing; current state and evidence recorded below.
+
+## Enforced trial acceptance - 21 October 2026
+
+The enforced run passed at 21:54:37 Vietnam time, using two disposable accounts and 63 checkpoint requests. It repeated catalogue, CORS, Save/reopen, account isolation, artwork upload/download and actual portable account export/restore checks with enforcement on. Direct binder GET/HEAD returned 403. Direct private artwork and GraphQL requests were denied. A 36-request invalid-write burst returned only expected validation/throttle responses; Retry-After was positive, independent account/read operations still worked, and a valid collection Save succeeded after the indicated wait. Maximum measured response-header time was 760 ms; this is a small warm-runtime sample, not a production capacity promise.
+
+Cleanup removed all disposable accounts/artwork. Aggregate real-account counts matched immediately before and after the enforced test (the owner had changed their test data since staging). No existing documents were rewritten by the trial harness. Existing collection compatibility checks returned zero failures; enforcement readback remained on. Function logs in the bounded trial window contained normal log-level entries; the test observed no unexpected server response or timeout. Detailed receipt remains ignored at `.scratch/qa/usage-hosted-enforced.json`.
+
+The subsequent [operator backup run 39621097702](https://github.com/EsteriT/Pokedex/actions/runs/39621097702) passed with enforcement on, including encryption, private upload, download and recovery validation. Continue reviewing the first tester sessions for errors, response times and usage; no continuous watch or future scheduled-backup success is implied by this acceptance. The earlier local 2C investigation remains deferred.
 
 ## Rollback
 

@@ -129,6 +129,56 @@ module.exports = async function checkCollection(db, as, a, b, sample) {
   const unicode = clone(original);
   unicode.records[0].notes = "😀".repeat(1000);
   assert.equal((await commit(a, 1, unicode)).rows[0].revision, 2);
+  // Compare the batch rewrite with the original rules, including malformed rows.
+  const source = require("node:fs").readFileSync(
+    require("node:path").join(
+      __dirname,
+      "../supabase/migrations/20261018085909_collection_cloud.sql",
+    ),
+    "utf8",
+  );
+  const previous = source
+    .match(
+      /create function binder_private\.valid_collection[\s\S]*?end \$\$;/,
+    )[0]
+    .replace(
+      "binder_private.valid_collection(",
+      "binder_private.previous_collection_validator(",
+    );
+  await db.exec(previous);
+  try {
+    const cases = [...invalid, original, maximum, oversize, unicode];
+    for (const row of [
+      null,
+      [],
+      true,
+      1,
+      "text",
+      {},
+      { ...original.records[0], grading: [] },
+    ])
+      cases.push({ records: [row] });
+    for (const field of Object.keys(original.records[0])) {
+      const doc = clone(original);
+      delete doc.records[0][field];
+      cases.push(doc);
+    }
+    for (const doc of cases) {
+      const result = await db.query(
+        "select binder_private.valid_collection($1::jsonb) current, binder_private.previous_collection_validator($1::jsonb) previous",
+        [JSON.stringify(doc)],
+      );
+      assert.equal(
+        result.rows[0].current,
+        result.rows[0].previous,
+        "Batch validation must preserve the original rules.",
+      );
+    }
+  } finally {
+    await db.exec(
+      "drop function binder_private.previous_collection_validator(jsonb)",
+    );
+  }
   await assert.rejects(commit(a, 1, original), /changed on another device/);
   await assert.rejects(commit(b, 2, original), /changed on another device/);
   assert.equal((await commit(b, null, { records: [] })).rows[0].revision, 1);

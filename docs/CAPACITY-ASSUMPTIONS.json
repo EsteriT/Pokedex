@@ -1,0 +1,30 @@
+{
+  "reviewedAt": "2026-10-21",
+  "daysPerMonth": 30,
+  "backupsPerDay": 1,
+  "retainedBackupCopies": 8,
+  "catalogueAndArchiveOverheadBytes": 1000000,
+  "databaseBaselineBytes": 100000000,
+  "databaseDocumentMultiplier": 2,
+  "archiveSizeRatio": 1,
+  "egressHeadroomMultiplier": 1.25,
+  "publicEgressBytesPerMonth": 100000000,
+  "publicGatewayRequestsPerMonth": 10000,
+  "accountCounts": [10, 50, 100, 500],
+  "profiles": [
+    {
+      "name": "Light beta",
+      "savedDocumentBytesPerAccount": 350000,
+      "artworkBytesPerAccount": 1000000,
+      "otherEgressBytesPerActiveAccountPerMonth": 8000000,
+      "gatewayRequestsPerActiveAccountPerMonth": 300
+    },
+    {
+      "name": "Artwork heavy",
+      "savedDocumentBytesPerAccount": 1000000,
+      "artworkBytesPerAccount": 10000000,
+      "otherEgressBytesPerActiveAccountPerMonth": 40000000,
+      "gatewayRequestsPerActiveAccountPerMonth": 600
+    }
+  ]
+}

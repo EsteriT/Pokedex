@@ -374,6 +374,7 @@ async function main() {
     );
     await require("./check-account-backend.cjs")(db, as, document);
     await require("./check-catalogue-backend.cjs")(db, as, document);
+    await require("./check-usage-backend.cjs")(db, as);
     console.log(
       "Backend PostgreSQL checks passed: ownership, privileges, document validation, limits, stale saves, atomic rollback, independent accounts, Storage policies/reservations/cleanup.",
     );

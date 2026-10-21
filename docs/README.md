@@ -22,6 +22,11 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Product scope](WEBSITE-GOALS-AND-FUNCTIONS.md) | Goals and feature boundaries |
 | [History](HISTORY.md) | Earlier decisions and milestones |
 | [Integrity audit - 2026-10-20](INTEGRITY-AUDIT-2026-10-20.md) | Verified local-server security and restore-error fixes, cleanup and diagnostic coverage |
+| [Usage protections - step 2A](USAGE-PROTECTION-REVIEW.md) | Existing enforced limits, bypassable browser conveniences, uncovered request paths and next-step priorities |
+| [Request protection - step 2B](USAGE-PROTECTION.md) | Local Supabase gateway, shared budgets, origin guards, retry behavior, tests and staged rollout |
+| [Load calibration - step 2C](USAGE-LOAD-ACCEPTANCE.md) | Measured user flows, quota/validation improvements and unresolved large-payload/runtime acceptance blockers |
+| [Capacity and cost - step 2D](CAPACITY-AND-COST.md) | Dated service prices, observed sizes, offline growth calculator, backup limits and manual monitoring thresholds |
+| [Controlled hosted rollout - step 2E](USAGE-ROLLOUT.md) | Backup, staged checkpoint, owner acceptance, enforcement checks and rollback |
 | [Codebase audit](CODEBASE-AUDIT.md) | Recorded audit findings and follow-up |
 | [Nightly checkup — 2026-10-19](NIGHTLY-AUDIT-2026-10-19.md) | Operator privacy/download fixes, static cleanup, diagnostics and morning handoff |
 

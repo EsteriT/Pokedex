@@ -33,6 +33,8 @@
           throw Error("Invalid private artwork reference.");
         if (!cache.has(path)) {
           const { data, error } = await bucket.download(path);
+          if (error && Number(error.status || error.statusCode) === 429)
+            throw Error(error.message);
           if (error)
             throw Error(
               "Could not load private artwork. Retry before editing this binder.",

@@ -56,7 +56,7 @@ The ten-set English catalogue (1,291 printings) and faster Discover image schedu
 
 ### Develop & verify
 
-Automated encrypted R2 backups are enabled, with the Healthchecks monitor active. Recovery, alert delivery and automatic expiry have passed; the first actual daily scheduled-run acceptance is pending. See the [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
+Automated encrypted R2 backups are enabled, with the Healthchecks monitor active. Recovery, alert delivery, automatic expiry and the first actual scheduled-run acceptance have passed. The scheduled run on 21 October succeeded, its fresh verified archive is present, and the owner confirmed the monitor Up afterward. See the [backup acceptance record](docs/BACKUP-SAFETY-ACCEPTANCE.md), [backup setup](docs/AUTOMATED-BACKUPS.md) and [owner operations cheatsheet](docs/OPERATIONS-CHEATSHEET.md).
 
 The [account data and recovery](docs/ACCOUNT-DATA-AND-RECOVERY.md) milestone adds complete account backups, confirmed deletion, encrypted manual operator backups and aggregate health checks. Both database migrations and the website update are deployed and verified. Hosted account backup/restore and fresh Google sign-in followed by deletion/sign-out passed user acceptance on October 19, 2026; see the [rollout record](docs/ACCOUNT-DATA-ROLLOUT.md).
 
@@ -64,8 +64,13 @@ Edit the files in `src/`; generated previews are rebuilt from those sources.
 
 | Command | Purpose |
 | :--- | :--- |
+| `npm run capacity:plan` | Print offline capacity/cost scenarios; edit the [assumptions](docs/CAPACITY-ASSUMPTIONS.json), then review the [2D plan](docs/CAPACITY-AND-COST.md). No Docker or credentials needed. |
+| `npm run test:capacity` | Check planning arithmetic, backup limits and pricing-unit boundaries. |
 | `npm run dev` | Start the loopback-only public-file development server (Python 3). |
 | `npm run test:server` | Check private-file denial, Host protection and public development routes. |
+| `npm run test:usage` | Check the local-review gateway routing, admission and retry contracts. |
+| `npm run test:usage:edge` | Test the gateway against real local Docker services and Edge runtime using disposable accounts. |
+| `npm run test:usage:load` | Check local mixed-user load, data and timing limits; see the [2C record](docs/USAGE-LOAD-ACCEPTANCE.md) for passing runs and unresolved intermittent failures. |
 | `npm run build` | Rebuild the five standalone previews. |
 | `npm run check` | Validate references, JavaScript, assets and preview links. |
 | `npm test` | Check binder, collection, catalogue and customization behavior. |

@@ -32,11 +32,13 @@ jobs:
         env:
           POKEDEX_SUPABASE_URL: https://pnuovoogfjzzlgmenhnq.supabase.co
           POKEDEX_SUPABASE_PUBLISHABLE_KEY: sb_publishable_oy_dcf2l-eKy1torgp-t6w_p6F_btzk
+          POKEDEX_USAGE_GATEWAY: "true"
         run: npm run build:pages
       - run: npm run check
       - run: npm test
       - run: npm run test:backend
       - run: npm run test:repository
+      - run: npm run test:usage
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

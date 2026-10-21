@@ -1,5 +1,25 @@
 # Backup safety acceptance
 
+## First scheduled backup accepted - 21 October 2026
+
+The first successful actual `schedule` event is [run 39508117746](https://github.com/EsteriT/Pokedex/actions/runs/39508117746), attempt 1, on `main` at commit `d6e8d5d3b1d035ae511d8d54851cc5836336183e`. It started at **05:26:26 Vietnam time** (20 October 22:26:26 UTC) and completed successfully at **05:26:53**. This was 3 hours 3 minutes after the nominal 02:23 schedule. The delay's cause was not investigated in this acceptance; scheduled jobs are not exact-time guarantees. No manual backup or rerun was started for this check.
+
+| Check | Evidence / result |
+| --- | --- |
+| Actual scheduled run | Event `schedule`, workflow `backup.yml`, completed `success`; the earlier skipped run does not count |
+| Encryption and verification | `Create, encrypt, upload and verify backup` step passed; its log reports `Verified encrypted R2 backup` |
+| Fresh archive | Timestamp `2026-10-20T22:26:47.944Z`; **163,290 bytes**, Standard storage, managed daily prefix |
+| R2 readback | Fresh complete object listing at 21 October 12:11 UTC matched the exact logged archive key and byte size; LastModified `22:26:48.588Z` |
+| Workflow-reported SHA-256 | `849082179b6f1113bd1d2c4415b70b1db123e31a89c588701064449cd3da5e1c` |
+| Healthy monitor afterward | At about 19:20 Vietnam time the owner read back: **“This check is up. Last ping was 13 hours ago.”** This is consistent with the 05:26 scheduled success |
+| Runtime/settings changed by this check | None; no monitor ping, pause/resume, schedule edit, database action, upload or deletion |
+
+The deployed workflow downloads the uploaded bytes, compares the digest, decrypts and validates recovery content before sending its success signal. That code path and the successful job/log are the verification evidence here. This read-only follow-up matched provider metadata; it did **not** independently recompute today's archive digest or perform another operator restore. The earlier independent recovery/alert tests remain documented separately. Browser access was unavailable, so the monitor status is owner-confirmed rather than an automated dashboard observation. An initial broad reply suggested a monitor problem; the owner's precise status readback resolved that ambiguity without changing the monitor.
+
+**Scheduled-run acceptance passes.** Daily backups and monitoring remain enabled. The next nominal run is **22 October at 02:23 Vietnam time**, subject to scheduling delay; no future run is claimed as tested. The observation receipt is in ignored `.scratch/qa/backup-scheduled-acceptance.json`. These notes are saved locally with the current uncommitted branch work; no merge, push or deployment was performed.
+
+The older pending paragraphs below describe the historical enablement state, before this scheduled run was verified.
+
 ## Daily rollout started - 20 October 2026
 
 The owner authorized resuming monitoring, enabling daily backups, verifying the first actual scheduled run and saving the acceptance record in Git. Healthchecks already showed **Up**, an available Pause button, email notifications **ON**, a one-day expected period and a three-hour grace. It did not require a resume action. This confirms the current monitor state, not its state after a future scheduled run.

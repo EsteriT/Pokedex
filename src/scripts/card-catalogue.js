@@ -92,21 +92,34 @@
     return safeRows.map((row) => byId.get(row.id));
   }
   async function rpc(name, body) {
-    const response = await fetch(config.url + "/rest/v1/rpc/" + name, {
-      method: "POST",
-      headers: {
-        apikey: config.publishableKey,
-        "Content-Type": "application/json",
+    const response = await (window.PokedexFetch || fetch)(
+      config.url + "/rest/v1/rpc/" + name,
+      {
+        method: "POST",
+        headers: {
+          apikey: config.publishableKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000),
+        credentials: "omit",
+        redirect: "error",
       },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(15000),
-      credentials: "omit",
-      redirect: "error",
-    });
-    if (!response.ok) throw Error("Catalogue could not load. Please retry.");
+    );
+    if (!response.ok) {
+      if (window.PokedexFetch?.error)
+        throw await window.PokedexFetch.error(
+          response,
+          "Catalogue could not load. Please retry.",
+        );
+      throw Error("Catalogue could not load. Please retry.");
+    }
     return response.json();
   }
-  const ready = (async () => {
+  let limitedStartup = null,
+    retryAt = 0,
+    retrying = null;
+  async function initialize() {
     if (!config.url || config.catalogue === false) return;
     try {
       const result = await rpc("catalogue_info", {});
@@ -120,12 +133,28 @@
       for (const set of result.sets) register(set.preview || []);
       info = result;
       remote = true;
-    } catch {
+      limitedStartup = null;
+    } catch (error) {
+      if (error.code === "PXD429") {
+        limitedStartup = error;
+        retryAt = Date.now() + error.retryAfter * 1000;
+      }
       /* An older backend retains its sample catalogue until migration/import. */
     }
-  })();
-  async function search(filters = {}, page = 1) {
+  }
+  const ready = initialize();
+  async function connected() {
     await ready;
+    if (!limitedStartup) return;
+    if (Date.now() < retryAt) throw limitedStartup;
+    retrying ||= initialize().finally(() => {
+      retrying = null;
+    });
+    await retrying;
+    if (limitedStartup) throw limitedStartup;
+  }
+  async function search(filters = {}, page = 1) {
+    await connected();
     if (!remote || filters.colorEnabled) {
       const source = filters.colorEnabled ? sampleCards : cards;
       const found = window.DiscoverCatalogue.search(source, filters);
@@ -181,7 +210,7 @@
       for (const child of Object.values(item))
         if (child && typeof child === "object") stack.push(child);
     }
-    await ready;
+    await connected();
     const missing = [...ids].filter((id) => !byId.has(id));
     if (!missing.length) return;
     if (!remote)

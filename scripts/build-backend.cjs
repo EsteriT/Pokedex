@@ -4,6 +4,7 @@ const { buildSync } = require("esbuild");
 require("./backend-env.cjs")([
   "POKEDEX_SUPABASE_URL",
   "POKEDEX_SUPABASE_PUBLISHABLE_KEY",
+  "POKEDEX_USAGE_GATEWAY",
 ]);
 const folder = path.resolve(__dirname, "../src/vendor");
 fs.mkdirSync(folder, { recursive: true });
@@ -55,7 +56,15 @@ if (url) {
 }
 fs.writeFileSync(
   path.join(folder, "backend-config.js"),
-  "window.POKEDEX_BACKEND = " + JSON.stringify({ url, publishableKey }) + ";\n",
+  "window.POKEDEX_BACKEND = " +
+    JSON.stringify({
+      url,
+      publishableKey,
+      ...(process.env.POKEDEX_USAGE_GATEWAY === "true" && url
+        ? { usageGateway: true }
+        : {}),
+    }) +
+    ";\n",
 );
 buildSync({
   stdin: {

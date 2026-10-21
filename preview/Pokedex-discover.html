@@ -6312,6 +6312,65 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 </script>
     <script>window.POKEDEX_BACKEND = {"url":"","publishableKey":""};
 </script>
+    <script>/* Opt-in transport only; Auth stays on Supabase's original callback/session URL. */
+(() => {
+  const config = window.POKEDEX_BACKEND || {};
+  window.PokedexFetch = (input, options = {}) => {
+    let target = input;
+    if (config.usageGateway && config.url) {
+      const url = new URL(input instanceof Request ? input.url : String(input));
+      if (
+        url.origin === new URL(config.url).origin &&
+        /^\/(rest|storage)\/v1\//.test(url.pathname)
+      ) {
+        target =
+          config.url +
+          "/functions/v1/usage-gateway" +
+          url.pathname +
+          url.search;
+        if (input instanceof Request) target = new Request(target, input);
+        // This is a checked size hint, not a trusted bypass. Unknown/streamed
+        // bodies keep the server maximum; FormData uses its HTTP envelope size.
+        const body = options.body;
+        const size =
+          typeof body === "string"
+            ? new TextEncoder().encode(body).byteLength
+            : body instanceof ArrayBuffer
+              ? body.byteLength
+              : ArrayBuffer.isView(body)
+                ? body.byteLength
+                : body instanceof Blob
+                  ? body.size
+                  : null;
+        if (size !== null) {
+          const headers = new Headers(
+            options.headers ||
+              (input instanceof Request ? input.headers : undefined),
+          );
+          headers.set("x-pokedex-body-bytes", String(size));
+          options = { ...options, headers };
+        }
+      }
+    }
+    return fetch(target, { ...options, redirect: "error", cache: "no-store" });
+  };
+  window.PokedexFetch.error = async (response, fallback) => {
+    if (response.status === 429) {
+      const seconds = Math.max(
+        1,
+        Math.min(60, Number(response.headers.get("Retry-After")) || 60),
+      );
+      const error = Error(
+        `Too many requests. Try again in ${Math.ceil(seconds)} seconds. Your unsaved changes are still here.`,
+      );
+      error.code = "PXD429";
+      error.retryAfter = Math.ceil(seconds);
+      return error;
+    }
+    return Error(fallback);
+  };
+})();
+</script>
     <script>/* Public metadata only. Account documents and login tokens never enter this cache. */
 (() => {
   "use strict";
@@ -6406,21 +6465,34 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
     return safeRows.map((row) => byId.get(row.id));
   }
   async function rpc(name, body) {
-    const response = await fetch(config.url + "/rest/v1/rpc/" + name, {
-      method: "POST",
-      headers: {
-        apikey: config.publishableKey,
-        "Content-Type": "application/json",
+    const response = await (window.PokedexFetch || fetch)(
+      config.url + "/rest/v1/rpc/" + name,
+      {
+        method: "POST",
+        headers: {
+          apikey: config.publishableKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000),
+        credentials: "omit",
+        redirect: "error",
       },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(15000),
-      credentials: "omit",
-      redirect: "error",
-    });
-    if (!response.ok) throw Error("Catalogue could not load. Please retry.");
+    );
+    if (!response.ok) {
+      if (window.PokedexFetch?.error)
+        throw await window.PokedexFetch.error(
+          response,
+          "Catalogue could not load. Please retry.",
+        );
+      throw Error("Catalogue could not load. Please retry.");
+    }
     return response.json();
   }
-  const ready = (async () => {
+  let limitedStartup = null,
+    retryAt = 0,
+    retrying = null;
+  async function initialize() {
     if (!config.url || config.catalogue === false) return;
     try {
       const result = await rpc("catalogue_info", {});
@@ -6434,12 +6506,28 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       for (const set of result.sets) register(set.preview || []);
       info = result;
       remote = true;
-    } catch {
+      limitedStartup = null;
+    } catch (error) {
+      if (error.code === "PXD429") {
+        limitedStartup = error;
+        retryAt = Date.now() + error.retryAfter * 1000;
+      }
       /* An older backend retains its sample catalogue until migration/import. */
     }
-  })();
-  async function search(filters = {}, page = 1) {
+  }
+  const ready = initialize();
+  async function connected() {
     await ready;
+    if (!limitedStartup) return;
+    if (Date.now() < retryAt) throw limitedStartup;
+    retrying ||= initialize().finally(() => {
+      retrying = null;
+    });
+    await retrying;
+    if (limitedStartup) throw limitedStartup;
+  }
+  async function search(filters = {}, page = 1) {
+    await connected();
     if (!remote || filters.colorEnabled) {
       const source = filters.colorEnabled ? sampleCards : cards;
       const found = window.DiscoverCatalogue.search(source, filters);
@@ -6495,7 +6583,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       for (const child of Object.values(item))
         if (child && typeof child === "object") stack.push(child);
     }
-    await ready;
+    await connected();
     const missing = [...ids].filter((id) => !byId.has(id));
     if (!missing.length) return;
     if (!remote)
@@ -7255,6 +7343,8 @@ PERFORMANCE OF THIS SOFTWARE.
           throw Error("Invalid private artwork reference.");
         if (!cache.has(path)) {
           const { data, error } = await bucket.download(path);
+          if (error && Number(error.status || error.statusCode) === 429)
+            throw Error(error.message);
           if (error)
             throw Error(
               "Could not load private artwork. Retry before editing this binder.",
@@ -7392,7 +7482,7 @@ PERFORMANCE OF THIS SOFTWARE.
     return identityToken();
   }
   function reportFailure(error, token) {
-    if (!token || !client) return;
+    if (!token || !client || error.code === "PXD429") return;
     const code = String(error.code || ""),
       category =
         code === "40001"
@@ -7510,7 +7600,7 @@ PERFORMANCE OF THIS SOFTWARE.
         },
         global: {
           fetch: (url, options = {}) =>
-            fetch(url, {
+            (window.PokedexFetch || fetch)(url, {
               ...options,
               // Private responses must not survive an account switch in HTTP cache.
               cache: "no-store",

@@ -25,16 +25,19 @@
   // A fixed token prevents a mid-request account switch from retargeting files.
   async function storage(path, options, ctx) {
     ctx.guard();
-    const response = await fetch(config.url + "/storage/v1/object/" + path, {
-      ...options,
-      cache: "no-store",
-      signal: AbortSignal.timeout(30000),
-      headers: {
-        apikey: config.publishableKey,
-        Authorization: "Bearer " + ctx.token,
-        ...options?.headers,
+    const response = await (window.PokedexFetch || fetch)(
+      config.url + "/storage/v1/object/" + path,
+      {
+        ...options,
+        cache: "no-store",
+        signal: AbortSignal.timeout(30000),
+        headers: {
+          apikey: config.publishableKey,
+          Authorization: "Bearer " + ctx.token,
+          ...options?.headers,
+        },
       },
-    });
+    );
     ctx.guard();
     let duplicate = false;
     if (!response.ok && options?.method === "POST") {
@@ -46,6 +49,13 @@
       duplicate =
         response.status === 409 || String(error?.statusCode) === "409";
     }
+    if (
+      !response.ok &&
+      !duplicate &&
+      response.status === 429 &&
+      window.PokedexFetch?.error
+    )
+      throw await window.PokedexFetch.error(response);
     if (!response.ok && !duplicate)
       throw Error(
         "Artwork request failed (" +
@@ -122,7 +132,10 @@
       return doc;
     });
     ctx.guard();
-    await window.CardCatalogue?.ensure({ binders, collection: snapshot.collection?.document });
+    await window.CardCatalogue?.ensure({
+      binders,
+      collection: snapshot.collection?.document,
+    });
     ctx.guard();
     return window.AccountBackup.validate({
       format: "pokedex-account",

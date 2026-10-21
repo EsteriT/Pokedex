@@ -48,7 +48,7 @@
     return identityToken();
   }
   function reportFailure(error, token) {
-    if (!token || !client) return;
+    if (!token || !client || error.code === "PXD429") return;
     const code = String(error.code || ""),
       category =
         code === "40001"
@@ -166,7 +166,7 @@
         },
         global: {
           fetch: (url, options = {}) =>
-            fetch(url, {
+            (window.PokedexFetch || fetch)(url, {
               ...options,
               // Private responses must not survive an account switch in HTTP cache.
               cache: "no-store",

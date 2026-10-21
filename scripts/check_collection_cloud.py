@@ -68,6 +68,19 @@ def check_collection_cloud(cdp, base, route, discover, root):
     cdp.evaluate("BinderRepository.client.rpc=collectionRpc;document.getElementById('collection-undo').click()")
     saved()
 
+    # A real HTTP 429 reaches the SDK/UI, preserves a downloadable draft, and
+    # permits an explicit retry without changing the saved revision.
+    edit_quantity(6)
+    cdp.evaluate("window.preLimitFetch=window.fetch;window.rateAttempts=0;window.fetch=(url,options)=>String(url).includes('/rpc/commit_collection')?(rateAttempts++,Promise.resolve(new Response(JSON.stringify({code:'PXD429',message:'Too many requests. Try again in 7 seconds. Your unsaved changes are still here.'}),{status:429,headers:{'Content-Type':'application/json','Retry-After':'7'}}))):preLimitFetch(url,options);document.getElementById('collection-save').click()")
+    cdp.wait("document.getElementById('collection-sync-message').textContent.includes('7 seconds')&&!document.getElementById('collection-save').hasAttribute('aria-busy')")
+    assert quantity() == 5
+    assert cdp.evaluate("rateAttempts===1&&!document.getElementById('collection-save').disabled"), 'No blind retry or discarded draft'
+    cdp.evaluate("collectionBackup=null;document.getElementById('collection-download').click()")
+    assert cdp.evaluate("(async()=>JSON.parse(await collectionBackup.text()).document.records[0].quantity===6)()"), 'Throttled draft remains portable'
+    cdp.evaluate("window.fetch=preLimitFetch;document.getElementById('collection-save').click()")
+    saved()
+    assert quantity() == 6
+
     # Explicit import choices do not sum quantities, and repeat imports are stable.
     cdp.evaluate("CollectionStore.save(SAMPLE_COLLECTION,CollectionStore.read()?.revision??null)")
     local_snapshot = cdp.evaluate("localStorage.getItem('pokedex.collection.v1')")
@@ -88,7 +101,7 @@ def check_collection_cloud(cdp, base, route, discover, root):
         (screenshots/('collection-import-'+suffix+'-'+theme+'.png')).write_bytes(base64.b64decode(cdp.call('Page.captureScreenshot',{'format':'png'})['data']))
     cdp.evaluate("(()=>{const d=document.getElementById('collection-browser-title').closest('dialog');d.querySelector('select').value='keep';[...d.querySelectorAll('button')].find(b=>b.textContent==='Import into draft').click();document.getElementById('collection-save').click()})()")
     saved()
-    assert quantity() == 5
+    assert quantity() == 6
     assert cdp.evaluate("(async()=>(await CollectionRepository.read()).document.records.length===6)()")
     open_import()
     cdp.evaluate("(()=>{const d=document.getElementById('collection-browser-title').closest('dialog');d.querySelector('select').value='replace';[...d.querySelectorAll('button')].find(b=>b.textContent==='Import into draft').click();document.getElementById('collection-save').click()})()")

@@ -1,6 +1,6 @@
 # Pokedex owner cheatsheet
 
-**Current state:** daily backups are now enabled, with the production monitor active/Up and email notifications on. Independent recovery, warning emails and automatic expiry have passed. The next nominal daily run is 21 October 2026 at 02:23 Vietnam time. Its success, new verified archive and matching healthy monitor signal remain pending; see [backup safety acceptance](BACKUP-SAFETY-ACCEPTANCE.md).
+**Current state (21 October 2026):** daily backups are enabled. The first actual scheduled run succeeded at 05:26 Vietnam time, its new verified R2 archive is present, and the owner confirmed the monitor Up with a matching recent ping. Independent recovery, warning emails and automatic expiry passed earlier. The next nominal daily run is 22 October at 02:23 Vietnam time; GitHub can start it later. Continue checking daily success rather than assuming future runs will pass; see [backup safety acceptance](BACKUP-SAFETY-ACCEPTANCE.md).
 
 ## Which service does what?
 

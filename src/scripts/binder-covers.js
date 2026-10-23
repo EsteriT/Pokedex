@@ -26,7 +26,11 @@
     book.setAttribute("aria-hidden", "true");
     if (theme === "transparent") {
       const doc = documentValue?.document || documentValue;
+
       const page = Array.isArray(doc?.pages) ? doc.pages[0] : null;
+      const effectiveCover = { ...cover, pageStyle: page?.pageStyle || cover.pageStyle };
+      stylePage(book, effectiveCover);
+      if (effectiveCover.pageStyle) book.style.background = effectiveCover.pageStyle.background;
       const rows = page?.rows || doc?.rows || 3,
         columns = page?.columns || doc?.columns || 3;
       const regions =
@@ -72,7 +76,8 @@
         const rect = document.createElementNS(svg.namespaceURI, "rect");
         rect.setAttribute("width", width);
         rect.setAttribute("height", height);
-        rect.setAttribute("fill", "var(--soft)");
+        rect.setAttribute("fill", !region.content ? "var(--pocket-fill)"
+          : effectiveCover.pageStyle ? "var(--page-background)" : "var(--soft)");
         rect.setAttribute("clip-path", "url(#" + clipId + ")");
         group.append(rect);
         if (region.content && window.BinderVisuals)
@@ -89,6 +94,13 @@
               return n;
             },
           );
+        if (effectiveCover.pageStyle) {
+          const border = document.createElementNS(svg.namespaceURI, "path");
+          border.setAttribute("d", geometry.outline);
+          border.setAttribute("fill", "none");
+          border.setAttribute("stroke", "var(--pocket-border)");
+          group.append(border);
+        }
         svg.append(group);
       }
       book.append(svg);
@@ -105,7 +117,7 @@
     book.append(seal);
     const title = make("div", "cover-book-title");
     title.append(
-      make("span", "", "POKÉMON COLLECTION"),
+      make("span", "", cover.subtitle ?? "POK\u00c9MON COLLECTION"),
       make("strong", "", name),
     );
     book.append(title);
@@ -138,7 +150,17 @@
     }
     return book;
   }
+  function stylePage(node, cover) {
+    const appearance = cover?.pageStyle;
+    const valid = appearance && /^#[0-9a-f]{6}$/i.test(appearance.background);
+    node.style.setProperty("--page-background", valid ? appearance.background : "var(--surface)");
+    node.style.setProperty("--pocket-fill", "var(--soft)");
+    node.style.setProperty("--pocket-border", appearance?.pockets === "defined"
+      ? "var(--muted)" : appearance?.pockets === "subtle" ? "var(--line)" : "transparent");
+    node.dataset.pocketBorders = appearance?.pockets || "none";
+  }
   window.BinderCovers = {
+    stylePage,
     themes,
     create,
     name: (id) =>

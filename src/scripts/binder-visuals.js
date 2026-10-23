@@ -136,13 +136,9 @@
     const card = cards.get(c.cardId);
     if (!card) return;
     const frames = c.frames || defaults || {},
-      pad =
-        Math.min(w, h) *
-        (frames.toploader && frames.toploader !== "none"
-          ? 0.11
-          : frames.sleeve && frames.sleeve !== "none"
-            ? 0.075
-            : 0);
+      // Only framed cards reserve room for the holder and its inner gap.
+      pad = ((frames.sleeve && frames.sleeve !== "none") ||
+        (frames.toploader && frames.toploader !== "none")) ? Math.min(w, h) * 0.045 : 0;
     const iw = Math.min(w - 2 * pad, ((h - 2 * pad) * 245) / 337),
       ih = (iw * 337) / 245,
       x = (w - iw) / 2,
@@ -199,7 +195,7 @@
         [1, "#9db5ce"],
       ],
     };
-    function rim(style, inset, thickness, rigid) {
+    function rim(style, margin, thickness, rigid) {
       const id = "ball-rim-" + ++frameSequence;
       const defs = make("defs"),
         gradient = make("linearGradient", {
@@ -215,10 +211,11 @@
         );
       defs.append(gradient);
       group.append(defs);
-      const bx = x - inset,
-        by = y - inset,
-        bw = iw + 2 * inset,
-        bh = ih + 2 * inset;
+      // The outer holder fills the pocket; its stroke stays inside the bounds.
+      const bx = margin + thickness / 2,
+        by = margin + thickness / 2,
+        bw = w - 2 * margin - thickness,
+        bh = h - 2 * margin - thickness;
       group.append(
         make("rect", {
           x: bx,
@@ -227,7 +224,7 @@
           height: bh,
           rx: Math.min(w, h) * 0.025,
           fill: rigid ? "#a9c4e0" : "var(--surface)",
-          "fill-opacity": rigid ? 0.13 : 1,
+          "fill-opacity": rigid ? 0.2 : 1,
           stroke: "url(#" + id + ")",
           "stroke-width": thickness,
         }),
@@ -242,7 +239,7 @@
             rx: 3,
             fill: "none",
             stroke: "#d4e5fc",
-            "stroke-opacity": 0.45,
+            "stroke-opacity": 0.65,
             "stroke-width": thickness * 0.65,
           }),
         );
@@ -265,15 +262,15 @@
     if (frames.toploader && frames.toploader !== "none")
       rim(
         frames.toploader,
-        pad * 0.8,
-        Math.max(1, Math.min(w, h) * 0.025),
+        0,
+        Math.min(w, h) * 0.018,
         true,
       );
     if (frames.sleeve && frames.sleeve !== "none")
       rim(
         frames.sleeve,
-        Math.min(w, h) * 0.035,
-        Math.max(1, Math.min(w, h) * 0.012),
+        frames.toploader && frames.toploader !== "none" ? Math.min(w, h) * 0.014 : 0,
+        Math.min(w, h) * 0.018,
         false,
       );
     const image = make("image", {
@@ -297,6 +294,30 @@
       group.append(text);
     });
     group.append(image);
+    const rigid = frames.toploader && frames.toploader !== "none",
+      sleeved = frames.sleeve && frames.sleeve !== "none";
+    if (rigid || sleeved) {
+      const unit = Math.min(w, h);
+      // A clear retaining edge sits in front of the card, without tinting its artwork.
+      group.append(make("rect", {
+        x: x - unit * 0.004, y: y - unit * 0.004,
+        width: iw + unit * 0.008, height: ih + unit * 0.008,
+        rx: unit * 0.012, fill: "none", stroke: "#e8f2ff",
+        "stroke-opacity": rigid ? 0.7 : 0.45,
+        "stroke-width": unit * 0.005,
+      }));
+      const lip = rigid ? 0.019 : 0.01;
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * lip}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#111b29", "stroke-opacity": 0.8,
+        "stroke-width": unit * (rigid ? 0.008 : 0.004),
+      }));
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * (lip + 0.004)}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#eff7ff", "stroke-opacity": rigid ? 0.85 : 0.6,
+        "stroke-width": unit * 0.003,
+      }));
+    }
   }
   window.BinderVisuals = {
     name,

@@ -565,3 +565,18 @@ for (const crossPage of [false, true]) {
 console.log(
   "PASS: placed-card drops swap intact contents on the same or another page, with full Overflow, atomic Undo/Redo and backup validation.",
 );
+
+const rectangularMerge = create({ rows: 3, columns: 3 });
+const rectanglePage = rectangularMerge.document.pages[0];
+const idsAt = indexes => indexes.map(i => rectanglePage.regions[i].id);
+const beforeInvalidMerge = JSON.stringify(rectangularMerge.document);
+assert.match(rectangularMerge.mergeReason(rectanglePage.id, idsAt([0, 1, 3])), /rectangle/);
+assert.throws(() => rectangularMerge.merge(rectanglePage.id, idsAt([0, 1, 3])), /rectangle/);
+assert.equal(JSON.stringify(rectangularMerge.document), beforeInvalidMerge);
+assert.equal(rectangularMerge.canUndo, false);
+for (const indexes of [[0, 1], [0, 3, 6], [0, 1, 3, 4], [0, 1, 2, 3, 4, 5]]) {
+  assert.equal(rectangularMerge.mergeReason(rectanglePage.id, idsAt(indexes)), "");
+  rectangularMerge.merge(rectanglePage.id, idsAt(indexes));
+  rectangularMerge.undo();
+}
+console.log("PASS: strips/squares/rectangles merge; L-shapes reject atomically before content moves.");

@@ -1,5 +1,33 @@
 # Current project handoff
 
+## Workshop visual finish - 22 October 2026
+
+Alignment follow-up: group backgrounds now anchor to button centers rather than their inner borders. Browser measurements confirm equal 4px padding on every side of all three desktop groups, including the settings disclosure. Build/reference checks pass.
+
+Approved items 1-5 are implemented locally on `feat/editor-card-drawer`: subtle dotted canvas/matte lighting; page-edge depth and a narrow spine with a restrained sheen behind the artwork; softer inset ordinary empty pockets with rounded clipping and stronger plus hover/focus affordances; three desktop toolbar groups without moving or wrapping their buttons; consistent bordered navigation and distinct dashed/tinted Add page buttons. Existing navigation positioning/fallbacks and merged-pocket shapes are preserved. No small page indicator was added. Card images, document geometry/data, covers and manual Save remain unchanged.
+
+Verification: project build/reference checks pass. Brave visual review covered dark/light themes and one/two-page views, visible toolbar separation, matching arrow alignment, Add page/Undo and click-to-place/Undo on an empty pocket. No backend change, merge, push or deployment; full browser/backend suites were not rerun for this visual pass.
+
+## Expanded binder card catalogue - 22 October 2026
+
+Follow-up on `feat/editor-card-drawer`: **Expand now opens a centered modal**, superseding the earlier inline expansion below. The drawer keeps a bounded 24-card quick list and a compressed Type/Set popup with a visible Clear filters button. The modal offers search, Set, Type, Rarity, Available finish and Sort using the existing catalogue API/search helper. Select cards across filters and loaded batches, then explicitly Add to binder through the existing atomic batch insertion/history action. Cancel and Escape leave the binder unchanged; insertion still requires manual Save. Selection highlights/checks and bordered secondary/primary buttons match the editor. The modal uses 24-card Load more requests, lazy thumbnails, stale-response guards and retry without discarding existing results. No database, authentication or saved-format changes; no merge/push/deployment.
+
+Source: `src/scripts/editor-card-browser.js`, editor HTML/scripts and `src/styles/editor-calm.css`; generated review: `preview/Pokedex-editor.html`.
+
+Verification: build/reference checks (198 references, 49 modules), model/backup regressions and whitespace checks pass. Focused Brave UI checks passed selection across loading/filtering, keyboard selection, drawer-to-modal selection transfer, Add/Undo, Cancel, compact filter bounds, and modal/primary-button bounds at 320/440px. A simulated remote catalogue passed failed-load retry without losing selection and stale-response rejection. Browser regression assertions were updated; the full browser suite, real Docker/cloud authentication and Safari/Firefox were not rerun.
+
+## Editor Add cards drawer review - 22 October 2026
+
+Local branch `feat/editor-card-drawer` targets the binder editor's left Add cards drawer shown by the owner, not the Workspace collection dialog. Compact heading/help/search controls move Type and Set into a bounded filter menu inside search, with an active-filter count and Clear filters. Cards have wider gutters and compact one-line captions. Expand replaces Previous/page number/Next and appends 24 more printings without remounting existing artwork. Search/filter changes reset the result batch; expanded results remain available during placement and Undo. Failed expansion preserves its current cards and retries the same batch. Escape closes filters before the drawer. The rail button's accessible name/tooltip is Add cards.
+
+Editable files: `src/editor.html`, `src/styles/editor-calm.css`, `src/scripts/editor.js`, and `src/scripts/editor-layout.js`; generated review page: `preview/Pokedex-editor.html`. Collection, landing, backend settings, saved-data formats and manual Save are unchanged. No merge, push or deployment.
+
+Verification: build/reference and existing project model/backup checks pass. Focused Brave review passed expansion through the last batch, retained multi-selection, filter counts/clear/Escape, batch insertion and Undo, and a real drag into an empty pocket followed by Undo. An isolated simulated catalogue passed failed-expansion retry, stale-response rejection and fresh-search failure/recovery; opened filter bounds fit 320/440px. Browser regression expectations were updated. The full browser suite, real cloud/Docker login and Safari/Firefox were not rerun.
+
+## New-person Google login accepted - 22 October 2026
+
+- [x] The owner reports that a new person's Google-account sign-in test on the deployed website passed. This closes the fresh-account login check; it is owner-reported acceptance, not an assistant-observed Google session. Google brand verification/publication remains separate and unfinished. The deployed Binder Minder website release is `24a1190`; deployment `39650984324` passed and all six routes matched the reviewed package. No application or Google configuration changes were made for this acceptance note.
+
 ## Binder Minder working identity - 22 October 2026
 
 The owner selected **Binder Minder** as the temporary public identity and `?` as the website logo placeholder; Google OAuth's logo should remain empty. Local branch `feat/binder-minder-branding` updates visible page/header/footer/CTA names, dynamic editor/viewer titles and account-backup error wording. One shared placeholder rule replaces the old site-logo drawing rules. Layout, palette, card art and cover designs are retained. Editable changes are in `src/`; generated review pages are under `preview/`.
@@ -292,3 +320,119 @@ The editor follows visual-viewport height changes so controls refit when a softw
 Mobile controls use at least 44px targets in the editor dock, selection bar, page navigation and sidebar view buttons. Full-screen Help, dialog limits, mobile form text and device safe-area padding were tightened. Workspace creation actions share a full-width phone row with less dead space. The landing viewer's decorative glow no longer expands the narrow layout viewport. Publishing documentation's corrupted navigation arrows were corrected.
 
 Browser regressions cover 320/390/440px portrait, 844/956px landscape, both themes, sheet expansion, reachable controls, styling retarget/page turns, separate Pages/Overflow, actual emulated touch placement, viewport shrink/restore, and horizontal bounds on all five pages. Real iOS/Android devices and Safari/Firefox still require manual verification. Image loading optimization is separate work.
+
+
+## Separate binder and card customization ? 2026-10-22
+
+The editor's binder icon opens Customize binder with compact Cover presets, Text,
+Your artwork, Page appearance and Reusable design sections. The shared three-tab
+switch is removed from this view. The stacked-card icon opens Customize cards
+with only the existing Sleeves / Toploaders tabs; presets, scope, card targeting,
+page navigation and manual Apply/Save behavior are retained.
+
+Binder text adds an optional subtitle alongside the existing title size, color,
+alignment, position and visibility controls. Page appearance applies one color
+and None/Subtle/Defined pocket borders throughout the binder. Opening that section
+previews the actual page; closing it returns to the cover. Page geometry and card
+artwork are unchanged. Optional cover.subtitle and cover.pageStyle fields are
+validated and retained in normal saves, backups, transparent covers, thumbnails
+and viewers; legacy binders keep their original appearance. No production schema
+or configuration changes are made.
+
+Reusable designs download as versioned JSON files containing cover artwork/text
+and page appearance, without binder cards or inventory. Loading validates a bounded
+file, previews it, and requires Apply then manual Save. These are portable files,
+not an account design library. Invalid imports preserve the current draft; Cancel
+discards preview changes. Design files containing private artwork should be kept
+private. Automated cover checks cover optional fields, legacy compatibility,
+round-trip preservation, rejection/rollback and Undo/Redo. Local browser checks
+cover panel separation, title/subtitle preview, page appearance, valid/invalid
+file loading, Cancel, existing card styling and narrow layout bounds. Hosted
+saving and other browser engines have not been exercised for these new controls.
+
+The browser download handler ran without errors, but its completed file could not
+be independently verified through the browser automation download event. Manual
+download completion and hosted Save checks remain before release.
+
+
+Binder customization navigation refinement ? 2026-10-22: Cover, Text, Artwork,
+Pages and Designs are five compact icon-and-label buttons in the panel, replacing
+all five accordions. Exactly one labelled settings region is visible, the active
+button is highlighted, and the button row stays reachable while controls scroll.
+Opening binder customization starts on Cover. Pages previews the binder page;
+other buttons restore the cover preview. Card customization is unchanged.
+
+
+Workshop correction ? 2026-10-22: Customizer inputs/selects use full bordered
+fields with inset red focus rings, avoiding clipping at scroll edges. Add cards
+and customization Close share the same bordered button treatment. The Pages
+section shows the actual current-page thumbnail instead of the cover and permits
+turning existing pages with the design draft intact. Shared page thumbnails and
+binder preview render empty pockets in a contrasting surface with plus signs,
+even when the page background is colored and optional borders are disabled.
+Local browser checks confirmed nine visible pockets/pluses on an empty page,
+six matching card images on a populated page, preserved drafts during page turns,
+and consistent close-button borders. Production remains unchanged.
+
+
+Workshop visual consistency ? 2026-10-23: Removed the binder-only heading size
+and footer-control override. Binder, card styling, Add cards and View/settings
+panel headings share 18px/600 typography. Both customization panels share 16px
+preview names, 14px preset labels/form text, 12px supporting copy, and 44-by-40px
+footer icon buttons (44px tall on touch layouts). Form text has consistent leading
+padding. Workshop Close controls share a 40px bordered button and the expanded
+catalogue uses the same SVG close icon instead of a text multiplication glyph.
+Distinct cover/card artwork dimensions and section navigation remain intentional.
+No saved-data behavior, backend configuration, merge or deployment changes.
+
+
+Per-page appearance ? 2026-10-23: Pages defaults to This page and offers All pages. Individual pageStyle overrides persist through normal saves/backups. All pages updates the binder default and clears overrides; new pages inherit that default. Reset uses Use binder default or Reset all pages. Draft page edits survive page turns and Apply remains atomic/undoable. Existing records remain compatible. Hosted acceptance has not been run.
+
+
+Consistent framed-card sizing ? 2026-10-23: The shared card renderer reserves a fixed 2.5% allowance per side for all cards. Sleeves and toploaders use thinner nested rims; applying either or both no longer changes card image dimensions. Existing stored styles and artwork remain untouched. Geometry regression checks cover ordinary, thumbnail and merged proportions; browser comparison confirmed identical card width before/after combined styles. No production changes.
+
+
+Frame visibility refinement ? 2026-10-23: Kept the same fixed card image dimensions and rim allowance. Sleeves now have a thicker colored band, with toploaders occupying a distinct outer rim and stronger translucent case/highlight contrast. Combined frames still fit inside the pocket without changing artwork size.
+
+
+Case depth refinement ? 2026-10-23: Cards use a uniform 3.5% per-side allowance (two percentage points less image width than the preceding version). Sleeve/case bodies extend around the card; a transparent retaining edge and opening lip render in front, giving an inserted-card appearance without tinting the artwork. Frame choices still share identical card dimensions.
+
+
+Holder spacing adjustment ? 2026-10-23: Increased both rim strokes to 1.8% of pocket width and moved their bodies outward to leave a visible inner gap. A uniform 4.5% allowance keeps card dimensions identical across all styles; image width is two percentage points smaller than the preceding version.
+
+
+Unframed sizing exception ? 2026-10-23: At owner request, cards without sleeves or toploaders use the full available pocket bounds while preserving aspect ratio. Only framed cards reserve the holder/gap allowance. Sleeve-only, toploader-only and combined styles retain consistent artwork sizes. This supersedes the earlier uniform bare/framed size rule.
+
+
+Pocket-filling holders ? 2026-10-23: Following the owner-provided PkmnBindr reference, the outermost sleeve/toploader now fills the pocket bounds, including its stroke. With both present the sleeve nests inside the toploader. Card artwork stays inset with its existing framed dimensions; bare cards fit the available bounds while retaining aspect ratio. Geometry tests assert exact outer-holder coverage and containment, including merged proportions.
+
+
+Rectangular merges ? 2026-10-23: New merges must form a solid rectangle, including horizontal/vertical strips and squares. L-shapes and shapes with holes are rejected before content moves; the UI uses the same eligibility rule. Saved connected legacy shapes remain loadable. Plus markers in rectangular merged regions use the exact bounding-box center, including even-width/even-height merges; legacy irregular shapes retain an interior marker position. Model checks cover rejection rollback and valid rectangles; browser measurement confirmed a merged-strip marker centered within 0.01px.
+
+
+Merged empty-pocket contrast fix ? 2026-10-23: The shared page appearance helper now keeps empty-pocket fill independent of custom page background color. Rectangular merged empties remain visible against colored pages while retaining their centered plus markers. Saved layouts and page colors are unchanged.
+
+
+Unified empty-pocket styling ? 2026-10-23: Removed the merged-pocket exclusion from empty-pocket background, fill transparency and hover rules. Both ordinary and merged empties now share the same gradient, rounded corners, inset border and hover treatment rather than flat merged fills. Centered markers and saved layouts remain unchanged.
+
+
+Selection toolbar hierarchy ? 2026-10-23: Primary Customize/Design pocket/Merge actions use icon-plus-label treatment; supporting Inspect/Move actions remain neutral. Secondary swap, unmerge, copy/paste styles, cross-binder copy and selected-card pocket design are in More. Multiple selections say N selected. Remove is separated and red on hover; Clear selection is quiet at the far end. Removed the selection drag grip, retained existing action handlers, and bounded the More popup with outside-click/Escape dismissal. Existing single-card-only movement is retained, without inventing multi-card movement. Local branch only.
+
+
+Toolbar spacing/movement ? 2026-10-23: Restored a narrow visible drag grip using existing bounded pointer dragging, arrow-key movement, Home reset and Escape cancellation. Main action hit areas share 36px height, 6px gaps and consistent corner radii. Primary action keeps its label; remove/dismiss retain separate spacing. More menu rows have consistent padding and hover surfaces. No editing/data behavior changes.
+
+Card styling panel refinement - 2026-10-23: Added labeled Sleeves/Toploaders tabs, compact current-style summary, target count, clearer equal-size preset tiles, selected checkmarks and visible Cancel/Apply labels in card mode. Current mixed styles and pending choices are separate. Verified local browser cancellation, combined style application to selected cards, mixed-scope display, Undo, and phone/short-landscape layout. Corrected a phone scope-note overlap found during review. Build/reference checks and editor/frame geometry regressions pass. Physical mobile/Safari and hosted acceptance were not run; branch remains uncommitted and production unchanged.
+
+Sidebar refinement - 2026-10-23: Grouped Pages/Overflow, separated the collapse control, replaced the Overflow trash icon with a tray, refined nonzero count badges and moved Clear overflow into the Overflow view. Removed the desktop vertical divider and made Add page text visible below the final page thumbnail. Browser checks covered expanded/collapsed states, live displaced-card count, Overflow content, Undo, and phone tabs. Local build/reference checks passed. No saved-data format, production, merge or deployment changes; physical-device testing remains outstanding.
+
+Help quick reference - 2026-10-23: Workshop help now separates Basics and Shortcuts with labeled buttons. Seven short topics use action rows, one open topic at a time, and optional More details. Shortcut rows show existing key bindings as keycaps, using Command on Mac. Search filters the active section and reports section-specific empty results. Saving guidance distinguishes signed-in accounts from the local demo and retains explicit manual Save. No new keyboard commands or storage changes. Local browser checks passed for tabs, search, accordion exclusivity, Escape/focus restoration and narrow phone fit. Reusable browser regressions were extended; the full browser suite and physical-device checks were not run.
+
+Page settings clarity - 2026-10-23: Separated immediate Single/Spread view buttons from this-page layout changes. Rows/Columns share equal columns, with a pocket-space count and page target. Labeled Apply layout is disabled for unchanged/invalid dimensions. Overflow warnings appear only for affected content; merged-pocket splitting also warns. Duplicate page has an icon and label; Delete is separated and unavailable on the last page. Removed reorder arrows from this panel; thumbnail drag and Alt+Up/Down remain. Switching view preserves pending layout dimensions. Build/reference and editor model checks passed; browser checks covered view selection, layout growth, invalid input and shrink confirmation. Local-only changes, no deployment.
+
+Layout confirmation consistency - 2026-10-23: Every changed, valid layout now opens the same confirmation, including increases and decreases that affect only empty pockets. Replaced the long paragraph and per-card listing with old/new grid dimensions and only nonzero Overflow/merged-pocket effects. The confirmation action says Apply layout; unrelated confirmations keep Confirm. Growth success feedback now simply says Page layout updated. Browser checks verified increase confirmation, Cancel preserving the page, successful Apply feedback and concise shrink warnings. Build/reference checks passed. Full browser suite and physical-device checks were not run; no deployment.
+
+Binder/card panel parity and layout confirmation correction - 2026-10-23: Binder customization now shares the card panel's 88px compact preview, spacing, equal bordered presets with selected checkmarks, supporting status and labeled Cancel/Apply footer. Cover/Text/Artwork/Pages/Designs stay above the scrolling settings in a compact grouped selector; current functions and saved formats are preserved. Card-only targeting is hidden in binder mode. Phone checks confirmed readable section buttons and accessible footer controls. Binder Cancel, Apply and Undo passed; text/artwork/design/page controls remain available. Layout growth and empty-area shrink now apply directly with the usual success notice; only affected placed content requires a confirmation stating the Overflow count (and affected merged pockets when relevant). Editor/cover model tests and local build/reference checks passed. The full browser suite, physical-device checks and hosted acceptance were not run. No merge or deployment.
+
+Centered customization preview strip - 2026-10-23: Both customization panels center the thumbnail/caption pair inside a subtle bordered strip, with 12px internal padding and a 12px gap. A fixed 62px thumbnail box contains covers, cards and wide pages without stretching or overlapping captions. Caption titles wrap to two lines; the strip can grow for long titles. Pages uses its actual grid dimensions as the subtitle. Local browser measurements confirmed centering within 0.01px, a 12px box-to-caption gap, a contained 3x6 page preview and a contained long title; Cancel preserved the original title. Local build/reference checks passed. No production changes; physical-device checks were not run.
+
+Audit fixes - 2026-10-23: Corrected the studio fixture to merge a valid strip and updated browser alignment assertions to exclude visible icon-plus-label controls while retaining icon-only coverage. Design downloads and both transparent-cover previews now use the resolved draft document, including pending All pages appearance edits. Standalone viewer pockets receive each page's effective appearance, including the artwork/placeholder inspection path. Empty pockets in the viewer and transparent covers use the shared contrasting pocket fill. Added focused export/preview/reset/viewer rendering regressions and a browser assertion for both transparent draft previews. The complete test-project runner passed, along with local build/reference checks and targeted browser checks with no console errors. Full automated browser, hosted, physical-device and cross-browser suites were not run. No merge or deployment.

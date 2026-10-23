@@ -100,11 +100,12 @@
   window.addEventListener("pokedex-account-changed", () =>
     unavailable("Account changed. Return to Workspace to sign in again."),
   );
-  function regionArt(region, width, height, cellWidth, cellHeight, gap) {
+  function regionArt(region, width, height, cellWidth, cellHeight, gap, pageStyle = doc.cover?.pageStyle) {
     const art = svg("svg", {
       viewBox: "0 0 " + width + " " + height,
       "aria-hidden": "true",
     });
+    window.BinderCovers.stylePage(art, { pageStyle });
     const id = "viewer-clip-" + ++sequence;
     const clip = svg("clipPath", { id });
     const geometry = window.BinderGeometry(
@@ -118,7 +119,8 @@
     defs.append(clip);
     art.append(defs);
     geometry.rects.forEach((rect) =>
-      art.append(svg("rect", { ...rect, fill: "var(--surface)" })),
+      art.append(svg("rect", { ...rect, fill: region.content
+        ? "var(--page-background, var(--surface))" : "var(--pocket-fill)" })),
     );
     if (region.content)
       window.BinderVisuals.append(
@@ -134,7 +136,7 @@
       svg("path", {
         d: geometry.outline,
         fill: "none",
-        stroke: "var(--line)",
+        stroke: pageStyle ? "var(--pocket-border)" : "var(--line)",
         "stroke-width": 1,
         "stroke-dasharray": region.content ? "0" : "4 4",
       }),
@@ -214,6 +216,8 @@
       ) => {
         const sheet = document.createElement("section");
         sheet.className = "viewer-sheet" + (!page ? " is-blank" : "");
+        window.BinderCovers.stylePage(sheet, { ...doc.cover, pageStyle: page?.pageStyle || doc.cover?.pageStyle });
+        sheet.style.background = "var(--page-background)";
         sheet.style.left = left * scale + "px";
         sheet.style.width = sheetWidth * scale + "px";
         sheet.style.height = sheetHeight * scale + "px";
@@ -253,6 +257,7 @@
               cw * scale,
               ch * scale,
               gap * scale,
+              page.pageStyle || doc.cover?.pageStyle,
             );
             node.style.clipPath = "url(#" + id + ")";
             node.append(art);
@@ -471,7 +476,8 @@
           (ch + gap) -
         gap;
       $("viewer-inspect-art").append(
-        regionArt(region, rw, rh, cw, ch, gap).art,
+        regionArt(region, rw, rh, cw, ch, gap,
+          doc.pages.find(page => page.regions.some(item => item.id === region.id))?.pageStyle || doc.cover?.pageStyle).art,
       );
       $("viewer-inspect-meta").textContent =
         content.kind === "artwork" ? "Binder artwork" : "Reserved pocket";

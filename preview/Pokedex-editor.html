@@ -2,7 +2,10 @@
 <html lang="en" class="editor-loading">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <title>Binder editor — Binder Minder</title>
     <style>
       #editor-startup {
@@ -3280,8 +3283,8 @@ body.editor-page.calm-editor {
   contain: none;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  gap: 12px;
+  padding: 14px;
+  gap: 8px;
   overflow: hidden;
   z-index: 20;
 }
@@ -3292,6 +3295,8 @@ body.editor-page.calm-editor {
   margin: 0;
 }
 .calm-editor .card-picker h2 {
+  margin: 0;
+  font-size: 16px;
   flex: 1;
   order: 1;
 }
@@ -3301,12 +3306,112 @@ body.editor-page.calm-editor {
 }
 .calm-editor .card-picker .panel-hint {
   margin: 0;
-  font-size: var(--calm-small);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.calm-editor .editor-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  position: relative;
+  flex: none;
 }
 .calm-editor .editor-search {
   display: block;
+  min-width: 0;
+  flex: 1;
 }
-.calm-editor .editor-search input,
+.calm-editor .editor-search input {
+  min-height: 36px;
+  margin: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: var(--calm-small);
+}
+.calm-editor .editor-search-bar:focus-within {
+  border-color: var(--accent);
+}
+.calm-editor .editor-search input:focus-visible {
+  outline: none;
+}
+.calm-editor .card-filter-menu {
+  margin: 0;
+  flex: none;
+}
+.calm-editor .card-filter-menu > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.calm-editor .card-filter-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.calm-editor .card-filter-menu > summary:hover,
+.calm-editor .card-filter-menu[open] > summary {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+.calm-editor .card-filter-menu .ui-symbol {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+.calm-editor #card-filter-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.calm-editor .card-filter-menu .catalogue-filters {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  width: min(260px, 100%);
+  max-height: min(340px, calc(100dvh - 260px));
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--calm-shadow);
+}
+.calm-editor .card-filter-menu .type-filter {
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  font-size: 12px;
+}
+.calm-editor .card-filter-menu .type-filter select {
+  min-height: 34px;
+  padding: 5px 8px;
+}
+.calm-editor #card-filters-clear {
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--soft);
+  color: var(--ink);
+  font-weight: 600;
+}
 .calm-editor .type-filter select {
   min-height: 40px;
   border: 1px solid var(--line);
@@ -3315,23 +3420,36 @@ body.editor-page.calm-editor {
   color: var(--ink);
   padding: 8px 12px;
 }
-.calm-editor .editor-search input {
-  margin: 0;
-  width: 100%;
-  font: inherit;
-  font-size: var(--calm-small);
-}
-.calm-editor .card-picker :is(input, select):hover {
-  border-color: var(--muted);
-}
-.calm-editor .card-picker :is(input, select):focus-visible {
+.calm-editor .card-picker select:focus-visible,
+.calm-editor .card-filter-menu > summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.calm-editor .catalogue-filters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.calm-editor .editor-card-expand {
+  padding: 4px 0 0;
+}
+.calm-editor .editor-card-expand button {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-weight: 600;
+}
+.calm-editor .editor-card-expand button:hover:not(:disabled) {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+.calm-editor .card-picker .catalogue-card strong,
+.calm-editor .card-picker .catalogue-card small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.calm-editor .card-picker .catalogue-card small {
+  font-size: 12px;
 }
 .calm-editor .type-filter {
   display: grid;
@@ -3354,7 +3472,7 @@ body.editor-page.calm-editor {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: max-content;
   align-content: start;
-  gap: 16px 12px;
+  gap: 22px 18px;
   flex: 1;
   min-height: 0;
   max-height: none;
@@ -5791,7 +5909,8 @@ body.editor-page.calm-editor {
     min-width: 0;
     height: 56px;
     min-height: 56px;
-    padding: 6px max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
+    padding: 6px max(8px, env(safe-area-inset-right)) 6px
+      max(8px, env(safe-area-inset-left));
     gap: 4px;
     flex-wrap: nowrap;
   }
@@ -6182,7 +6301,8 @@ body.editor-page.calm-editor {
   }
 }
 
-@media (max-width: 700px) and (max-height: 500px) and (min-width: 500px), (max-width: 1024px) and (max-height: 500px) and (min-width: 500px) {
+@media (max-width: 700px) and (max-height: 500px) and (min-width: 500px),
+  (max-width: 1024px) and (max-height: 500px) and (min-width: 500px) {
   .calm-editor .card-picker {
     height: 100%;
     display: grid;
@@ -6772,7 +6892,9 @@ body.editor-page.calm-editor {
 .calm-editor .pages-collapsed .sidebar-views button {
   box-shadow: none;
 }
-.calm-editor .editor-shell:not(.has-selection):not(.merge-mode) #select-pockets {
+.calm-editor
+  .editor-shell:not(.has-selection):not(.merge-mode)
+  #select-pockets {
   box-shadow: none;
   background: var(--surface);
 }
@@ -6878,7 +7000,8 @@ body.editor-page.calm-editor {
   height: 40px;
 }
 
-@media (min-width: 701px) and (max-width: 1100px) and (min-height: 501px), (min-width: 1025px) and (max-width: 1100px) {
+@media (min-width: 701px) and (max-width: 1100px) and (min-height: 501px),
+  (min-width: 1025px) and (max-width: 1100px) {
   .calm-editor .canvas-stage {
     padding-inline: 16px;
   }
@@ -7010,7 +7133,9 @@ body.editor-page.calm-editor {
   .calm-editor .editor-rail > details > summary,
   .calm-editor .page-navigation button,
   .calm-editor .sidebar-views button,
-  .calm-editor .selection-status :is(button, .workshop-icon, .selection-icon, .floating-handle) {
+  .calm-editor
+    .selection-status
+    :is(button, .workshop-icon, .selection-icon, .floating-handle) {
     min-width: 44px;
     min-height: 44px;
   }
@@ -7047,12 +7172,13 @@ body.editor-page.calm-editor {
     max-width: 100%;
     height: var(--editor-height, 100dvh);
     max-height: var(--editor-height, 100dvh);
-    padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    padding: 16px max(16px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
   }
   .calm-editor .editor-shell:not(.pages-collapsed) .pages-sidebar {
     animation-name: phone-panel-in;
   }
-
 }
 @media (min-width: 500px) and (max-width: 1024px) and (max-height: 500px) {
   .calm-editor .editor-shell {
@@ -7107,7 +7233,10 @@ body.editor-page.calm-editor {
   .calm-editor .styling-card .customizer-actions {
     grid-row: 4;
   }
-  .calm-editor .editor-shell.customizing:not(.picking-style-card) .canvas-panel > .page-navigation {
+  .calm-editor
+    .editor-shell.customizing:not(.picking-style-card)
+    .canvas-panel
+    > .page-navigation {
     right: calc(64% + 8px) !important;
   }
 }
@@ -7139,6 +7268,1405 @@ body.editor-page.calm-editor {
     transform: translateY(0);
     opacity: 1;
   }
+}
+/* Expanded Add cards catalogue; selection stays separate from binder edits. */
+.calm-editor .binder-card-browser {
+  width: min(1120px, calc(100% - 40px));
+  max-width: none;
+  height: min(820px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--calm-shadow);
+}
+.calm-editor .binder-card-browser[open] {
+  display: flex;
+  flex-direction: column;
+}
+.calm-editor .binder-card-browser::backdrop {
+  background: #0007;
+  backdrop-filter: blur(4px);
+}
+.calm-editor .card-browser-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px 12px;
+  flex: none;
+}
+.calm-editor .card-browser-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.calm-editor .card-browser-heading .browser-button {
+  min-width: 40px;
+  font-size: 24px;
+  padding: 0;
+}
+.calm-editor .card-browser-search {
+  padding: 0 20px 16px;
+  flex: none;
+}
+.calm-editor .card-browser-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+}
+.calm-editor .card-browser-body {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 20px;
+  padding: 0 20px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.calm-editor .card-browser-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 4px 8px 4px 0;
+}
+.calm-editor .card-browser-filters label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.calm-editor .card-browser-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+.calm-editor .binder-card-browser :is(input, select) {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+.calm-editor .card-browser-catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 4px 8px;
+  scrollbar-gutter: stable;
+}
+.calm-editor .card-browser-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.calm-editor .card-browser-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 24px 18px;
+}
+.calm-editor .card-browser-tile {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.calm-editor .card-browser-tile img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 245/337;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.calm-editor .card-browser-tile :is(strong, small) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.calm-editor .card-browser-tile small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.calm-editor .card-browser-tile:hover {
+  background: var(--soft);
+  border-color: var(--line);
+}
+.calm-editor .card-browser-tile[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.calm-editor .card-browser-check {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+.calm-editor .card-browser-tile[aria-pressed="true"] .card-browser-check {
+  display: grid;
+}
+.calm-editor .card-browser-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  flex: none;
+}
+.calm-editor .card-browser-actions > span {
+  margin-right: auto;
+  white-space: nowrap;
+}
+.calm-editor .binder-card-browser .browser-button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.calm-editor .binder-card-browser .browser-button:hover:not(:disabled) {
+  border-color: var(--muted);
+  background: var(--soft);
+}
+.calm-editor .binder-card-browser .browser-button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.calm-editor .binder-card-browser .card-browser-heading .browser-button {
+  font-size: 22px;
+  line-height: 1;
+}
+.calm-editor .binder-card-browser .browser-button.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  background: var(--accent);
+}
+.calm-editor .binder-card-browser button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.calm-editor .binder-card-browser :is(button, input, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.calm-editor .binder-card-browser :is(input, select):focus-visible {
+  outline-offset: -2px;
+  border-color: var(--accent);
+}
+@media (max-width: 700px) {
+  .calm-editor .binder-card-browser {
+    width: calc(100% - 20px);
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+  .calm-editor .card-browser-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+    gap: 12px;
+  }
+  .calm-editor .card-browser-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    padding: 0;
+  }
+  .calm-editor .card-browser-catalogue {
+    overflow: visible;
+    padding: 4px;
+  }
+  .calm-editor .card-browser-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 10px;
+  }
+  .calm-editor .card-browser-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .calm-editor .card-browser-actions > span {
+    flex: 1;
+  }
+  .calm-editor .card-browser-actions #browser-add-cards {
+    flex: 1;
+  }
+}
+/* A quiet work surface and physical page edges; artwork stays unchanged. */
+.calm-editor .canvas-stage,
+.calm-editor .editor-shell.customizing .canvas-panel > .canvas-stage {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(
+      ellipse at 50% 45%,
+      color-mix(in srgb, var(--surface) 48%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--ink) 12%, transparent) 0.7px,
+      transparent 0.9px
+    );
+  background-size:
+    100% 100%,
+    20px 20px;
+  background-position: center, center;
+}
+.calm-editor .binder-page-editor:not(.is-spread):not(.is-cover-preview)::before,
+.calm-editor .editor-sheet::before {
+  border-color: color-mix(in srgb, var(--line) 85%, var(--ink));
+  border-radius: 12px;
+  background:
+    linear-gradient(115deg, #ffffff0b, transparent 40%), var(--surface);
+  box-shadow:
+    0 18px 40px #0003,
+    0 3px 0 color-mix(in srgb, var(--line) 75%, var(--surface)),
+    inset 0 1px 0 #ffffff14;
+}
+.calm-editor .binder-page-editor:not(.is-spread):not(.is-cover-preview)::after,
+.calm-editor .editor-sheet::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: -8px;
+  width: 6px;
+  border-radius: 6px 0 0 6px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 11px,
+      #ffffff12 11px 12px
+    ),
+    linear-gradient(to right, #0003, #ffffff0b);
+  border-right: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  z-index: -1;
+  pointer-events: none;
+}
+.calm-editor .editor-sheet:first-child::after {
+  left: auto;
+  right: -8px;
+  border-radius: 0 6px 6px 0;
+}
+.calm-editor .editor-pocket:not(.has-content) {
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface) 80%, var(--bg)),
+    var(--bg)
+  );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--line) 80%, transparent),
+    inset 0 3px 10px #00000012;
+}
+.calm-editor .editor-pocket:not(.has-content) > svg > rect {
+  fill: transparent;
+}
+.calm-editor
+  .editor-pocket:not(.has-content):is(:hover, :focus-visible) {
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    inset 0 0 24px color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.calm-editor .editor-pocket .empty-plus {
+  z-index: 1;
+}
+.calm-editor .editor-pocket .empty-plus::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  z-index: -1;
+}
+.calm-editor .editor-pocket:is(:hover, :focus-visible) .empty-plus {
+  color: var(--accent);
+  opacity: 1;
+}
+.calm-editor .editor-pocket:is(:hover, :focus-visible) .empty-plus::before {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+.calm-editor .canvas-panel > .page-navigation button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 3px 10px #00000012;
+}
+.calm-editor .canvas-panel > .page-navigation button:hover:not(:disabled) {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+.calm-editor .canvas-panel > .page-navigation #next-page[data-add="true"],
+.calm-editor #add-page {
+  border: 1px dashed color-mix(in srgb, var(--accent) 65%, var(--line));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  color: var(--ink);
+}
+.calm-editor
+  .canvas-panel
+  > .page-navigation
+  #next-page[data-add="true"]:hover:not(:disabled),
+.calm-editor #add-page:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface));
+}
+@media (min-width: 1101px) and (min-height: 700px) {
+  .calm-editor .editor-rail {
+    border-right: 0;
+    isolation: isolate;
+  }
+  .calm-editor
+    .editor-rail
+    > :is(.layout-settings, #download-backup, #discover-nav) {
+    margin-top: 0;
+  }
+  .calm-editor .editor-rail > .workshop-group-start {
+    position: relative;
+  }
+  .calm-editor
+    .editor-rail
+    > :is(.workshop-group-start, #preview-binder):not(:first-child),
+  .calm-editor .editor-rail > #discover-nav {
+    margin-top: 14px;
+  }
+  .calm-editor .editor-rail > .workshop-group-start::before {
+    content: "";
+    position: absolute;
+    top: calc(50% - 24px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: var(--group-height);
+    border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--surface) 58%, var(--bg));
+    box-shadow: 0 2px 8px #0000000a;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/* Binder controls are independent from the two unchanged card-style tabs. */
+.calm-editor .binder-design-panel .customizer-tabs,
+.calm-editor .binder-design-panel #custom-tab-cover {
+  display: none;
+}
+.calm-editor .binder-design-panel #cover-preview-stage {
+  height: 100px;
+  min-height: 100px;
+  margin-block: 0;
+  gap: 12px;
+  padding-block: 4px;
+}
+.calm-editor .binder-design-panel #cover-preview-art .binder-cover-art {
+  width: 64px;
+}
+.calm-editor .binder-design-panel .cover-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding-block: 8px;
+}
+.calm-editor .binder-design-panel .cover-option {
+  gap: 5px;
+  padding: 7px 4px;
+  min-width: 0;
+  font-size: 12px;
+}
+.calm-editor .binder-design-panel .cover-option .binder-cover-art {
+  width: 48px;
+}
+.calm-editor .binder-design-panel .custom-cover-body {
+  gap: 8px;
+  padding-block: 8px;
+}
+.calm-editor .binder-design-panel #cover-design-controls :is(input:not([type="checkbox"]), select, .button, .tool-button) {
+  min-height: 40px;
+  font-size: var(--calm-small);
+}
+.calm-editor .binder-design-panel #cover-text-settings .cover-text-group:first-child > .field:last-child {
+  grid-column: 1 / -1;
+}
+.calm-editor .binder-setting-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+  padding: 8px 0;
+}
+.calm-editor .binder-setting-grid .field {
+  min-width: 0;
+  gap: 4px;
+  margin: 0;
+  font-size: var(--calm-small);
+}
+.calm-editor .binder-setting-grid input[type="color"] {
+  width: 100%;
+  padding: 4px;
+}
+
+.calm-editor .binder-page-editor:not(.is-spread):not(.is-cover-preview)::before,
+.calm-editor .editor-sheet::before {
+  background: linear-gradient(115deg, #ffffff0b, transparent 40%), var(--page-background, var(--surface));
+}
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .binder-design-panel :is(input:not([type="checkbox"]), select) {
+    min-height: 40px;
+    font-size: 16px;
+  }
+}
+
+.calm-editor .binder-design-panel .binder-setting-grid button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 8px 10px;
+}
+.calm-editor .binder-design-panel .binder-setting-grid button:hover {
+  border-color: var(--accent);
+}
+.calm-editor .binder-setting-grid input[type="color"] {
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+/* Direct section buttons replace the binder accordion. */
+.calm-editor .binder-section-buttons {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  padding: 0 0 10px;
+  background: var(--surface);
+}
+.calm-editor .binder-design-panel .binder-section-buttons > .binder-section-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 8px 2px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 11px;
+}
+.calm-editor .binder-section-button .ui-symbol {
+  width: 18px;
+  height: 18px;
+}
+.calm-editor .binder-design-panel .binder-section-buttons > .binder-section-button:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+.calm-editor .binder-design-panel .binder-section-buttons > .binder-section-button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--soft);
+  border-color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .binder-design-panel .cover-setting-section {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* Miniature covers keep the full-size binder silhouette instead of fixed 20px corners. */
+.calm-editor #cover-preview-art > .binder-cover-art {
+  border-radius: 2.5% 4% 4% 2.5% / 1.875% 3% 3% 1.875%;
+}
+
+/* Inset focus rings stay complete inside the scrolling customizer. */
+.calm-editor #cover-customizer :is(input:not([type="checkbox"]):not([type="file"]), select, textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: var(--bg);
+}
+.calm-editor #cover-customizer :is(input:not([type="checkbox"]):not([type="file"]), select, textarea):focus {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.calm-editor :is(#cards-close, #customize-close, #help-close, #pocket-close, .utility-close, .studio-close, .card-browser-heading > .icon-button) {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.calm-editor :is(#cards-close, #customize-close, #help-close, #pocket-close, .utility-close, .studio-close, .card-browser-heading > .icon-button):hover {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+
+.calm-editor .binder-design-panel #cover-preview-art > svg {
+  width: 80px;
+  height: 96px;
+  max-height: 96px;
+}
+
+/* Shared panel hierarchy: binder, card styling and card search use the same sizes. */
+.calm-editor :is(.customizer-heading, .card-picker .panel-heading, .utility-heading) h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.calm-editor #cover-customizer .cover-preview-caption strong {
+  font-size: var(--calm-medium);
+  font-weight: 600;
+}
+.calm-editor #cover-customizer :is(.panel-hint, #cover-selection-status) {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 4px 0;
+}
+.calm-editor #cover-customizer :is(.cover-option, .frame-style-option) > span {
+  font-size: var(--calm-small);
+  line-height: 1.3;
+}
+.calm-editor #cover-customizer .customizer-actions > button {
+  width: 44px;
+  min-width: 44px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+}
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor #cover-customizer .customizer-actions > button {
+    height: 44px;
+    min-height: 44px;
+  }
+  .calm-editor .binder-design-panel #cover-design-controls :is(input:not([type="checkbox"]), select) {
+    font-size: 16px;
+  }
+}
+
+.calm-editor #cover-customizer :is(input[type="text"], select) {
+  padding-left: 12px;
+}
+
+.calm-editor #confirm-copy { white-space: pre-line; }
+
+/* Separate immediate view changes from an explicit page-layout edit. */
+.calm-editor .layout-settings-body {
+  padding: 16px;
+  gap: 12px;
+}
+.calm-editor .layout-settings-body .page-view-control[hidden] { display: none; }
+.calm-editor .page-view-section { display: grid; gap: 8px; }
+.calm-editor .page-view-buttons {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.calm-editor .page-view-buttons button {
+  flex: 1;
+  padding: 8px 12px;
+  color: var(--muted);
+}
+.calm-editor .page-view-buttons button[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--accent);
+  background: var(--soft);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .page-layout-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.calm-editor #layout-target,
+.calm-editor #layout-count,
+.calm-editor #layout-impact { font-size: 12px; line-height: 1.5; }
+.calm-editor .layout-settings-body #layout-form { gap: 12px; }
+.calm-editor .layout-settings-body .layout-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.calm-editor .layout-settings-body .field { gap: 6px; min-width: 0; }
+.calm-editor .layout-settings-body input {
+  width: 100%;
+  padding: 8px 12px;
+}
+.calm-editor .layout-settings-body #layout-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 16px;
+  justify-self: end;
+  font-size: 14px;
+}
+.calm-editor .layout-settings-body .page-actions {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.calm-editor .layout-settings-body button#duplicate-page.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.calm-editor .layout-settings-body #delete-page { color: var(--muted); }
+.calm-editor .layout-settings-body #delete-page:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .layout-settings-body { padding: 12px; gap: 8px; }
+  .calm-editor .layout-settings-body #layout-form { gap: 6px; }
+  .calm-editor .layout-settings-body .page-actions { padding-top: 8px; }
+  .calm-editor .page-view-section { gap: 6px; }
+}
+
+/* Help is a quick reference; only its content scrolls. */
+.calm-editor .workshop-help { padding: 16px; }
+.calm-editor .workshop-help[open] { gap: 12px; }
+.calm-editor .help-tabs {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.calm-editor .help-tabs button {
+  flex: 1;
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+}
+.calm-editor .help-tabs button[aria-pressed="true"] {
+  background: var(--soft);
+  color: var(--ink);
+  border-color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .help-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+}
+.calm-editor #help-guides { overflow: visible; }
+.calm-editor :is(#help-guides, #help-shortcuts)[hidden] { display: none; }
+.calm-editor #help-guides > .help-topic > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  min-height: 44px;
+  box-sizing: border-box;
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+.calm-editor #help-guides summary::-webkit-details-marker { display: none; }
+.calm-editor .help-topic > summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(45deg);
+  flex: none;
+}
+.calm-editor .help-topic[open] > summary::after { transform: rotate(225deg); }
+.calm-editor .help-topic-body { padding: 0 12px 12px; }
+.calm-editor .help-action-row {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.calm-editor .help-action-row strong { font-weight: 600; }
+.calm-editor .help-action-row span { color: var(--muted); }
+.calm-editor #help-guides .help-more { border: 0; border-radius: 0; }
+.calm-editor #help-guides .help-more > summary {
+  padding: 8px 0 0;
+  min-height: 32px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.calm-editor #help-guides .help-more p {
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.calm-editor .help-shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.calm-editor .help-keycaps { flex: none; white-space: nowrap; color: var(--muted); font-size: 11px; }
+.calm-editor .help-keycaps kbd {
+  display: inline-block;
+  min-width: 24px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  text-align: center;
+}
+.calm-editor .help-key-note,
+.calm-editor #help-empty { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.calm-editor #help-empty { margin: 0; }
+.calm-editor #help-credits .credits-popover > summary {
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 360px) {
+  .calm-editor .help-action-row { grid-template-columns: 68px minmax(0, 1fr); gap: 8px; }
+  .calm-editor .help-shortcut-row { font-size: 12px; gap: 8px; }
+  .calm-editor .help-keycaps kbd { padding-inline: 4px; min-width: 20px; }
+}
+
+/* Sidebar hierarchy matches the workshop tool groups. */
+.calm-editor .pages-sidebar { border-left: 0; }
+.calm-editor .sidebar-views,
+.calm-editor .pages-collapsed .sidebar-views {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 0 4px 12px;
+}
+.calm-editor .sidebar-view-switch {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.calm-editor .sidebar-views .sidebar-view-switch button {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.calm-editor .sidebar-views .sidebar-view-switch button[aria-pressed="true"] {
+  background: var(--soft);
+  border-color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calm-editor .sidebar-view-label { white-space: nowrap; }
+.calm-editor .pages-collapsed .sidebar-view-label { display: none; }
+.calm-editor .pages-collapsed .sidebar-view-switch { flex-direction: column; align-items: center; }
+.calm-editor .pages-collapsed .sidebar-view-switch button {
+  flex: none;
+  width: 40px;
+  padding: 0;
+}
+.calm-editor .pages-collapsed .sidebar-views { padding-inline: 0; align-items: center; }
+.calm-editor .pages-collapsed .sidebar-view-switch { width: 50px; box-sizing: border-box; }
+.calm-editor .sidebar-views #pages-toggle {
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+}
+.calm-editor .pages-collapsed .sidebar-views #pages-toggle { align-self: center; }
+.calm-editor .sidebar-count {
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  font-size: 10px;
+  line-height: 1;
+}
+.calm-editor .sidebar-count[hidden] { display: none; }
+.calm-editor .pages-controls { padding: 4px; }
+.calm-editor #pages-controls #help-trigger {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+}
+.calm-editor .pages-collapsed .pages-controls { display: flex; justify-content: center; }
+.calm-editor .overflow-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.calm-editor .overflow-heading #empty-overflow {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border-radius: 10px;
+}
+.calm-editor #add-page .add-page-caption { font-size: 12px; }
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .pages-sidebar { border-left: 1px solid var(--line); }
+  .calm-editor .pages-sidebar .sidebar-views { padding: 0 0 12px; }
+  .calm-editor .pages-collapsed .sidebar-view-switch { display: none; }
+  .calm-editor .sidebar-views .sidebar-view-switch button { min-height: 44px; height: 44px; }
+}
+
+/* Card styling: compact header, explicit targets and equal preset tiles. */
+.calm-editor #cover-customizer {
+  gap: 10px;
+}
+.calm-editor #cover-customizer #cover-preview-stage {
+  justify-content: center;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 88px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg) 45%, var(--surface));
+}
+.calm-editor .customizer-preview-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+}
+.calm-editor #cover-customizer #cover-preview-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 62px;
+  width: 62px;
+  height: 62px;
+  max-height: 62px;
+}
+.calm-editor #cover-customizer #cover-preview-art > svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.calm-editor #cover-customizer #cover-preview-art > .binder-cover-art {
+  width: 46px;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+.calm-editor #cover-customizer .cover-preview-caption {
+  flex: 0 1 auto;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+  line-height: 1.4;
+}
+.calm-editor #cover-customizer .cover-preview-caption strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.calm-editor #cover-customizer #cover-preview-theme {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.calm-editor .styling-card .customizer-tabs {
+  align-self: stretch;
+  width: auto;
+  margin: 0;
+  gap: 4px;
+}
+.calm-editor .styling-card .customizer-tabs button.workshop-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: auto;
+  height: 40px;
+  padding: 8px;
+  gap: 8px;
+  font-size: 14px;
+}
+.calm-editor .styling-card .customizer-tabs .ui-symbol {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.calm-editor .styling-card .customizer-tabs button > span { white-space: nowrap; }
+.calm-editor .styling-card #cover-customizer > .frame-scope {
+  margin: 0;
+  gap: 12px;
+}
+.calm-editor .styling-card #cover-customizer #frame-scope-note {
+  margin: -6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.calm-editor #cover-customizer .customizer-design-body {
+  padding: 0 4px 0 0;
+  scrollbar-gutter: stable;
+}
+.calm-editor #cover-customizer :is(.frame-style-options, .cover-options) {
+  gap: 8px;
+  padding: 0;
+  align-items: stretch;
+}
+.calm-editor #cover-customizer :is(.frame-style-option, .cover-option) {
+  position: relative;
+  display: grid;
+  grid-template-rows: 74px minmax(24px, auto);
+  align-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: 8px 4px 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  box-shadow: none;
+}
+.calm-editor .styling-card .frame-style-option svg {
+  width: 54px;
+  height: 74px;
+}
+.calm-editor #cover-customizer :is(.frame-style-option, .cover-option) > span {
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.calm-editor .styling-card .frame-style-option .preset-color-dot {
+  width: 8px;
+  height: 8px;
+}
+.calm-editor #cover-customizer :is(.frame-style-option, .cover-option):hover {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+.calm-editor #cover-customizer :is(.frame-style-option, .cover-option)[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.calm-editor .frame-choice-check {
+  display: none;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.calm-editor :is(.frame-style-option, .cover-option)[aria-pressed="true"] .frame-choice-check {
+  display: block;
+}
+.calm-editor .frame-choice-check::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 4px;
+  top: 4px;
+  left: 4px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+}
+.calm-editor #cover-customizer #cover-selection-status {
+  margin: 0;
+  min-height: 36px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.calm-editor #cover-customizer .customizer-actions {
+  gap: 8px;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.calm-editor #cover-customizer .customizer-actions > button {
+  width: auto;
+  min-width: 88px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .editor-shell.styling-card > #cover-customizer {
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding: 12px;
+  }
+  .calm-editor .styling-card #cover-customizer > .frame-scope,
+  .calm-editor .styling-card #cover-customizer > #pick-style-card { grid-row: 3; }
+  .calm-editor .styling-card #cover-customizer #frame-scope-note {
+    grid-row: 4;
+    margin: 0;
+  }
+  .calm-editor .styling-card .customizer-design-body { grid-row: 5; }
+  .calm-editor .styling-card #cover-customizer #cover-selection-status {
+    display: block;
+    grid-row: 6;
+    min-height: 0;
+  }
+  .calm-editor .styling-card .customizer-actions {
+    grid-row: 7;
+    padding-top: 8px;
+  }
+  .calm-editor .styling-card .customizer-tabs button.workshop-icon { height: 44px; }
+  .calm-editor .styling-card .frame-style-option {
+    grid-template-rows: 66px minmax(32px, auto);
+    padding-top: 8px;
+    gap: 4px;
+  }
+  .calm-editor .styling-card .frame-style-option svg { width: 48px; height: 66px; }
+}
+@media (min-width: 500px) and (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .editor-shell.styling-card > #cover-customizer {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+  .calm-editor .styling-card #cover-customizer .customizer-tabs { width: 100%; }
+  .calm-editor .styling-card #cover-customizer > .frame-scope,
+  .calm-editor .styling-card #cover-customizer > #pick-style-card { grid-row: 2; }
+  .calm-editor .styling-card #cover-customizer #frame-scope-note,
+  .calm-editor .styling-card #cover-customizer #cover-selection-status { display: none; }
+  .calm-editor .styling-card .customizer-design-body { grid-row: 3; }
+  .calm-editor .styling-card .customizer-actions { grid-row: 4; }
+  .calm-editor .styling-card .frame-style-option {
+    grid-template-rows: 44px minmax(20px, auto);
+    gap: 2px;
+    padding-block: 4px;
+  }
+  .calm-editor .styling-card .frame-style-option svg { width: 32px; height: 44px; }
+}
+
+/* Binder sections use the same compact navigation and preset treatment as cards. */
+.calm-editor .binder-section-buttons[hidden] { display: none; }
+.calm-editor .binder-design-panel #customizer-tab-hint { display: none; }
+.calm-editor #cover-customizer .binder-section-buttons {
+  position: static;
+  flex: none;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.calm-editor .binder-design-panel .binder-section-buttons > .binder-section-button {
+  gap: 4px;
+  min-height: 48px;
+  padding: 6px 2px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.calm-editor .binder-design-panel .cover-option .binder-cover-art {
+  width: 54px;
+  max-height: 74px;
+  align-self: center;
+}
+.calm-editor .binder-design-panel .customizer-design-body .field { margin-block: 0; gap: 6px; }
+.calm-editor .binder-design-panel .cover-text-group { gap: 8px; }
+@media (max-width: 700px), (max-width: 1024px) and (max-height: 500px) {
+  .calm-editor .editor-shell.customizing > #cover-customizer.binder-design-panel {
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding: 12px;
+  }
+  .calm-editor #cover-customizer.binder-design-panel .customizer-heading { grid-column: 1 / -1; grid-row: 1; }
+  .calm-editor #cover-customizer.binder-design-panel .binder-section-buttons { grid-row: 2; }
+  .calm-editor #cover-customizer.binder-design-panel .customizer-design-body { grid-row: 3; }
+  .calm-editor #cover-customizer.binder-design-panel #cover-selection-status { grid-row: 4; min-height: 0; display: block; }
+  .calm-editor #cover-customizer.binder-design-panel .customizer-actions { grid-row: 5; padding-top: 8px; }
+  .calm-editor #cover-customizer.binder-design-panel .cover-option {
+    grid-template-rows: 66px minmax(32px, auto);
+    gap: 4px;
+    padding-top: 8px;
+  }
+  .calm-editor #cover-customizer.binder-design-panel .cover-option .binder-cover-art { width: 48px; max-height: 66px; }
+}
+
+/* Selection hierarchy: one primary action, supporting tools, then remove/dismiss. */
+.calm-editor .selection-status > .floating-grip-slot {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  margin: 0;
+}
+.calm-editor .selection-primary-label { display: none; }
+.calm-editor #selection-actions > .selection-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  min-width: max-content;
+  padding: 8px 12px;
+  border: 1px solid var(--muted);
+  background: var(--soft);
+  border-radius: 9px;
+  font-weight: 600;
+}
+.calm-editor .selection-primary .selection-primary-label { display: inline; font-size: 13px; }
+.calm-editor .merge-toolbar :is(#pocket-content, #pocket-style, #inspect-pocket, #move-to-page, #to-overflow) { display: none; }
+.calm-editor #selection-more { position: relative; }
+.calm-editor #selection-more > summary {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 22px;
+  list-style: none;
+}
+.calm-editor #selection-more > summary::-webkit-details-marker { display: none; }
+.calm-editor .selection-more-body {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--calm-shadow);
+  z-index: 20;
+}
+.calm-editor #selection-more .selection-more-body button {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  min-height: 36px;
+  padding: 8px;
+  text-align: left;
+  border: 0;
+  font-size: 13px;
+}
+.calm-editor #selection-actions > :is(#inspect-pocket, #move-to-page, #to-overflow, #selection-dismiss) {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.calm-editor #selection-actions > #to-overflow {
+  margin-left: 6px;
+  color: var(--muted);
+}
+.calm-editor #selection-actions > #to-overflow:hover { color: var(--accent); }
+.calm-editor #selection-actions > #selection-dismiss {
+  margin-left: 6px;
+  border-color: transparent;
+  color: var(--muted);
+}
+
+.calm-editor #selection-more.opens-up .selection-more-body { top: auto; bottom: calc(100% + 8px); }
+.calm-editor #selection-more .selection-primary-label { display: inline; }
+.calm-editor .selection-more-body { max-height: min(300px, calc(100dvh - 140px)); overflow-y: auto; }
+
+/* Even hit areas and spacing; the narrow grip uses the existing drag/keyboard support. */
+.calm-editor .selection-status {
+  padding: 6px;
+  gap: 6px;
+  border-radius: 12px;
+}
+.calm-editor #selection-actions {
+  align-items: center;
+  gap: 6px;
+}
+.calm-editor #selection-actions > button,
+.calm-editor #selection-more > summary {
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 8px;
+}
+.calm-editor #selection-actions > .selection-primary {
+  gap: 6px;
+  padding: 6px 10px;
+}
+.calm-editor #selection-actions > :is(#to-overflow, #selection-dismiss) {
+  margin-left: 4px;
+}
+.calm-editor .selection-status button.floating-handle {
+  width: 20px;
+  min-width: 20px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  color: var(--muted);
+}
+.calm-editor .selection-status button.floating-handle:hover {
+  background: var(--soft);
+  border-color: var(--line);
+}
+.calm-editor .selection-status.floating-moving button.floating-handle { cursor: grabbing; }
+.calm-editor #selection-actions > button:hover,
+.calm-editor #selection-more > summary:hover,
+.calm-editor #selection-more[open] > summary {
+  background: var(--soft);
+  border-color: var(--muted);
+}
+.calm-editor #selection-actions > #to-overflow:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.calm-editor #selection-more .selection-more-body button {
+  gap: 10px;
+  min-height: 38px;
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+.calm-editor #selection-more .selection-more-body button > span {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.calm-editor #selection-more .selection-more-body button:hover {
+  background: var(--soft);
+}
+
+/* Secondary action rows align icons and labels without crowding the menu edges. */
+.calm-editor #selection-more .selection-more-body {
+  box-sizing: border-box;
+  width: min(280px, calc(100vw - 32px));
+  padding: 6px;
+}
+.calm-editor #selection-more .selection-more-body button {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 10px;
+  min-height: 40px;
+  padding: 10px 12px;
+}
+.calm-editor #selection-more .selection-more-body button .ui-symbol {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+}
+.calm-editor #selection-more .selection-more-body button > span {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
 }
 </style>
     <script>(() => {
@@ -7261,8 +8789,8 @@ body.editor-page.calm-editor {
             id="cards-tool"
             class="rail-button"
             type="button"
-            title="Cards"
-            aria-label="Cards"
+            title="Add cards"
+            aria-label="Add cards"
             aria-controls="cards-drawer"
             aria-expanded="true"
           >
@@ -7277,8 +8805,8 @@ body.editor-page.calm-editor {
             id="edit-cover-preview"
             class="rail-button"
             type="button"
-            title="Cover"
-            aria-label="Cover"
+            title="Customize binder"
+            aria-label="Customize binder"
             aria-controls="cover-customizer"
             aria-expanded="false"
           >
@@ -7308,8 +8836,8 @@ body.editor-page.calm-editor {
             id="customize-binder"
             class="rail-button"
             type="button"
-            title="Card styles"
-            aria-label="Card styles"
+            title="Customize cards"
+            aria-label="Customize cards"
             aria-controls="cover-customizer"
             aria-expanded="false"
           >
@@ -7365,37 +8893,54 @@ body.editor-page.calm-editor {
               </svg>
             </button>
           </div>
-          <p class="panel-hint">Drag to place. Drop at an edge to shift.</p>
-          <label class="editor-search">
-            <input
-              id="card-search"
-              type="search"
-              placeholder="Name or card number"
-              aria-label="Search cards"
-            />
-          </label>
-          <div class="catalogue-filters">
-            <label class="type-filter">
-              Type
-              <select id="type-filter">
-                <option value="">All types</option>
-                <option>Grass</option>
-                <option>Fire</option>
-                <option>Water</option>
-                <option>Psychic</option>
-                <option>Lightning</option>
-                <option>Dragon</option>
-                <option>Fighting</option>
-                <option>Colorless</option>
-                <option>Darkness</option>
-              </select>
+          <p class="panel-hint">Drag to place &middot; Edge to shift</p>
+          <div class="editor-search-bar">
+            <label class="editor-search">
+              <input
+                id="card-search"
+                type="search"
+                placeholder="Find cards"
+                aria-label="Search cards"
+              />
             </label>
-            <label class="type-filter">
-              Set
-              <select id="set-filter">
-                <option value="">All sets</option>
-              </select>
-            </label>
+            <details class="card-filter-menu" id="card-filters">
+              <summary aria-label="Filter cards" title="Filter cards">
+                <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16M7 12h10M10 17h4" />
+                </svg>
+                <span id="card-filter-count" hidden></span>
+              </summary>
+              <div class="catalogue-filters">
+                <label class="type-filter">
+                  Type
+                  <select id="type-filter">
+                    <option value="">All types</option>
+                    <option>Grass</option>
+                    <option>Fire</option>
+                    <option>Water</option>
+                    <option>Psychic</option>
+                    <option>Lightning</option>
+                    <option>Dragon</option>
+                    <option>Fighting</option>
+                    <option>Colorless</option>
+                    <option>Darkness</option>
+                  </select>
+                </label>
+                <label class="type-filter">
+                  Set
+                  <select id="set-filter">
+                    <option value="">All sets</option>
+                  </select>
+                </label>
+                <button
+                  id="card-filters-clear"
+                  class="button secondary"
+                  type="button"
+                >
+                  Clear filters
+                </button>
+              </div>
+            </details>
           </div>
           <p id="result-count" class="result-count"></p>
           <div id="card-results" class="card-results"></div>
@@ -7580,6 +9125,7 @@ body.editor-page.calm-editor {
                 <div class="layout-settings-body">
                   <h2>Page settings</h2>
                   <form id="layout-form">
+                    <div class="page-layout-heading"><span>Layout</span><span id="layout-target"></span></div>
                     <div class="layout-fields">
                       <label class="field">
                         Rows
@@ -7604,7 +9150,8 @@ body.editor-page.calm-editor {
                         />
                       </label>
                     </div>
-                    <button class="button secondary" type="submit">
+                    <p id="layout-count" class="panel-hint"></p>
+                    <button id="layout-apply" class="button primary" type="submit">
                       Apply layout
                     </button>
                   </form>
@@ -7668,6 +9215,7 @@ body.editor-page.calm-editor {
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
+            <div class="sidebar-view-switch" role="group" aria-label="Sidebar content">
             <button
               id="pages-view"
               type="button"
@@ -7679,6 +9227,7 @@ body.editor-page.calm-editor {
               <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 3h10v14H5zM9 17v4h10V7h-4" />
               </svg>
+              <span class="sidebar-view-label">Pages</span>
             </button>
             <button
               id="overflow-view"
@@ -7689,23 +9238,12 @@ body.editor-page.calm-editor {
               aria-pressed="false"
             >
               <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" />
+                <path d="M4 5h16l2 10v5H2v-5L4 5zM2 15h6l2 3h4l2-3h6M7 8h10M7 11h10" />
               </svg>
-
+              <span class="sidebar-view-label">Overflow</span>
               <span id="overflow-badge" class="sidebar-count" hidden></span>
             </button>
-            <button
-              id="empty-overflow"
-              class="icon-button"
-              type="button"
-              aria-label="Clear overflow"
-              title="Clear overflow"
-              disabled
-            >
-              <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M9 10l6 7m0-7-6 7" />
-              </svg>
-            </button>
+            </div>
           </div>
           <div
             id="pages-body"
@@ -7720,6 +9258,15 @@ body.editor-page.calm-editor {
             aria-label="Overflow"
             hidden
           >
+            <div class="overflow-heading">
+              <span>Displaced cards</span>
+              <button id="empty-overflow" class="icon-button" type="button"
+                aria-label="Clear overflow" title="Clear overflow" disabled>
+                <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M9 10l6 7m0-7-6 7" />
+                </svg>
+              </button>
+            </div>
             <section class="overflow-section">
               <span id="overflow-count" class="sr-only"></span>
               <div id="overflow-items" class="overflow-items"></div>
@@ -7757,10 +9304,12 @@ body.editor-page.calm-editor {
             aria-label="Live binder cover preview"
             hidden
           >
-            <div id="cover-preview-art"></div>
-            <div class="cover-preview-caption">
-              <strong id="cover-preview-name"></strong>
-              <span id="cover-preview-theme"></span>
+            <div class="customizer-preview-pair">
+              <div id="cover-preview-art"></div>
+              <div class="cover-preview-caption">
+                <strong id="cover-preview-name"></strong>
+                <span id="cover-preview-theme"></span>
+              </div>
             </div>
           </div>
           <div
@@ -7793,6 +9342,7 @@ body.editor-page.calm-editor {
               <option value="binder">Entire binder</option>
             </select>
           </label>
+          <p id="frame-scope-note" class="panel-hint" hidden></p>
           <button
             id="pick-style-card"
             class="button secondary"
@@ -7864,10 +9414,17 @@ body.editor-page.calm-editor {
       <input
         id="help-search"
         type="search"
-        placeholder="Search guides and shortcuts"
+        placeholder="Search help"
         aria-label="Search workshop help"
       />
-      <div id="help-guides"></div>
+      <div class="help-tabs" role="group" aria-label="Help section">
+        <button id="help-basics-tab" type="button" aria-pressed="true" aria-controls="help-guides">Basics</button>
+        <button id="help-shortcuts-tab" type="button" aria-pressed="false" aria-controls="help-shortcuts">Shortcuts</button>
+      </div>
+      <div class="help-scroll">
+        <div id="help-guides" role="region" aria-label="Basics"></div>
+        <div id="help-shortcuts" role="region" aria-label="Keyboard shortcuts" hidden></div>
+      </div>
       <p id="help-empty" hidden>No matching guides.</p>
       <div id="help-credits"></div>
     </dialog>
@@ -9718,6 +11275,85 @@ body.editor-page.calm-editor {
   };
 })();
 </script>
+    <script>/* Pure sample-catalogue search. No network, pricing, or storage side effects. */
+(() => {
+  "use strict";
+  const finishNames = {
+    normal: "Normal",
+    reverse: "Reverse holo",
+    holo: "Holo",
+    firstEdition: "First edition",
+  };
+  const finishes = (card) =>
+    Object.keys(finishNames).filter((key) => card.variants?.[key]);
+  function distance(hex, palette) {
+    const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const chosen = rgb(hex);
+    return Math.min(
+      ...palette.map((h) => Math.hypot(...rgb(h).map((n, i) => n - chosen[i]))),
+    );
+  }
+  function search(cards, filters) {
+    const q = (filters.q || "").trim().toLowerCase();
+    const results = cards.filter((c) => {
+      const terms = [
+        c.name,
+        c.collectorNumber,
+        c.setName,
+        c.setId,
+        c.providerId,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return (
+        (!q ||
+          terms.includes(q) ||
+          (q.match(/^#?\d+$/) &&
+            Number(q.replace("#", "")) === Number(c.collectorNumber))) &&
+        (!filters.set || c.setId === filters.set) &&
+        (!filters.type || c.pokemonTypes.includes(filters.type)) &&
+        (!filters.rarity || c.rarity === filters.rarity) &&
+        (!filters.finish || finishes(c).includes(filters.finish))
+      );
+    });
+    if (filters.colorEnabled)
+      results.sort(
+        (a, b) =>
+          distance(filters.color, a.palette) -
+            distance(filters.color, b.palette) || a.name.localeCompare(b.name),
+      );
+    else
+      results.sort((a, b) =>
+        filters.sort === "number"
+          ? a.setName.localeCompare(b.setName) ||
+            Number(a.collectorNumber) - Number(b.collectorNumber)
+          : filters.sort === "set"
+            ? a.setName.localeCompare(b.setName) || a.name.localeCompare(b.name)
+            : a.name.localeCompare(b.name) ||
+              a.providerId.localeCompare(b.providerId),
+      );
+    return results;
+  }
+  const subject = (card) =>
+    card.name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+(ex|gx|vmax|vstar|v)$/i, "");
+  const related = (cards, card) =>
+    cards.filter(
+      (c) =>
+        (c.id || c.collectorNumber) !== (card.id || card.collectorNumber) &&
+        subject(c) === subject(card),
+    );
+  window.DiscoverCatalogue = {
+    related,
+    search,
+    finishes,
+    finishNames,
+    distance,
+  };
+})();
+</script>
     <script>/* Public metadata only. Account documents and login tokens never enter this cache. */
 (() => {
   "use strict";
@@ -10119,13 +11755,9 @@ body.editor-page.calm-editor {
     const card = cards.get(c.cardId);
     if (!card) return;
     const frames = c.frames || defaults || {},
-      pad =
-        Math.min(w, h) *
-        (frames.toploader && frames.toploader !== "none"
-          ? 0.11
-          : frames.sleeve && frames.sleeve !== "none"
-            ? 0.075
-            : 0);
+      // Only framed cards reserve room for the holder and its inner gap.
+      pad = ((frames.sleeve && frames.sleeve !== "none") ||
+        (frames.toploader && frames.toploader !== "none")) ? Math.min(w, h) * 0.045 : 0;
     const iw = Math.min(w - 2 * pad, ((h - 2 * pad) * 245) / 337),
       ih = (iw * 337) / 245,
       x = (w - iw) / 2,
@@ -10182,7 +11814,7 @@ body.editor-page.calm-editor {
         [1, "#9db5ce"],
       ],
     };
-    function rim(style, inset, thickness, rigid) {
+    function rim(style, margin, thickness, rigid) {
       const id = "ball-rim-" + ++frameSequence;
       const defs = make("defs"),
         gradient = make("linearGradient", {
@@ -10198,10 +11830,11 @@ body.editor-page.calm-editor {
         );
       defs.append(gradient);
       group.append(defs);
-      const bx = x - inset,
-        by = y - inset,
-        bw = iw + 2 * inset,
-        bh = ih + 2 * inset;
+      // The outer holder fills the pocket; its stroke stays inside the bounds.
+      const bx = margin + thickness / 2,
+        by = margin + thickness / 2,
+        bw = w - 2 * margin - thickness,
+        bh = h - 2 * margin - thickness;
       group.append(
         make("rect", {
           x: bx,
@@ -10210,7 +11843,7 @@ body.editor-page.calm-editor {
           height: bh,
           rx: Math.min(w, h) * 0.025,
           fill: rigid ? "#a9c4e0" : "var(--surface)",
-          "fill-opacity": rigid ? 0.13 : 1,
+          "fill-opacity": rigid ? 0.2 : 1,
           stroke: "url(#" + id + ")",
           "stroke-width": thickness,
         }),
@@ -10225,7 +11858,7 @@ body.editor-page.calm-editor {
             rx: 3,
             fill: "none",
             stroke: "#d4e5fc",
-            "stroke-opacity": 0.45,
+            "stroke-opacity": 0.65,
             "stroke-width": thickness * 0.65,
           }),
         );
@@ -10248,15 +11881,15 @@ body.editor-page.calm-editor {
     if (frames.toploader && frames.toploader !== "none")
       rim(
         frames.toploader,
-        pad * 0.8,
-        Math.max(1, Math.min(w, h) * 0.025),
+        0,
+        Math.min(w, h) * 0.018,
         true,
       );
     if (frames.sleeve && frames.sleeve !== "none")
       rim(
         frames.sleeve,
-        Math.min(w, h) * 0.035,
-        Math.max(1, Math.min(w, h) * 0.012),
+        frames.toploader && frames.toploader !== "none" ? Math.min(w, h) * 0.014 : 0,
+        Math.min(w, h) * 0.018,
         false,
       );
     const image = make("image", {
@@ -10280,6 +11913,30 @@ body.editor-page.calm-editor {
       group.append(text);
     });
     group.append(image);
+    const rigid = frames.toploader && frames.toploader !== "none",
+      sleeved = frames.sleeve && frames.sleeve !== "none";
+    if (rigid || sleeved) {
+      const unit = Math.min(w, h);
+      // A clear retaining edge sits in front of the card, without tinting its artwork.
+      group.append(make("rect", {
+        x: x - unit * 0.004, y: y - unit * 0.004,
+        width: iw + unit * 0.008, height: ih + unit * 0.008,
+        rx: unit * 0.012, fill: "none", stroke: "#e8f2ff",
+        "stroke-opacity": rigid ? 0.7 : 0.45,
+        "stroke-width": unit * 0.005,
+      }));
+      const lip = rigid ? 0.019 : 0.01;
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * lip}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#111b29", "stroke-opacity": 0.8,
+        "stroke-width": unit * (rigid ? 0.008 : 0.004),
+      }));
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * (lip + 0.004)}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#eff7ff", "stroke-opacity": rigid ? 0.85 : 0.6,
+        "stroke-width": unit * 0.003,
+      }));
+    }
   }
   window.BinderVisuals = {
     name,
@@ -10370,6 +12027,14 @@ body.editor-page.calm-editor {
       throw Error("Invalid binder cover theme.");
     if (value.theme === "custom" && !validImage(value.artwork))
       throw Error("Choose a valid cover image and crop.");
+    if (value.subtitle !== undefined &&
+        (typeof value.subtitle !== "string" || value.subtitle.length > 60))
+      throw Error("Keep the cover subtitle within 60 characters.");
+    const appearance = value.pageStyle;
+    if (appearance !== undefined && (!appearance ||
+        !/^#[0-9a-f]{6}$/i.test(appearance.background) ||
+        !["none", "subtle", "defined"].includes(appearance.pockets)))
+      throw Error("Choose a valid page color and pocket border.");
     const title = value.title;
     if (
       title !== undefined &&
@@ -10385,6 +12050,10 @@ body.editor-page.calm-editor {
       throw Error("Invalid cover title settings.");
     return {
       theme: value.theme,
+      ...(value.subtitle !== undefined ? { subtitle: value.subtitle } : {}),
+      ...(appearance ? { pageStyle: {
+        background: appearance.background, pockets: appearance.pockets,
+      }} : {}),
       ...(value.theme === "custom"
         ? {
             artwork: {
@@ -10413,6 +12082,12 @@ body.editor-page.calm-editor {
         : {}),
     };
   }
+  function rectangular(cells) {
+    if (!cells.length) return false;
+    const ys = cells.map(c => c[0]), xs = cells.map(c => c[1]);
+    return new Set(cells.map(c => c.join(","))).size ===
+      (Math.max(...ys) - Math.min(...ys) + 1) * (Math.max(...xs) - Math.min(...xs) + 1);
+  }
   function connected(cells) {
     if (!cells.length) return false;
     const keys = new Set(cells.map((cell) => cell.join(",")));
@@ -10429,6 +12104,7 @@ body.editor-page.calm-editor {
   }
   window.BinderSchema = Object.freeze({
     connected,
+    rectangular,
     validIdentifier,
     limits,
     frameValues,
@@ -10631,7 +12307,9 @@ body.editor-page.calm-editor {
       });
       if (occupied.size !== p.rows * p.columns)
         throw Error("Page contains missing pockets.");
-      return { id: pid, rows: p.rows, columns: p.columns, regions };
+      return { id: pid, rows: p.rows, columns: p.columns, regions,
+        ...(p.pageStyle !== undefined ? { pageStyle: window.BinderSchema.cover({ theme: "classic", pageStyle: p.pageStyle }).pageStyle } : {}),
+      };
     });
     return {
       name: doc.name.trim(),
@@ -11819,9 +13497,22 @@ PERFORMANCE OF THIS SOFTWARE.
         );
       },
 
-      setCoverDetails(value) {
+      setCoverDetails(value, appearance) {
         return change(() => {
           current.cover = window.BinderSchema.cover(value);
+          if (appearance) {
+            if (appearance.all !== undefined) {
+              if (appearance.all === null) delete current.cover.pageStyle;
+              else current.cover.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: appearance.all }).pageStyle;
+              current.pages.forEach(p => delete p.pageStyle);
+            }
+            for (const [pid, style] of appearance.pages || []) {
+              const target = findPage(pid);
+              if (!target) throw Error("Page no longer exists.");
+              if (style === null) delete target.pageStyle;
+              else target.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: style }).pageStyle;
+            }
+          }
           window.BinderStore.validate(current);
         });
       },
@@ -11956,6 +13647,8 @@ PERFORMANCE OF THIS SOFTWARE.
           const cells = regions.flatMap((r) => r.cells);
           if (!window.BinderSchema.connected(cells))
             throw Error("Selected pockets must connect along an edge.");
+          if (!window.BinderSchema.rectangular(cells))
+            throw Error("Select a solid rectangle, square or strip. L-shaped merges are not supported.");
           regions.forEach((r) => {
             if (r.content) current.overflow.push(r.content);
           });
@@ -11999,9 +13692,9 @@ PERFORMANCE OF THIS SOFTWARE.
           findPage(pid)?.regions.filter((r) => rids.includes(r.id)) || [];
         if (regions.length < 2) return "Select at least two connected pockets.";
         const cells = regions.flatMap((r) => r.cells);
-        return window.BinderSchema.connected(cells)
-          ? ""
-          : "Selected pockets must connect along an edge.";
+        if (!window.BinderSchema.connected(cells)) return "Selected pockets must connect along an edge.";
+        return window.BinderSchema.rectangular(cells) ? ""
+          : "Select a solid rectangle, square or strip. L-shaped merges are not supported.";
       },
       save(snapshot = current) {
         saved = copy(snapshot);
@@ -12040,7 +13733,11 @@ PERFORMANCE OF THIS SOFTWARE.
     book.setAttribute("aria-hidden", "true");
     if (theme === "transparent") {
       const doc = documentValue?.document || documentValue;
+
       const page = Array.isArray(doc?.pages) ? doc.pages[0] : null;
+      const effectiveCover = { ...cover, pageStyle: page?.pageStyle || cover.pageStyle };
+      stylePage(book, effectiveCover);
+      if (effectiveCover.pageStyle) book.style.background = effectiveCover.pageStyle.background;
       const rows = page?.rows || doc?.rows || 3,
         columns = page?.columns || doc?.columns || 3;
       const regions =
@@ -12086,7 +13783,8 @@ PERFORMANCE OF THIS SOFTWARE.
         const rect = document.createElementNS(svg.namespaceURI, "rect");
         rect.setAttribute("width", width);
         rect.setAttribute("height", height);
-        rect.setAttribute("fill", "var(--soft)");
+        rect.setAttribute("fill", !region.content ? "var(--pocket-fill)"
+          : effectiveCover.pageStyle ? "var(--page-background)" : "var(--soft)");
         rect.setAttribute("clip-path", "url(#" + clipId + ")");
         group.append(rect);
         if (region.content && window.BinderVisuals)
@@ -12103,6 +13801,13 @@ PERFORMANCE OF THIS SOFTWARE.
               return n;
             },
           );
+        if (effectiveCover.pageStyle) {
+          const border = document.createElementNS(svg.namespaceURI, "path");
+          border.setAttribute("d", geometry.outline);
+          border.setAttribute("fill", "none");
+          border.setAttribute("stroke", "var(--pocket-border)");
+          group.append(border);
+        }
         svg.append(group);
       }
       book.append(svg);
@@ -12119,7 +13824,7 @@ PERFORMANCE OF THIS SOFTWARE.
     book.append(seal);
     const title = make("div", "cover-book-title");
     title.append(
-      make("span", "", "POKÉMON COLLECTION"),
+      make("span", "", cover.subtitle ?? "POK\u00c9MON COLLECTION"),
       make("strong", "", name),
     );
     book.append(title);
@@ -12152,7 +13857,17 @@ PERFORMANCE OF THIS SOFTWARE.
     }
     return book;
   }
+  function stylePage(node, cover) {
+    const appearance = cover?.pageStyle;
+    const valid = appearance && /^#[0-9a-f]{6}$/i.test(appearance.background);
+    node.style.setProperty("--page-background", valid ? appearance.background : "var(--surface)");
+    node.style.setProperty("--pocket-fill", "var(--soft)");
+    node.style.setProperty("--pocket-border", appearance?.pockets === "defined"
+      ? "var(--muted)" : appearance?.pockets === "subtle" ? "var(--line)" : "transparent");
+    node.dataset.pocketBorders = appearance?.pockets || "none";
+  }
   window.BinderCovers = {
+    stylePage,
     themes,
     create,
     name: (id) =>
@@ -12296,6 +14011,7 @@ PERFORMANCE OF THIS SOFTWARE.
     duplicateButton.setAttribute("aria-label", "Duplicate page");
     duplicateButton.innerHTML =
       '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="13" height="14" rx="2"/><path d="M16 7V3H3v14h4"/></svg>';
+    duplicateButton.append(el("span", "", "Duplicate page"));
     const duplicateDialog = dialog("duplicate-dialog", "Duplicate page");
     const options = el("div", "duplicate-options");
     for (const [labelText, include, detail] of [
@@ -12370,9 +14086,10 @@ PERFORMANCE OF THIS SOFTWARE.
       d.querySelector("button").focus({ preventScroll: true });
     }
     function pageSVG(page, doc, inspectRegion = null, thumbnail = false) {
+      page = doc.pages?.find(p => p.id === page.id) || page;
       const cw = 80,
         ch = (80 * 337) / 245,
-        gap = 8,
+        gap = cw * 0.06,
         w = page.columns * (cw + gap) - gap,
         ht = page.rows * (ch + gap) - gap;
       const svg = h.svg("svg", {
@@ -12381,6 +14098,8 @@ PERFORMANCE OF THIS SOFTWARE.
         "aria-label":
           "Binder page " + page.rows + " rows by " + page.columns + " columns",
       });
+      window.BinderCovers.stylePage(svg, { ...doc.cover, pageStyle: page.pageStyle || doc.cover?.pageStyle });
+      svg.style.background = "var(--page-background)";
       for (const r of inspectRegion ? [inspectRegion] : page.regions) {
         const xs = r.cells.map((c) => c[1]),
           ys = r.cells.map((c) => c[0]),
@@ -12400,14 +14119,14 @@ PERFORMANCE OF THIS SOFTWARE.
           id = "studio-clip-" + ++pageSequence,
           clip = h.svg("clipPath", { id }),
           geo = h.geometry(r.cells, cw, ch, gap);
-        geo.rects.forEach((rect) => clip.append(h.svg("rect", rect)));
+        geo.rects.forEach((rect) => clip.append(h.svg("rect", { ...rect, rx: r.cells.length === 1 ? 3 : 0 })));
         defs.append(clip);
         g.append(defs);
         geo.rects.forEach((rect) =>
           g.append(
             h.svg("rect", {
               ...rect,
-              fill: thumbnail && !r.content ? "var(--soft)" : "var(--surface)",
+              fill: !r.content ? "var(--soft)" : "var(--page-background, var(--surface))",
             }),
           ),
         );
@@ -12421,11 +14140,26 @@ PERFORMANCE OF THIS SOFTWARE.
             id,
             h.svg,
           );
+        if (!r.content) {
+          const center = [(Math.min(...ys) + Math.max(...ys)) / 2,
+            (Math.min(...xs) + Math.max(...xs)) / 2];
+          const [cy, cx] = r.cells.reduce((best, cell) =>
+            Math.hypot(cell[0] - center[0], cell[1] - center[1]) <
+            Math.hypot(best[0] - center[0], best[1] - center[1]) ? cell : best);
+          const plus = h.svg("text", {
+            x: window.BinderSchema.rectangular(r.cells) ? rw / 2 : (cx - x0) * (cw + gap) + cw / 2,
+            y: window.BinderSchema.rectangular(r.cells) ? rh / 2 : (cy - y0) * (ch + gap) + ch / 2,
+            fill: "var(--muted)", "text-anchor": "middle",
+            "dominant-baseline": "central", "font-size": 14,
+          });
+          plus.textContent = "+";
+          g.append(plus);
+        }
         g.append(
           h.svg("path", {
             d: geo.outline,
             fill: "none",
-            stroke: thumbnail && !r.content ? "var(--muted)" : "var(--line)",
+            stroke: (page.pageStyle || doc.cover?.pageStyle) ? "var(--pocket-border)" : thumbnail && !r.content ? "var(--muted)" : "var(--line)",
             "stroke-width": thumbnail ? 4 : 1,
             "stroke-dasharray": "0",
           }),
@@ -12621,7 +14355,7 @@ PERFORMANCE OF THIS SOFTWARE.
     });
     // Three independent cover sections share one compact settings area.
     const design = $("cover-design-controls"),
-      uploadGroup = el("details", "custom-cover-controls");
+      uploadGroup = el("div", "custom-cover-controls");
     uploadGroup.id = "custom-cover-controls";
     const summary = el("summary", "", "Your artwork");
     uploadGroup.append(summary);
@@ -12706,6 +14440,16 @@ PERFORMANCE OF THIS SOFTWARE.
     titleInput.type = "text";
     const titleLabel = el("label", "field", "Cover title");
     titleLabel.append(titleInput);
+    const subtitleLabel = el("label", "field", "Subtitle"),
+      subtitle = document.createElement("input");
+    subtitle.id = "cover-subtitle";
+    subtitle.type = "text";
+    subtitle.maxLength = 60;
+    subtitleLabel.append(subtitle);
+    subtitle.addEventListener("input", () => {
+      coverDraft.subtitle = subtitle.value;
+      h.preview();
+    });
     titleDetails.append(titleLabel);
     const titleFields = {};
     for (const [key, text, values] of [
@@ -12805,10 +14549,10 @@ PERFORMANCE OF THIS SOFTWARE.
     });
     body.append(uploadLabel, remove, error, crop);
     uploadGroup.append(body);
-    const presets = el("details", "cover-setting-section");
+    const presets = el("div", "cover-setting-section");
     presets.id = "cover-presets-settings";
     presets.append(el("summary", "", "Cover presets"), $("cover-options"));
-    const textSettings = el("details", "cover-setting-section");
+    const textSettings = el("div", "cover-setting-section");
     textSettings.id = "cover-text-settings";
     textSettings.append(el("summary", "", "Text"), titleDetails);
     uploadGroup.classList.add("cover-setting-section");
@@ -12822,27 +14566,195 @@ PERFORMANCE OF THIS SOFTWARE.
     const colorGroup = el("div", "cover-color-field");
     colorGroup.append(colorLabel, contrast);
     titleDetails.replaceChildren(
-      groupTitle("Title", [titleLabel, visibleLabel]),
+      groupTitle("Title", [titleLabel, visibleLabel, subtitleLabel]),
       groupTitle("Position", [
         titleFields.position.parentElement,
         titleFields.align.parentElement,
       ]),
       groupTitle("Style", [titleFields.size.parentElement, colorGroup]),
     );
-    const settingSections = [presets, textSettings, uploadGroup];
-    settingSections.forEach((section) => {
-      section.addEventListener("toggle", () => {
-        if (section.open) {
-          document.querySelector(".customizer-design-body").scrollTop = 0;
-          settingSections.forEach((other) => {
-            if (other !== section) other.open = false;
-          });
+    const pageSettings = el("div", "cover-setting-section");
+    pageSettings.id = "binder-page-settings";
+    pageSettings.append(el("summary", "", "Page appearance"));
+    const pageBody = el("div", "binder-setting-grid"),
+      backgroundLabel = el("label", "field", "Page color"),
+      background = document.createElement("input"),
+      borderLabel = el("label", "field", "Pocket borders"),
+      borders = document.createElement("select");
+    const appearanceScope = document.createElement("select"), scopeLabel = el("label", "field", "Apply to"),
+      scopeNote = el("p", "panel-hint");
+    appearanceScope.id = "page-appearance-scope";
+    for (const [value, label] of [["page", "This page"], ["all", "All pages"]]) {
+      const option = el("option", "", label); option.value = value; appearanceScope.append(option);
+    }
+    scopeLabel.append(appearanceScope);
+    pageSettings.append(scopeLabel);
+    const pageEdits = new Map();
+    let allAppearance;
+    appearanceScope.addEventListener("change", () => { syncPageStyle(); h.preview(); });
+    function appearanceValue() {
+      const page = h.page();
+      if (appearanceScope.value === "all") return allAppearance !== undefined ? allAppearance : coverDraft.pageStyle;
+      if (pageEdits.has(page.id)) return pageEdits.get(page.id) || (allAppearance !== undefined ? allAppearance : coverDraft.pageStyle);
+      return allAppearance !== undefined ? allAppearance : page.pageStyle || coverDraft.pageStyle;
+    }
+    function stageAppearance(value) {
+      if (appearanceScope.value === "all") { allAppearance = value; pageEdits.clear(); }
+      else pageEdits.set(h.page().id, value);
+    }
+    function syncPageStyle() {
+      const value = appearanceValue();
+      background.value = value?.background || "#24262e";
+      borders.value = value?.pockets || "none";
+      $("reset-page-appearance").textContent = appearanceScope.value === "all" ? "Reset all pages" : "Use binder default";
+      scopeNote.textContent = appearanceScope.value === "all"
+        ? "Replaces individual page styles. New pages inherit this default."
+        : "Page " + (h.state.document.pages.findIndex(p => p.id === h.page().id) + 1) + " only";
+    }
+    function designDocument(theme) {
+      const cover = coverValue(theme);
+      if (allAppearance === null) delete cover.pageStyle;
+      else if (allAppearance !== undefined) cover.pageStyle = allAppearance;
+      const pages = h.state.document.pages.map(page => {
+        const result = { ...page };
+        if (allAppearance !== undefined) delete result.pageStyle;
+        if (pageEdits.has(page.id)) {
+          const style = pageEdits.get(page.id);
+          if (style === null) delete result.pageStyle;
+          else result.pageStyle = style;
         }
+        return result;
       });
+      return { ...h.state.document, cover, pages };
+    }
+    background.type = "color";
+    background.id = "binder-page-color";
+    borders.id = "binder-pocket-borders";
+    for (const value of ["none", "subtle", "defined"]) {
+      const option = el("option", "", value[0].toUpperCase() + value.slice(1));
+      option.value = value;
+      borders.append(option);
+    }
+    backgroundLabel.append(background);
+    borderLabel.append(borders);
+    pageBody.append(backgroundLabel, borderLabel,
+      button("reset-page-appearance", "Reset", () => {
+        stageAppearance(null);
+        syncCover();
+        h.preview();
+      }, "button secondary"));
+    function updatePageStyle() {
+      stageAppearance({ background: background.value, pockets: borders.value });
+      h.preview();
+    }
+    background.addEventListener("input", updatePageStyle);
+    borders.addEventListener("change", updatePageStyle);
+    pageSettings.append(pageBody, scopeNote);
+
+    const savedSettings = el("div", "cover-setting-section");
+    savedSettings.id = "binder-saved-designs";
+    savedSettings.append(el("summary", "", "Reusable design"));
+    const designActions = el("div", "binder-setting-grid"),
+      designStatus = el("p", "panel-hint"),
+      designFile = document.createElement("input");
+    designStatus.id = "binder-design-status";
+    designStatus.setAttribute("role", "status");
+    designFile.id = "binder-design-file";
+    designFile.type = "file";
+    designFile.accept = ".json,application/json";
+    designFile.hidden = true;
+    designActions.append(
+      button("save-binder-design", "Download design", () => {
+        try {
+          const value = window.BinderSchema.cover(designDocument(coverDraft.theme).cover);
+          const url = URL.createObjectURL(new Blob([JSON.stringify({
+            format: "binder-minder-design", version: 1, cover: value,
+          }, null, 2)], { type: "application/json" }));
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "binder-minder-design.json";
+          document.body.append(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          designStatus.textContent = "Design downloaded. Artwork is included; cards are not.";
+        } catch (e) { designStatus.textContent = e.message; }
+      }, "button secondary"),
+      button("load-binder-design", "Load design", () => designFile.click(), "button secondary"),
+    );
+    let designToken = 0;
+    designFile.addEventListener("change", async () => {
+      const file = designFile.files[0], token = ++designToken;
+      coverToken++;
+      input.disabled = false;
+      if (!file) return;
+      try {
+        if (file.size > window.BinderSchema.limits.encodedImageChars + 10000)
+          throw Error("Choose a design file smaller than 660 KB.");
+        const value = JSON.parse(await file.text());
+        if (token !== designToken) return;
+        if (!value || value.format !== "binder-minder-design" || value.version !== 1)
+          throw Error("Choose a Binder Minder design file.");
+        coverDraft = window.BinderSchema.cover(value.cover);
+        coverArt = coverDraft.artwork ? structuredClone(coverDraft.artwork) : null;
+        ensureTitle();
+        h.coverTheme(coverDraft.theme);
+        syncCover();
+        designStatus.textContent = "Design loaded for preview. Apply to use it.";
+        h.preview();
+      } catch (e) {
+        if (token === designToken) designStatus.textContent = e.message;
+      } finally { designFile.value = ""; }
     });
+    savedSettings.append(designActions, designFile, designStatus,
+      el("p", "panel-hint", "Design files contain your cover artwork. Keep private designs safe."));
+    design.append(pageSettings, savedSettings);
+    const settingSections = [presets, textSettings, uploadGroup, pageSettings, savedSettings];
+    const sectionButtons = el("div", "binder-section-buttons");
+    sectionButtons.id = "binder-customization-options";
+    sectionButtons.setAttribute("role", "group");
+    sectionButtons.setAttribute("aria-label", "Binder customization options");
+    let activeSection = presets;
+    const choices = [
+      [presets, "Cover", "Cover presets", "M5 3h14v18H5zM8 3v18"],
+      [textSettings, "Text", "Cover text", "M4 5h16M12 5v15M8 20h8"],
+      [uploadGroup, "Artwork", "Cover artwork", "M3 3h18v18H3zM3 16l5-5 4 4 3-3 6 6M14 7h2"],
+      [pageSettings, "Pages", "Page appearance", "M4 4h16v16H4zM4 9h16M9 4v16"],
+      [savedSettings, "Designs", "Reusable designs", "M4 3h14l3 3v15H4zM8 3v6h9V3M8 21v-8h9v8"],
+    ];
+    for (const [section, labelText, name, path] of choices) {
+      section.querySelector("summary")?.remove();
+      const control = button("binder-option-" + section.id, labelText,
+        () => selectBinderSection(section), "binder-section-button");
+      const symbol = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      symbol.setAttribute("class", "ui-symbol");
+      symbol.setAttribute("viewBox", "0 0 24 24");
+      symbol.setAttribute("aria-hidden", "true");
+      const outline = document.createElementNS(symbol.namespaceURI, "path");
+      outline.setAttribute("d", path);
+      symbol.append(outline);
+      control.prepend(symbol);
+      control.setAttribute("aria-label", name);
+      control.setAttribute("aria-controls", section.id);
+      control.title = name;
+      section.setAttribute("role", "region");
+      section.setAttribute("aria-labelledby", control.id);
+      sectionButtons.append(control);
+    }
+    $("cover-customizer").insertBefore(sectionButtons, document.querySelector(".customizer-design-body"));
+    function selectBinderSection(section, preview = true) {
+      activeSection = section;
+      settingSections.forEach((item, index) => {
+        item.hidden = item !== section;
+        sectionButtons.children[index].setAttribute("aria-pressed", String(item === section));
+      });
+      document.querySelector(".customizer-design-body").scrollTop = 0;
+      if (preview) h.preview();
+    }
     input.addEventListener("change", async () => {
       const token = ++coverToken,
         file = input.files[0];
+      designToken++;
       if (!file) return;
       error.textContent = "";
       input.disabled = true;
@@ -12862,6 +14774,12 @@ PERFORMANCE OF THIS SOFTWARE.
     });
     function beginCover() {
       coverToken++;
+      designToken++;
+      designStatus.textContent = "";
+      pageEdits.clear();
+      allAppearance = undefined;
+      appearanceScope.value = "page";
+
       input.disabled = false;
       input.value = "";
       error.textContent = "";
@@ -12871,6 +14789,11 @@ PERFORMANCE OF THIS SOFTWARE.
       coverArt = coverDraft.artwork
         ? structuredClone(coverDraft.artwork)
         : null;
+      ensureTitle();
+      selectBinderSection(presets, false);
+      syncCover();
+    }
+    function ensureTitle() {
       coverDraft.title = {
         text: h.state.document.name,
         visible: true,
@@ -12882,10 +14805,6 @@ PERFORMANCE OF THIS SOFTWARE.
           : "#29313b",
         ...coverDraft.title,
       };
-      textSettings.open = false;
-      uploadGroup.open = false;
-      presets.open = true;
-      syncCover();
     }
     function syncCover() {
       const custom = coverDraft.theme === "custom" && !!coverArt;
@@ -12898,6 +14817,10 @@ PERFORMANCE OF THIS SOFTWARE.
           cropInputs[key].disabled = coverArt.fit === "contain";
         }
       }
+      subtitle.value = coverDraft.subtitle ?? "POK\u00c9MON COLLECTION";
+      background.value = coverDraft.pageStyle?.background || "#24262e";
+      borders.value = coverDraft.pageStyle?.pockets || "none";
+      syncPageStyle();
       titleInput.value = coverDraft.title.text;
       color.value = coverDraft.title.color;
       visible.checked = coverDraft.title.visible;
@@ -12918,6 +14841,7 @@ PERFORMANCE OF THIS SOFTWARE.
     }
     function endCover() {
       coverToken++;
+      designToken++;
       input.disabled = false;
     }
     // Crop controls with no effect in Fit mode are disabled together.
@@ -12933,6 +14857,11 @@ PERFORMANCE OF THIS SOFTWARE.
       coverPreset,
       endCover,
       pageSVG,
+      showPages: () => activeSection === pageSettings,
+      syncPageStyle,
+      designDocument,
+      appearancePatch: () => ({ all: allAppearance, pages: [...pageEdits] }),
+      appearanceDirty: () => allAppearance !== undefined || pageEdits.size > 0,
     };
   }
   window.EditorStudio = { init };
@@ -13276,9 +15205,303 @@ PERFORMANCE OF THIS SOFTWARE.
       copy.hidden = !cards.length;
       refreshPicker();
     }
-    return { refresh };
+    return {
+      refresh,
+      pickerSelection: () => [...chosen],
+      clearPickerSelection() {
+        chosen.clear();
+        selecting = false;
+        refreshPicker();
+      },
+    };
   }
   window.EditorArrange = { init };
+})();
+</script>
+    <script>/* Expanded catalogue: selection is a draft until the existing binder action runs. */
+(() => {
+  "use strict";
+  window.EditorCardBrowser = {
+    init(h) {
+      const $ = (id) => document.getElementById(id);
+      const make = (tag, text, cls = "") => {
+        const n = document.createElement(tag);
+        n.className = cls;
+        if (text !== undefined) n.textContent = text;
+        return n;
+      };
+      const button = (text, action, primary = false) => {
+        const b = make(
+          "button",
+          text,
+          "browser-button" + (primary ? " primary" : ""),
+        );
+        b.type = "button";
+        b.addEventListener("click", action);
+        return b;
+      };
+      const chosen = new Set(),
+        filters = {};
+      let page = 0,
+        matches = [],
+        total = 0,
+        request = 0,
+        timer,
+        origin;
+      const dialog = make("dialog", undefined, "binder-card-browser");
+      dialog.id = "binder-card-browser";
+      dialog.setAttribute("aria-labelledby", "binder-card-browser-title");
+      const heading = make("header", undefined, "card-browser-heading");
+      const title = make("h2", "Add cards to binder");
+      title.id = "binder-card-browser-title";
+      const close = button("", () => dialog.close());
+      close.classList.add("icon-button");
+      const closeIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      closeIcon.setAttribute("class", "ui-symbol");
+      closeIcon.setAttribute("viewBox", "0 0 24 24");
+      closeIcon.setAttribute("aria-hidden", "true");
+      const closePath = document.createElementNS(closeIcon.namespaceURI, "path");
+      closePath.setAttribute("d", "M6 6l12 12M18 6L6 18");
+      closeIcon.append(closePath);
+      close.append(closeIcon);
+      close.setAttribute("aria-label", "Close card catalogue");
+      heading.append(title, close);
+      const searchRow = make("div", undefined, "card-browser-search");
+      const search = make("input");
+      search.type = "search";
+      search.placeholder = "Find a card by name, number, or set";
+      search.maxLength = 120;
+      search.setAttribute("aria-label", "Search expanded card catalogue");
+      searchRow.append(search);
+      const body = make("div", undefined, "card-browser-body");
+      const filterPanel = make("aside", undefined, "card-browser-filters");
+      filterPanel.setAttribute("aria-label", "Catalogue filters");
+      function select(key, label, entries, all) {
+        const field = make("label", label),
+          control = make("select");
+        control.id = "browser-" + key;
+        for (const [value, text] of [["", all], ...entries]) {
+          const option = make("option", text);
+          option.value = value;
+          control.append(option);
+        }
+        control.addEventListener("change", () => load());
+        filters[key] = control;
+        field.append(control);
+        filterPanel.append(field);
+      }
+      const values = (key) =>
+        [...new Set(window.CARDS.flatMap((c) => c[key] || []).filter(Boolean))]
+          .sort()
+          .map((v) => [v, v]);
+      const info = window.CardCatalogue.info;
+      select(
+        "set",
+        "Set",
+        window.CardCatalogue.sets().map((s) => [s.id, s.name]),
+        "All sets",
+      );
+      select(
+        "type",
+        "Type",
+        info?.types?.map((v) => [v, v]) || values("pokemonTypes"),
+        "All types",
+      );
+      select(
+        "rarity",
+        "Rarity",
+        info?.rarities?.map((v) => [v, v]) || values("rarity"),
+        "All rarities",
+      );
+      select(
+        "finish",
+        "Available finish",
+        Object.entries(window.DiscoverCatalogue.finishNames),
+        "Any finish",
+      );
+      select(
+        "sort",
+        "Sort",
+        [
+          ["number", "Card number"],
+          ["set", "Set"],
+        ],
+        "Name A\u2013Z",
+      );
+      filterPanel.append(
+        button("Clear filters", () => {
+          Object.values(filters).forEach((c) => (c.value = ""));
+          load();
+        }),
+      );
+      const catalogue = make("section", undefined, "card-browser-catalogue");
+      catalogue.setAttribute("aria-label", "Card catalogue");
+      const status = make("p", "", "card-browser-status");
+      status.setAttribute("role", "status");
+      const grid = make("div", undefined, "card-browser-grid");
+      grid.setAttribute("role", "group");
+      grid.setAttribute("aria-label", "Select cards to add");
+      const more = button("Load more cards", () => load(true));
+      more.hidden = true;
+      const retry = button("Retry search", () => load());
+      retry.hidden = true;
+      catalogue.append(status, grid, retry, more);
+      body.append(filterPanel, catalogue);
+      const footer = make("footer", undefined, "card-browser-actions");
+      const selected = make("span", "0 selected");
+      selected.setAttribute("role", "status");
+      const clear = button("Clear selection", () => {
+        chosen.clear();
+        sync();
+      });
+      const cancel = button("Cancel", () => dialog.close());
+      const add = button(
+        "Add to binder",
+        () => {
+          if (!chosen.size) return;
+          const ok = h.run(
+            () =>
+              h.state.addCards(
+                [...chosen].map((cardId) => ({ cardId })),
+                h.page().id,
+              ),
+            "Cards added. Save to keep your changes.",
+          );
+          if (ok) {
+            h.clearSelection();
+            chosen.clear();
+            dialog.close();
+          } else
+            status.textContent =
+              "Cards could not be added. Your selection is kept; close the catalogue to read the binder message.";
+        },
+        true,
+      );
+      add.id = "browser-add-cards";
+      footer.append(selected, clear, cancel, add);
+      dialog.append(heading, searchRow, body, footer);
+      document.body.append(dialog);
+      function sync() {
+        selected.textContent = chosen.size + " selected";
+        add.textContent = chosen.size
+          ? "Add " +
+            chosen.size +
+            (chosen.size === 1 ? " card" : " cards") +
+            " to binder"
+          : "Add to binder";
+        add.disabled = !chosen.size;
+        clear.disabled = !chosen.size;
+        for (const tile of grid.children)
+          tile.setAttribute(
+            "aria-pressed",
+            String(chosen.has(tile.dataset.card)),
+          );
+      }
+      function tile(card) {
+        const id = card.id || card.collectorNumber;
+        const b = button("", () => {
+          if (chosen.has(id)) chosen.delete(id);
+          else if (chosen.size < 2000) chosen.add(id);
+          sync();
+        });
+        b.className = "card-browser-tile";
+        b.dataset.card = id;
+        b.setAttribute(
+          "aria-label",
+          card.name + ", " + card.setName + " #" + card.collectorNumber,
+        );
+        b.title =
+          card.name + " \u00b7 " + card.setName + " #" + card.collectorNumber;
+        const img = make("img");
+        img.src = window.CardCatalogue.thumbnail(card);
+        img.alt = card.name;
+        img.loading = "lazy";
+        img.draggable = false;
+        const check = make("span", "\u2713", "card-browser-check");
+        check.setAttribute("aria-hidden", "true");
+        b.append(
+          img,
+          make("strong", card.name),
+          make("small", card.setName + " \u00b7 #" + card.collectorNumber),
+          check,
+        );
+        return b;
+      }
+      async function load(append = false) {
+        clearTimeout(timer);
+        const token = ++request,
+          next = append ? page + 1 : 1;
+        if (!append) {
+          page = 0;
+          matches = [];
+          grid.replaceChildren();
+        }
+        const query = Object.fromEntries(
+          Object.entries(filters).map(([key, control]) => [key, control.value]),
+        );
+        query.q = search.value.trim();
+        more.disabled = true;
+        more.hidden = !append;
+        retry.hidden = true;
+        status.textContent = "Loading cards...";
+        try {
+          const result = await window.CardCatalogue.search(query, next);
+          if (token !== request || !dialog.open) return;
+          page = next;
+          total = result.total;
+          matches.push(...result.cards);
+          const added = result.cards.map(tile);
+          grid.append(...added);
+          status.textContent = matches.length
+            ? matches.length + " of " + total + " cards"
+            : "No matching cards. Try another search or clear filters.";
+          more.hidden = matches.length >= total;
+          sync();
+          if (append) added[0]?.focus();
+        } catch (error) {
+          if (token !== request || !dialog.open) return;
+          status.textContent = error.message;
+          retry.hidden = append;
+          more.hidden = !append;
+        } finally {
+          if (token === request) more.disabled = false;
+        }
+      }
+      search.addEventListener("input", () => {
+        clearTimeout(timer);
+        request++;
+        more.hidden = true;
+        timer = setTimeout(() => load(), 250);
+      });
+      dialog.addEventListener("close", () => {
+        request++;
+        clearTimeout(timer);
+        window.UIControls.restoreFocus(origin, $("expand-cards"));
+      });
+      window.addEventListener("pokedex-account-changed", () => {
+        chosen.clear();
+        dialog.close();
+      });
+      return {
+        open() {
+          origin = document.activeElement;
+          $("card-filters").open = false;
+          chosen.clear();
+          h.selected().forEach((id) => chosen.add(id));
+          search.value = $("card-search").value;
+          filters.type.value = $("type-filter").value;
+          filters.set.value =
+            window.CardCatalogue.sets().find(
+              (s) => s.name === $("set-filter").value,
+            )?.id || "";
+          sync();
+          dialog.showModal();
+          search.focus();
+          load();
+        },
+      };
+    },
+  };
 })();
 </script>
     <script>window.EditorReady = (async () => {
@@ -13625,9 +15848,10 @@ PERFORMANCE OF THIS SOFTWARE.
       );
     }),
   );
-  function confirm(title, copy, action) {
+  function confirm(title, copy, action, label = "Confirm") {
     $("confirm-title").textContent = title;
     $("confirm-copy").textContent = copy;
+    $("confirm-yes").textContent = label;
     confirmation = action;
     openDialog($("confirm-dialog"));
     $("confirm-cancel").focus();
@@ -13907,105 +16131,119 @@ PERFORMANCE OF THIS SOFTWARE.
     return b;
   }
   let catalogueQuery = null,
-    resultPage = 1,
-    resultRequest = 0;
-  const resultPager = el("div", "catalogue-pagination");
-  const previousCards = el("button", "button secondary", "Previous");
-  const nextCards = el("button", "button secondary", "Next");
-  const resultPageLabel = el("span");
-  previousCards.type = nextCards.type = "button";
-  resultPager.append(previousCards, resultPageLabel, nextCards);
-  resultPager.hidden = true;
+    cardBrowser,
+    resultRequest = 0,
+    resultCards = [],
+    resultTotal = 0,
+    resultsLoaded = false;
+  const resultPager = el("div", "catalogue-pagination editor-card-expand");
+  const expandCards = el("button", "button secondary", "Expand");
+  expandCards.id = "expand-cards";
+  expandCards.type = "button";
+  expandCards.setAttribute("aria-haspopup", "dialog");
+  expandCards.setAttribute("aria-controls", "binder-card-browser");
+  resultPager.append(expandCards);
   $("card-results").after(resultPager);
-  previousCards.addEventListener("click", () => {
-    resultPage--;
+  expandCards.addEventListener("click", () => cardBrowser.open());
+  const cardFilters = $("card-filters");
+  $("card-filters-clear").addEventListener("click", () => {
+    $("type-filter").value = "";
+    $("set-filter").value = "";
     renderResults();
   });
-  nextCards.addEventListener("click", () => {
-    resultPage++;
-    renderResults();
+  document.addEventListener("pointerdown", (event) => {
+    if (!cardFilters.contains(event.target)) cardFilters.open = false;
   });
   async function renderResults() {
     const focus = focusKey(),
-      scroll = $("card-results").scrollTop;
+      grid = $("card-results"),
+      scroll = grid.scrollTop;
     const q = $("card-search").value.trim().toLowerCase(),
       type = $("type-filter").value,
       set = $("set-filter").value;
+    const count = Number(!!type) + Number(!!set);
+    $("card-filter-count").textContent = count;
+    $("card-filter-count").hidden = !count;
+    cardFilters
+      .querySelector("summary")
+      .setAttribute(
+        "aria-label",
+        count ? "Filter cards, " + count + " active" : "Filter cards",
+      );
     const signature = JSON.stringify([q, type, set]);
-    if (signature !== catalogueQuery) resultPage = 1;
-    catalogueQuery = signature;
-    let results, total;
-    const request = ++resultRequest;
-    try {
-      if (window.CardCatalogue?.enabled) {
-        previousCards.disabled = nextCards.disabled = true;
-        $("result-count").textContent = "Loading cards...";
-        const result = await window.CardCatalogue.search(
-          { q, type, set },
-          resultPage,
-        );
-        if (request !== resultRequest) return;
-        results = result.cards;
-        total = result.total;
-        resultPager.hidden = total <= 24;
-        resultPageLabel.textContent =
-          resultPage + " / " + Math.max(1, Math.ceil(total / 24));
-        previousCards.disabled = resultPage === 1;
-        nextCards.disabled = resultPage * 24 >= total;
-      } else {
-        results = window.CARDS.filter(
-          (c) =>
-            (!q ||
-              [c.name, c.collectorNumber, c.setName]
-                .join(" ")
-                .toLowerCase()
-                .includes(q) ||
-              String(Number(c.collectorNumber)) === q) &&
-            (!type || c.pokemonTypes.includes(type)) &&
-            (!set || c.setName === set),
-        );
-        total = results.length;
-      }
-    } catch (error) {
-      if (request !== resultRequest) return;
-      $("result-count").textContent = error.message;
-      const retry = el("button", "button secondary", "Retry search");
-      retry.type = "button";
-      retry.addEventListener("click", () => renderResults());
-      $("card-results").replaceChildren(retry);
-      resultPager.hidden = true;
-      return;
+    if (signature !== catalogueQuery) {
+      catalogueQuery = signature;
+      resultRequest++;
+      resultCards = [];
+      resultsLoaded = false;
     }
-    $("result-count").textContent = total + (total === 1 ? " card" : " cards");
-    $("card-results").replaceChildren(
-      ...results.map((c) =>
+    if (!resultsLoaded) {
+      const request = ++resultRequest;
+      $("result-count").textContent = "Loading cards...";
+      try {
+        if (window.CardCatalogue?.enabled) {
+          const result = await window.CardCatalogue.search({ q, type, set }, 1);
+          if (request !== resultRequest) return;
+          resultCards = result.cards;
+          resultTotal = result.total;
+        } else {
+          const matches = window.CARDS.filter(
+            (c) =>
+              (!q ||
+                [c.name, c.collectorNumber, c.setName]
+                  .join(" ")
+                  .toLowerCase()
+                  .includes(q) ||
+                String(Number(c.collectorNumber)) === q) &&
+              (!type || c.pokemonTypes.includes(type)) &&
+              (!set || c.setName === set),
+          );
+          resultTotal = matches.length;
+          resultCards = matches.slice(0, 24);
+        }
+        resultsLoaded = true;
+      } catch (error) {
+        if (request !== resultRequest) return;
+        $("result-count").textContent = error.message;
+        const retry = el("button", "button secondary", "Retry search");
+        retry.type = "button";
+        retry.addEventListener("click", () => renderResults());
+        grid.replaceChildren(retry);
+        return;
+      }
+    }
+    $("result-count").textContent =
+      resultCards.length + " of " + resultTotal + " cards";
+    grid.replaceChildren(
+      ...resultCards.map((c) =>
         catalogueCard(
           { cardId: c.id || c.collectorNumber },
           { kind: "catalogue", cardId: c.id || c.collectorNumber },
         ),
       ),
     );
-    if (!results.length)
-      $("card-results").append(
+    if (!resultCards.length)
+      grid.append(
         el(
           "p",
           "empty-results",
           "No matches. Try another name or clear the filters.",
         ),
       );
-    $("card-results").scrollTop = scroll;
+    grid.scrollTop = scroll;
     renderCoverControls();
     restoreFocus(focus);
   }
   function renderOverflow() {
     const items = state.document.overflow;
     $("overflow-count").textContent = items.length;
-    $("overflow-badge").textContent = items.length;
+    $("overflow-badge").textContent = items.length > 99 ? "99+" : items.length;
     $("overflow-badge").hidden = !items.length;
     $("overflow-view").setAttribute(
       "aria-label",
       "Overflow, " + items.length + (items.length === 1 ? " item" : " items"),
     );
+    $("overflow-view").title = "Overflow, " + items.length + (items.length === 1 ? " item" : " items");
     $("empty-overflow").disabled = !items.length;
     $("overflow-items").replaceChildren(
       ...items.map((c) => catalogueCard(c, { kind: "overflow", id: c.id })),
@@ -14063,9 +16301,12 @@ PERFORMANCE OF THIS SOFTWARE.
     const px = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     const py = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     if (stage.clientWidth <= px || stage.clientHeight <= py) return;
-    const showCover = coverOpen && customTab === "cover";
+    const showCover = coverOpen && customTab === "cover" && !studio?.showPages();
+    window.BinderCovers.stylePage(area, coverOpen && customTab === "cover"
+      ? studio.coverValue(coverDraft) : state.document.cover);
     area.classList.toggle("is-cover-preview", showCover);
     if (showCover) {
+      const previewDoc = studio.designDocument(coverDraft);
       const fit = Math.max(
         0.001,
         Math.min(
@@ -14082,9 +16323,9 @@ PERFORMANCE OF THIS SOFTWARE.
       area.style.height = width / 0.75 + "px";
       area.setAttribute("aria-label", "Live binder cover preview");
       const book = window.BinderCovers.create(
-        studio.coverValue(coverDraft),
-        state.document.name,
-        state.document,
+        previewDoc.cover,
+        previewDoc.name,
+        previewDoc,
       );
       book.style.width = "100%";
       book.style.height = "100%";
@@ -14094,6 +16335,9 @@ PERFORMANCE OF THIS SOFTWARE.
       return;
     }
     area.setAttribute("aria-label", "Binder page pockets");
+    const appearanceDocument = coverOpen && customTab === "cover" ? studio.designDocument(coverDraft) : state.document;
+    window.BinderCovers.stylePage(area, { ...appearanceDocument.cover,
+      pageStyle: appearanceDocument.pages.find(p => p.id === pageId)?.pageStyle || appearanceDocument.cover?.pageStyle });
     const shown = visiblePages();
     const contents = shown
       .flatMap((page) => page.regions)
@@ -14150,6 +16394,8 @@ PERFORMANCE OF THIS SOFTWARE.
     dimensions.forEach((dimension, pageIndex) => {
       const p = shown[pageIndex];
       const sheet = spreadMode ? el("section", "editor-sheet") : area;
+      window.BinderCovers.stylePage(sheet, { ...appearanceDocument.cover,
+        pageStyle: appearanceDocument.pages.find(page => page.id === p?.id)?.pageStyle || appearanceDocument.cover?.pageStyle });
       if (spreadMode) {
         sheet.style.left = sheetOffset + "px";
         sheet.style.top = labelSpace + "px";
@@ -14244,14 +16490,21 @@ PERFORMANCE OF THIS SOFTWARE.
           clip = svgNode("clipPath", { id: "clip-" + r.id }),
           geometry = pocketGeometry(r.cells, cw, ch, gap);
         const outline = geometry.outline;
-        geometry.rects.forEach((rect) => clip.append(svgNode("rect", rect)));
+        geometry.rects.forEach((rect) =>
+          clip.append(
+            svgNode("rect", {
+              ...rect,
+              rx: !r.content && r.cells.length === 1 ? 8 : 0,
+            }),
+          ),
+        );
         defs.append(clip);
         svg.append(
           defs,
           svgNode("rect", {
             width,
             height,
-            fill: r.content ? "transparent" : "var(--soft)",
+            fill: r.content ? "transparent" : "var(--pocket-fill, var(--soft))",
             "clip-path": "url(#clip-" + r.id + ")",
           }),
         );
@@ -14298,8 +16551,8 @@ PERFORMANCE OF THIS SOFTWARE.
             );
             Object.assign(plus.style, {
               inset: "auto",
-              left: (x - x0) * (cw + gap) + cw / 2 + "px",
-              top: (y - y0) * (ch + gap) + ch / 2 + "px",
+              left: (window.BinderSchema.rectangular(r.cells) ? width / 2 : (x - x0) * (cw + gap) + cw / 2) + "px",
+              top: (window.BinderSchema.rectangular(r.cells) ? height / 2 : (y - y0) * (ch + gap) + ch / 2) + "px",
               transform: "translate(-50%, -50%)",
             });
           }
@@ -14309,7 +16562,7 @@ PERFORMANCE OF THIS SOFTWARE.
           svgNode("path", {
             d: outline,
             fill: "none",
-            stroke: selected.includes(r.id) ? "var(--accent)" : "none",
+            stroke: selected.includes(r.id) ? "var(--accent)" : "var(--pocket-border, transparent)",
             "stroke-width": selected.includes(r.id) ? 8 : 1,
             "stroke-dasharray": "0",
           }),
@@ -14473,6 +16726,7 @@ PERFORMANCE OF THIS SOFTWARE.
         (insertDirection === 1 ? "right" : "left") +
         ": choose a pocket.";
     document.querySelector(".selection-status").dataset.count = selected.length;
+    if (!pending && selected.length > 1) $("selection-copy").textContent = selected.length + " selected";
     $("selection-copy").classList.toggle(
       "sr-only",
       !!pending || selected.length === 1,
@@ -14485,7 +16739,7 @@ PERFORMANCE OF THIS SOFTWARE.
     $("clear-selection").hidden = !pending && !selected.length;
     const reason = state.mergeReason(pageId, selected);
     $("merge").disabled = !!reason;
-    $("merge").title = reason || "Merge selected connected pockets";
+    $("merge").title = reason || "Merge selected rectangular pockets";
     $("merge").setAttribute("aria-describedby", "tool-help");
     $("tool-help").textContent =
       selected.length > 1 && reason
@@ -14578,8 +16832,10 @@ PERFORMANCE OF THIS SOFTWARE.
     return b;
   }
   function renderCoverControls() {
-    $("customize-label").textContent = "Card styles";
-    $("customize-binder").title = "Style card sleeves and toploaders";
+    $("customize-label").textContent = "Customize cards";
+    $("customize-binder").title = "Customize cards";
+    $("customize-binder").setAttribute("aria-label", "Customize cards");
+    $("edit-cover-preview").title = "Customize binder";
     $("customize-binder").setAttribute(
       "aria-expanded",
       String(coverOpen && customTab !== "cover"),
@@ -14597,7 +16853,7 @@ PERFORMANCE OF THIS SOFTWARE.
     );
     $("edit-cover-preview").setAttribute(
       "aria-label",
-      "Cover design · " + window.BinderCovers.name(state.document.cover?.theme),
+      "Customize binder",
     );
     $("rename-binder").disabled = coverOpen;
     $("feedback-undo").disabled = coverOpen;
@@ -14631,7 +16887,8 @@ PERFORMANCE OF THIS SOFTWARE.
         b.type = "button";
         b.dataset.frameStyle = value;
         b.setAttribute("aria-pressed", String(frameDraft[key] === value));
-        const styles = { ...previewFrames(), [key]: value };
+        // Isolate this holder so the other style cannot obscure the choices.
+        const styles = { sleeve: "none", toploader: "none", [key]: value };
         b.append(
           visualSVG({ ...previewCard(), frames: styles }, 48, 66, styles),
           el(
@@ -14658,6 +16915,9 @@ PERFORMANCE OF THIS SOFTWARE.
           none: "#aeb6c5",
         }[value];
         name.prepend(dot);
+        const check = el("i", "frame-choice-check");
+        check.setAttribute("aria-hidden", "true");
+        b.append(check);
         const show = () => {
           frameHover = { [key]: value };
           previewCover();
@@ -14676,6 +16936,7 @@ PERFORMANCE OF THIS SOFTWARE.
           frameTouched[key] = value;
           renderFrameChoices();
           previewCover();
+          $("frame-style-options").querySelector('[data-frame-style="' + value + '"]').focus({ preventScroll: true });
         });
         return b;
       }),
@@ -14739,33 +17000,28 @@ PERFORMANCE OF THIS SOFTWARE.
       if (frameDraft[k] !== "mixed") base[k] = frameDraft[k];
     return { ...base, ...(frameHover || {}) };
   }
-  function styleScopeText() {
-    const scope = $("frame-scope").value;
-    const mixed = ["sleeve", "toploader"].filter(
-      (k) => frameDraft[k] === "mixed",
-    );
-    return (
-      (scope === "binder" ? "Includes overflow and future additions" : "") +
-      (mixed.length
-        ? (scope === "binder" ? " · " : "") +
-          "Mixed " +
-          mixed.join(" / ") +
-          ": unchanged until chosen"
-        : "")
-    );
+  function frameStyleName(value) {
+    return value === "none" ? "None" : value === "mixed" ? "Mixed"
+      : value === "clear" ? "Clear" : window.BinderCovers.name(value);
   }
 
   function previewCover() {
     const cover = customTab === "cover";
+    $("cover-preview-stage").setAttribute("aria-label", cover ? "Live binder cover preview" : "Live card style preview");
+    $("customizer-title").textContent = cover ? "Customize binder" : "Customize cards";
+    $("cover-customizer").classList.toggle("binder-design-panel", cover);
+    $("custom-tab-cover").hidden = true;
+    $("custom-tab-sleeve").parentElement.hidden = cover;
+    $("binder-customization-options").hidden = !cover;
     $("customizer-tab-hint").textContent = cover
-      ? "Preview on your binder. Apply cover, then Save."
+      ? "Apply changes, then Save."
       : customTab === "sleeve"
         ? "Sleeves protect the surface of a card."
         : "Toploaders are rigid cases around a card.";
     document
       .querySelector(".editor-shell")
       .classList.toggle("styling-card", !cover);
-    $("cover-selection-status").hidden = cover;
+    $("cover-selection-status").hidden = false;
     if (!cover) {
       syncStyleScope();
     }
@@ -14778,6 +17034,8 @@ PERFORMANCE OF THIS SOFTWARE.
       String(coverOpen && !cover),
     );
     $("frame-scope").parentElement.hidden = cover;
+    $("frame-scope-note").hidden = cover;
+    $("pick-style-card").hidden = cover;
     $("cover-design-controls").hidden = !cover;
     $("frame-design-controls").hidden = cover;
     for (const tab of ["cover", "sleeve", "toploader"])
@@ -14786,25 +17044,25 @@ PERFORMANCE OF THIS SOFTWARE.
         String(tab === customTab),
       );
     if (cover) {
-      $("cover-preview-art").replaceChildren(
-        window.BinderCovers.create(
-          studio.coverValue(coverDraft),
-          state.document.name,
-          state.document,
-        ),
-      );
-      $("cover-preview-name").textContent =
-        studio.coverValue(coverDraft).title?.text || state.document.name;
-      $("cover-preview-theme").textContent =
-        window.BinderCovers.name(coverDraft);
-      $("cover-selection-status").textContent =
-        window.BinderCovers.name(coverDraft) + " · preview only.";
+      const pagePreview = studio.showPages();
+      studio.syncPageStyle();
+      const previewDoc = studio.designDocument(coverDraft);
+      $("cover-preview-art").replaceChildren(pagePreview
+        ? studio.pageSVG(currentPage(), previewDoc, null, true)
+        : window.BinderCovers.create(previewDoc.cover, previewDoc.name, previewDoc));
+      $("cover-preview-name").textContent = pagePreview
+        ? "Page " + (state.document.pages.findIndex(p => p.id === pageId) + 1)
+        : studio.coverValue(coverDraft).title?.text || state.document.name;
+      $("cover-preview-theme").textContent = pagePreview
+        ? currentPage().rows + " \u00d7 " + currentPage().columns + " layout" : window.BinderCovers.name(coverDraft);
       $("customizer-copy").textContent =
         "Choose a cover, then apply your design.";
-      $("cover-apply").textContent = "Apply cover";
+      $("cover-apply").textContent = "Apply";
       $("cover-apply").disabled =
         (coverDraft === "custom" && !studio.coverValue(coverDraft).artwork) ||
-        JSON.stringify(studio.coverValue(coverDraft)) === coverBaseline;
+        (JSON.stringify(studio.coverValue(coverDraft)) === coverBaseline && !studio.appearanceDirty());
+      $("cover-selection-status").textContent = $("cover-apply").disabled
+        ? "Choose a design." : "Ready to apply. Save afterward to keep changes.";
     } else {
       const card = previewCard();
       $("cover-preview-art").replaceChildren(
@@ -14816,33 +17074,31 @@ PERFORMANCE OF THIS SOFTWARE.
         ),
       );
       $("cover-preview-name").textContent = window.BinderVisuals.name(card);
-      $("cover-preview-theme").textContent =
-        (frameDraft.sleeve === "none"
-          ? "No sleeve"
-          : frameDraft.sleeve === "mixed"
-            ? "Mixed sleeves"
-            : window.BinderCovers.name(frameDraft.sleeve) + " sleeve") +
-        " · " +
-        (frameDraft.toploader === "none"
-          ? "No toploader"
-          : frameDraft.toploader === "clear"
-            ? "Clear toploader"
-            : frameDraft.toploader === "mixed"
-              ? "Mixed toploaders"
-              : window.BinderCovers.name(frameDraft.toploader) + " toploader");
-      $("cover-selection-status").textContent =
-        "Preview only · artwork and ownership are unchanged.";
+      const items = scopeCards();
+      $("cover-preview-theme").replaceChildren(...["sleeve", "toploader"].map(key => {
+        const values = new Set(items.map(item => (item.frames || state.document.frames)?.[key] || "none"));
+        const value = values.size > 1 ? "mixed" : values.values().next().value || state.document.frames?.[key] || "none";
+        return el("span", "", (key === "sleeve" ? "Sleeve: " : "Toploader: ") + frameStyleName(value));
+      }));
+      const count = items.length;
+      $("frame-scope-note").textContent = $("frame-scope").value === "binder"
+        ? count + " cards, including overflow. Also applies to future additions."
+        : count ? count + (count === 1 ? " card" : " cards") + " in this target."
+          : "Choose cards or a populated page.";
       $("customizer-copy").textContent =
         $("frame-scope").value === "binder"
           ? "Applies to every card and future additions. Replaces individual styles."
           : "Applies to your chosen cards.";
-      $("cover-apply").textContent = "Apply card styles";
+      $("cover-apply").textContent = "Apply";
       $("cover-apply").disabled =
         !Object.keys(frameTouched).length ||
         ($("frame-scope").value !== "binder" && !scopeCards().length);
-      $("cover-selection-status").textContent = styleScopeText();
-      $("cover-selection-status").hidden = !$("cover-selection-status")
-        .textContent;
+      const changes = Object.entries(frameTouched).map(([key, value]) =>
+        (key === "sleeve" ? "Sleeve: " : "Toploader: ") + frameStyleName(value));
+      $("cover-selection-status").textContent = changes.length
+        ? "Ready to apply — " + changes.join(" · ") + ". Save afterward to keep changes."
+        : "Choose a style. Existing mixed styles stay until changed.";
+      $("cover-selection-status").hidden = false;
     }
     document
       .querySelectorAll("[data-cover-theme]")
@@ -14854,7 +17110,12 @@ PERFORMANCE OF THIS SOFTWARE.
       );
     updatePageNavigation();
     renderCoverControls();
-    window.EditorIcon?.($("cover-apply"), $("cover-apply").textContent);
+    for (const [id, label] of [["cover-apply", $("cover-apply").textContent], ["cover-cancel", "Cancel"]]) {
+      $(id).textContent = label;
+      $(id).classList.remove("workshop-icon");
+      $(id).setAttribute("aria-label", label);
+      $(id).title = label;
+    }
     renderCanvas();
   }
   function openCover(tab = "cover") {
@@ -14905,6 +17166,9 @@ PERFORMANCE OF THIS SOFTWARE.
           window.BinderCovers.create(theme.id, "", state.document),
           el("span", "", theme.name),
         );
+        const check = el("i", "frame-choice-check");
+        check.setAttribute("aria-hidden", "true");
+        b.append(check);
         b.addEventListener("click", () => {
           coverDraft = theme.id;
           studio.coverPreset(theme.id);
@@ -14916,7 +17180,8 @@ PERFORMANCE OF THIS SOFTWARE.
     render();
     renderFrameChoices();
     previewCover();
-    $("custom-tab-" + tab).focus({ preventScroll: true });
+    (tab === "cover" ? $("binder-customization-options").querySelector("button")
+      : $("custom-tab-" + tab)).focus({ preventScroll: true });
 
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
@@ -14977,15 +17242,16 @@ PERFORMANCE OF THIS SOFTWARE.
       theme = coverDraft,
       frames = { ...frameTouched },
       coverValue = studio.coverValue(theme),
+      appearancePatch = studio.appearancePatch(),
       tab = customTab;
     closeCover();
     run(
       () =>
         tab === "cover"
-          ? state.setCoverDetails(coverValue)
+          ? state.setCoverDetails(coverValue, appearancePatch)
           : state.applyFramePatch(frames, scope, pid, rids),
       tab === "cover"
-        ? "Cover applied. Save binder to keep it."
+        ? "Binder design applied. Save to keep it."
         : "Card styles applied. Save binder to keep them.",
     );
   });
@@ -15291,11 +17557,13 @@ PERFORMANCE OF THIS SOFTWARE.
     $("save-status").hidden = !needsSave;
     updatePageNavigation();
     $("page-view").value = spreadMode ? "two" : "one";
+    document.querySelectorAll("[data-page-view]").forEach(button =>
+      button.setAttribute("aria-pressed", String(button.dataset.pageView === $("page-view").value)));
     $("move-page-left").disabled = index === 0;
     $("move-page-right").disabled = index === state.document.pages.length - 1;
     $("delete-page").disabled = state.document.pages.length === 1;
     $("delete-page").title =
-      state.document.pages.length === 1 ? "Keep at least one page" : "";
+      state.document.pages.length === 1 ? "Keep at least one page" : "Delete this page";
     $("add-page").disabled = state.document.pages.length >= 30;
     $("add-page").title =
       state.document.pages.length >= 30 ? "Maximum 30 pages" : "";
@@ -15388,7 +17656,14 @@ PERFORMANCE OF THIS SOFTWARE.
   $("card-search").addEventListener("input", () => {
     if (!window.CardCatalogue?.enabled) return renderResults();
     clearTimeout(cardSearchTimer);
-    resultRequest++;
+    if (
+      JSON.stringify([
+        $("card-search").value.trim().toLowerCase(),
+        $("type-filter").value,
+        $("set-filter").value,
+      ]) !== catalogueQuery
+    )
+      resultRequest++;
     cardSearchTimer = setTimeout(renderResults, 250);
   });
   $("type-filter").addEventListener("change", renderResults);
@@ -15638,19 +17913,22 @@ PERFORMANCE OF THIS SOFTWARE.
   function updateLayoutImpact() {
     const rows = Number($("page-rows").value),
       columns = Number($("page-columns").value);
-    const count = currentPage().regions.filter(
+    const page = currentPage();
+    const count = page.regions.filter(
       (r) => r.content && r.cells.some(([y, x]) => y >= rows || x >= columns),
     ).length;
-    $("layout-impact").textContent = [rows, columns].every(
+    const valid = [rows, columns].every(
       (n) => Number.isInteger(n) && n >= 1 && n <= 6,
-    )
-      ? count
-        ? count +
-          (count === 1
-            ? " card will move to overflow."
-            : " cards will move to overflow.")
-        : "No cards will move to overflow."
-      : "Choose whole numbers from 1 to 6.";
+    );
+    const changed = rows !== page.rows || columns !== page.columns;
+    const split = page.regions.filter(r => r.cells.length > 1 && r.cells.some(([y, x]) => y >= rows || x >= columns)).length;
+    $("layout-count").textContent = valid ? rows * columns + " pocket spaces" : "";
+    $("layout-target").textContent = "This page · " + (state.document.pages.findIndex(p => p.id === pageId) + 1);
+    $("layout-apply").disabled = !valid || !changed;
+    $("layout-impact").hidden = valid && (!changed || (!count && !split));
+    $("layout-impact").textContent = !valid ? "Choose whole numbers from 1 to 6."
+      : [count ? count + (count === 1 ? " item will move to Overflow." : " items will move to Overflow.") : "",
+        split ? split + (split === 1 ? " merged pocket will split." : " merged pockets will split.") : ""].filter(Boolean).join(" ");
   }
   for (const id of ["page-rows", "page-columns"])
     $(id).addEventListener("input", updateLayoutImpact);
@@ -15665,18 +17943,12 @@ PERFORMANCE OF THIS SOFTWARE.
       message("Choose whole numbers from 1 to 6.", true);
       return;
     }
+    if (rows === p.rows && columns === p.columns) return;
     const affected = p.regions.filter((r) =>
       r.cells.some(([y, x]) => y >= rows || x >= columns),
     );
     const cards = affected.filter((r) => r.content).length,
       split = affected.filter((r) => r.cells.length > 1).length;
-    const details = affected
-      .filter((r) => r.content || r.cells.length > 1)
-      .map(
-        (r) =>
-          `Row ${Math.min(...r.cells.map((c) => c[0])) + 1}, column ${Math.min(...r.cells.map((c) => c[1])) + 1}: ${r.content ? window.BinderVisuals.name(r.content) : "empty merged pocket"}`,
-      )
-      .join("; ");
     const apply = () =>
       run(
         () => state.resize(pageId, rows, columns),
@@ -15686,20 +17958,23 @@ PERFORMANCE OF THIS SOFTWARE.
               " item" +
               (cards === 1 ? "" : "s") +
               " moved to overflow."
-          : "Page layout updated. No cards moved to overflow.",
+          : "Page layout updated.",
       );
-    if (affected.length)
-      confirm(
-        "Preview layout change",
-        `${rows} rows × ${columns} columns. ${cards} cards move to overflow; ${split} merged pockets are removed and their remaining cells become separate pockets. ${details} Undo is available.`,
-        apply,
-      );
-    else apply();
+    if (!cards) { apply(); return; }
+    confirm(
+      "Change page layout?",
+      [p.rows + " \u00d7 " + p.columns + " \u2192 " + rows + " \u00d7 " + columns,
+        cards ? cards + (cards === 1 ? " item moves to Overflow." : " items move to Overflow.") : "",
+        split ? split + (split === 1 ? " merged pocket splits." : " merged pockets split.") : "",
+      ].filter(Boolean).join("\n"),
+      apply,
+      "Apply layout",
+    );
   });
   const addPageTile = el("button", "add-page");
   addPageTile.append(
     el("span", "add-page-symbol", "+"),
-    el("span", "add-page-caption sr-only", "Add page"),
+    el("span", "add-page-caption", "Add page"),
   );
   addPageTile.id = "add-page";
   addPageTile.type = "button";
@@ -15720,7 +17995,7 @@ PERFORMANCE OF THIS SOFTWARE.
     $("next-page").dataset.add = String(lastSpread);
     $("next-page").disabled =
       lastSpread && (state.document.pages.length >= 30 || coverOpen);
-    if (coverOpen && customTab === "cover")
+    if (coverOpen && customTab === "cover" && !studio.showPages())
       $("previous-page").disabled = $("next-page").disabled = true;
     $("next-page").setAttribute(
       "aria-label",
@@ -15754,10 +18029,14 @@ PERFORMANCE OF THIS SOFTWARE.
     }
   }
   $("page-view").addEventListener("change", () => {
+    const draftRows = $("page-rows").value, draftColumns = $("page-columns").value;
     spreadMode = $("page-view").value === "two";
     selected = [];
     pending = null;
     render();
+    $("page-rows").value = draftRows;
+    $("page-columns").value = draftColumns;
+    updateLayoutImpact();
   });
   $("previous-page").addEventListener("click", () => turn(-1));
   $("next-page").addEventListener("click", () => {
@@ -15981,6 +18260,13 @@ PERFORMANCE OF THIS SOFTWARE.
     },
   });
 
+  cardBrowser = window.EditorCardBrowser.init({
+    page: currentPage,
+    state,
+    run,
+    selected: () => arrangeTools.pickerSelection(),
+    clearSelection: () => arrangeTools.clearPickerSelection(),
+  });
   render();
   if (seed.customize) openCover();
   if (seed.placeCard) {
@@ -16030,6 +18316,7 @@ PERFORMANCE OF THIS SOFTWARE.
     if (open && phone.matches) setPages(false);
     cardsOpen = open;
     cards.hidden = !open;
+    if (!open) $("card-filters").open = false;
     shell.classList.toggle("cards-open", open);
     cardsTool.setAttribute("aria-expanded", String(open));
     if (persist) {
@@ -16073,16 +18360,41 @@ PERFORMANCE OF THIS SOFTWARE.
   pagesControls.append(dock);
   const settings = document.querySelector(".layout-settings");
   const settingsBody = document.querySelector(".layout-settings-body");
-  settings.querySelector("summary").title = "View and page settings";
+  settings.querySelector("summary").title = "Page settings";
   settings
     .querySelector("summary")
-    .setAttribute("aria-label", "View and page settings");
-  settingsBody.querySelector("h2").textContent = "View and settings";
+    .setAttribute("aria-label", "Page settings");
+  settingsBody.querySelector("h2").textContent = "Page settings";
   const view = document.querySelector(".page-view-control");
   view.querySelector("span").classList.remove("sr-only");
   view.querySelector("span").textContent = "Page view";
   view.classList.add("field");
-  settingsBody.querySelector(".layout-fields").prepend(view);
+  view.hidden = true;
+  settingsBody.prepend(view);
+  const viewSection = document.createElement("div"), viewLabel = document.createElement("span"), viewButtons = document.createElement("div");
+  viewSection.className = "page-view-section";
+  viewLabel.textContent = "View";
+  viewButtons.className = "page-view-buttons";
+  viewButtons.setAttribute("role", "group");
+  viewButtons.setAttribute("aria-label", "Page view");
+  for (const [value, label] of [["one", "Single"], ["two", "Spread"]]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.pageView = value;
+    button.textContent = label;
+    button.setAttribute("aria-pressed", String($("page-view").value === value));
+    button.addEventListener("click", () => {
+      if ($("page-view").value === value) return;
+      $("page-view").value = value;
+      $("page-view").dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    viewButtons.append(button);
+  }
+  viewSection.append(viewLabel, viewButtons);
+  settingsBody.insertBefore(viewSection, $("layout-form"));
+  $("layout-form").insertBefore($("layout-impact"), $("layout-count").nextSibling);
+  $("move-page-left").hidden = true;
+  $("move-page-right").hidden = true;
   const rail = document.querySelector(".editor-rail");
   rail.append(settings, $("undo"), $("redo"));
   document.querySelector(".history-tools").remove();
@@ -16121,6 +18433,7 @@ PERFORMANCE OF THIS SOFTWARE.
       "aria-label",
       (open ? "Collapse" : "Expand") + " binder sidebar",
     );
+    $("pages-toggle").title = open ? "Hide pages and overflow" : "Show pages and overflow";
     if (!open) closePopovers();
     requestAnimationFrame(layout);
   }
@@ -16129,7 +18442,7 @@ PERFORMANCE OF THIS SOFTWARE.
   );
   const mobileLabels = [
     ["cards-tool", "Cards"],
-    ["edit-cover-preview", "Cover"],
+    ["edit-cover-preview", "Binder"],
     ["customize-binder", "Styles"],
     ["select-pockets", "Select"],
   ];
@@ -16253,7 +18566,7 @@ PERFORMANCE OF THIS SOFTWARE.
     const close = document.createElement("button");
     close.type = "button";
     close.className = "utility-close icon-button";
-    close.setAttribute("aria-label", "Close view and page settings");
+    close.setAttribute("aria-label", "Close page settings");
     close.title = close.getAttribute("aria-label");
     close.innerHTML =
       '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -16697,6 +19010,20 @@ PERFORMANCE OF THIS SOFTWARE.
     (event) => {
       if (document.querySelector("dialog[open]")) return;
       if (event.key === "Escape") {
+        if ($("selection-more")?.open) {
+          $("selection-more").open = false;
+          $("selection-more").querySelector("summary").focus();
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        if (cardsOpen && $("card-filters").open) {
+          $("card-filters").open = false;
+          $("card-filters").querySelector("summary").focus();
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
         if (shell.classList.contains("picking-style-card")) {
           $("pick-style-card").click();
           event.preventDefault();
@@ -16852,6 +19179,23 @@ PERFORMANCE OF THIS SOFTWARE.
     $("return-results"),
   );
   $("editor-download-slot").remove();
+  for (const group of [
+    [
+      $("cards-tool"),
+      $("edit-cover-preview"),
+      $("customize-binder"),
+      $("select-pockets"),
+    ],
+    [settings, $("undo"), $("redo")],
+    [preview, download, $("restore-backup")],
+  ]) {
+    group.forEach((node) => node.classList.add("workshop-tool"));
+    group[0].classList.add("workshop-group-start");
+    group[0].style.setProperty(
+      "--group-height",
+      group.length * 40 + (group.length - 1) * 6 + 8 + "px",
+    );
+  }
   $("restore-backup").addEventListener("click", () => $("import-file").click());
   settingsBody.querySelector(".page-actions").append($("delete-page"));
   const applyLayout = document.querySelector(
@@ -16872,7 +19216,6 @@ PERFORMANCE OF THIS SOFTWARE.
     ["move-to-page", "Move to page"],
     ["copy-cards-binder", "Copy cards to another binder"],
     ["swap-selected-cards", "Swap selected cards"],
-    ["layout-apply", "Apply layout"],
     ["delete-page", "Delete page"],
     ["cover-apply", "Apply customization"],
     ["cover-cancel", "Cancel customization"],
@@ -16882,6 +19225,11 @@ PERFORMANCE OF THIS SOFTWARE.
     ["feedback-undo", "Undo"],
   ])
     icon($(id), label);
+  for (const [id, label] of [["custom-tab-sleeve", "Sleeves"], ["custom-tab-toploader", "Toploaders"]]) {
+    const text = document.createElement("span");
+    text.textContent = label;
+    $(id).append(text);
+  }
   const placementIcon = document.createElement("span");
   placementIcon.id = "placement-indicator";
   placementIcon.hidden = true;
@@ -16896,60 +19244,93 @@ PERFORMANCE OF THIS SOFTWARE.
   icon($("help-close"), "Close help");
   const help = $("workshop-help");
   const guides = [
-    [
-      "Add and insert cards",
-      "Open Cards. Drag a card into a pocket, or choose a card and then its destination. On phones, tap a card and then a pocket. A left-edge drop pushes cards right; a right-edge drop pushes left. Centre drops replace content. Shifts stop at a gap; a full row sends the end card to Overflow. Artwork and merged pockets block shifting.",
-    ],
-    [
-      "Select and move cards",
-      "Click or tap cards to select or deselect them. Each extra click adds another card to the selection. Selected cards are highlighted; other cards dim. Drag a card to move it into an empty pocket or swap it with another placed card. On a touchscreen, hold a placed card briefly, then drag. Escape clears the selection. Delete moves the selected items to Overflow.",
-    ],
-    [
-      "Merge and design pockets",
-      "Use Select pockets to merge, select pockets connected along an edge, then choose Merge. Replaced contents are kept in Overflow. Select one merged pocket to split it with Unmerge. Design pocket adds artwork or a reserved placeholder.",
-    ],
-    [
-      "Covers, sleeves and toploaders",
-      "Cover changes the binder cover. Transparent shows its first page. Card styles changes sleeves or toploaders for selected cards, the active page or the binder. Turn pages while styling, then click a card to target it. On phones, use the target icon beside Apply to. Apply creates a draft edit; Save keeps it.",
-    ],
-    [
-      "Pages and layout",
-      "Use the side arrows to turn pages; the plus adds a page at the end. Pages previews can be dragged to reorder; keyboard users can focus a preview and press Alt + Up or Alt + Down. View and settings changes page view, rows and columns, duplicates or deletes pages. The binder fits automatically between open side panels. Up to 30 pages.",
-    ],
-    [
-      "Overflow and history",
-      "Overflow keeps displaced cards and artwork separately from Pages. Choose an item and a destination pocket to put it back. Clear Overflow asks for confirmation and supports Undo. Undo and Redo are on the left toolbar.",
-    ],
-    [
-      "Save and backups",
-      "Save stores your binder in this browser only. Download backup exports the current binder. Restore backup validates a file and asks before replacing your draft; Save is still required. Backups let you move binders between browsers. There is no cloud sync or automatic save.",
-    ],
-    [
-      "Copy and swap",
-      "Select exactly two cards to Swap. Copy cards to another binder opens a destination chooser; open that binder, Paste, then Save. Copy styles and Paste styles reuse a card's sleeve and toploader choices. Add cards supports selecting several catalogue cards at once.",
-    ],
-    [
-      "Keyboard shortcuts",
-      "Ctrl or Command + S: Save. Ctrl or Command + Z: Undo. Shift + Ctrl or Command + Z: Redo. Left / Right: turn pages when focus is outside a field or toolbar. Escape: dismiss the active popup, placement or selection. Delete: move selected items to Overflow. Tab: move between controls. Alt + Up / Down: reorder a focused page preview.",
-    ],
+    ["Cards", [["Place", "Drag a card into a pocket, or choose a card then its pocket."], ["Insert", "Drop near an edge to shift the row."], ["Replace", "Drop in the center to replace content."]], "Shifts stop at a gap. A full row sends its end card to Overflow. Artwork and merged pockets block shifting. On phones, tap a catalogue card then a pocket."],
+    ["Selection", [["Select", "Click cards to select or deselect."], ["Move / swap", "Drag onto an empty pocket or another card."], ["Remove", "Move selected items to Overflow."]], "On touchscreens, hold a placed card briefly, then drag. Select exactly two cards for Swap. More contains copy/paste styles and copy to another binder."],
+    ["Pockets", [["Merge", "Select pockets forming a rectangle, then Merge."], ["Split", "Select a merged pocket, then More > Unmerge."], ["Design", "Add artwork or a placeholder with Design pocket."]], "Strips and squares are allowed. L-shaped merges are not. Displaced contents go to Overflow."],
+    ["Appearance", [["Binder", "Change the cover, text, artwork or page appearance."], ["Cards", "Choose sleeves or toploaders and an Apply to target."], ["Keep", "Apply changes, then Save."]], "Page appearance can target This page or All pages. All pages replaces individual page styles and sets the default for new pages. Card styles can target selected cards, this page or the binder."],
+    ["Pages", [["Turn", "Use the side arrows."], ["Add", "Choose Add page after the last thumbnail."], ["Reorder", "Drag page thumbnails into order."]], "View and settings contains page view, rows, columns, duplicate and delete. Up to 30 pages. The canvas fits automatically."],
+    ["Overflow", [["Find", "Open the tray beside Pages."], ["Restore", "Choose an item, then its destination pocket."], ["Recover", "Use Undo to reverse a recent edit."]], "Overflow holds displaced cards and artwork. Clear overflow asks for confirmation and supports Undo. Redo restores an undone change."],
+    ["Saving", [["Save", "Signed in: saves to your account. Local demo: saves in this browser."], ["Back up", "Download backup exports this binder."], ["Restore", "Choose a backup, confirm, then Save."]], "Saving is manual. Restore validates the file before replacing your draft. Keep a downloaded backup for a portable copy."],
   ];
-  for (const [title, copy] of guides) {
+  for (const [title, rows, extra] of guides) {
     const guide = document.createElement("details");
+    guide.className = "help-topic";
+    guide.name = "workshop-help-topics";
+    guide.open = title === "Cards";
     const summary = document.createElement("summary");
     summary.textContent = title;
-    const body = document.createElement("p");
-    body.textContent = copy;
+    const body = document.createElement("div");
+    body.className = "help-topic-body";
+    for (const [action, instruction] of rows) {
+      const row = document.createElement("div");
+      row.className = "help-action-row";
+      const label = document.createElement("strong"), copy = document.createElement("span");
+      label.textContent = action;
+      copy.textContent = instruction;
+      row.append(label, copy);
+      body.append(row);
+    }
+    const more = document.createElement("details"), label = document.createElement("summary"), copy = document.createElement("p");
+    more.className = "help-more";
+    label.textContent = "More details";
+    copy.textContent = extra;
+    more.append(label, copy);
+    body.append(more);
     guide.append(summary, body);
     $("help-guides").append(guide);
   }
-  $("help-search").addEventListener("input", () => {
+  const modifier = /Mac|iPhone|iPad/.test(navigator.platform) ? "\u2318" : "Ctrl";
+  const shortcuts = [
+    ["Save", [modifier, "S"]],
+    ["Undo", [modifier, "Z"]],
+    ["Redo", [modifier, "Shift", "Z"]],
+    ["Turn pages", ["\u2190", "\u2192"], " / "],
+    ["Dismiss / clear selection", ["Esc"]],
+    ["Move selection to Overflow", ["Delete"]],
+    ["Reorder focused page", ["Alt", "\u2191 / \u2193"]],
+    ["Move between controls", ["Tab"]],
+  ];
+  for (const [action, keys, separator = " + "] of shortcuts) {
+    const row = document.createElement("div"), label = document.createElement("span"), caps = document.createElement("span");
+    row.className = "help-shortcut-row";
+    caps.className = "help-keycaps";
+    label.textContent = action;
+    keys.forEach((key, i) => {
+      if (i) caps.append(document.createTextNode(separator));
+      const cap = document.createElement("kbd");
+      cap.textContent = key;
+      caps.append(cap);
+    });
+    row.append(label, caps);
+    $("help-shortcuts").append(row);
+  }
+  const keyNote = document.createElement("p");
+  keyNote.className = "help-key-note";
+  keyNote.textContent = "Shortcuts depend on focus and open dialogs. Reorder needs a focused page thumbnail.";
+  $("help-shortcuts").append(keyNote);
+  let helpSection = "basics";
+  function filterHelp() {
     const q = $("help-search").value.trim().toLowerCase();
-    for (const guide of $("help-guides").children)
-      guide.hidden = !guide.textContent.toLowerCase().includes(q);
-    $("help-empty").hidden = [...$("help-guides").children].some(
-      (g) => !g.hidden,
-    );
-  });
+    const basics = helpSection === "basics", panel = $(basics ? "help-guides" : "help-shortcuts");
+    $("help-guides").hidden = !basics;
+    $("help-shortcuts").hidden = basics;
+    for (const section of ["basics", "shortcuts"])
+      $("help-" + section + "-tab").setAttribute("aria-pressed", String(section === helpSection));
+    const entries = [...panel.children].filter(node => !node.classList.contains("help-key-note"));
+    for (const entry of entries) {
+      entry.hidden = !entry.textContent.toLowerCase().includes(q);
+      if (basics && q && !entry.hidden) entry.open = true;
+    }
+    $("help-empty").hidden = entries.some(entry => !entry.hidden);
+    $("help-empty").textContent = "No matches in " + (basics ? "Basics. Try Shortcuts." : "Shortcuts. Try Basics.");
+  }
+  for (const section of ["basics", "shortcuts"])
+    $("help-" + section + "-tab").addEventListener("click", () => {
+      helpSection = section;
+      filterHelp();
+      document.querySelector(".help-scroll").scrollTop = 0;
+    });
+  $("help-search").addEventListener("input", filterHelp);
   helpButton.addEventListener("click", () => {
     closePopovers();
     help.showModal();
@@ -17002,6 +19383,67 @@ PERFORMANCE OF THIS SOFTWARE.
     restoreCards = cardsOpen;
     setCards(false);
   }
+  // Selection actions share a stable hierarchy; secondary tools stay available in More.
+  const selectionActions = $("selection-actions"),
+    more = document.createElement("details"),
+    moreTrigger = document.createElement("summary"),
+    moreBody = document.createElement("div");
+  more.id = "selection-more";
+  moreTrigger.textContent = "\u22ef";
+  moreTrigger.setAttribute("aria-label", "More selection actions");
+  moreTrigger.title = "More actions";
+  moreBody.className = "selection-more-body";
+  more.append(moreTrigger, moreBody);
+  const secondaryIds = ["swap-selected-cards", "unmerge", "copy-card-style", "paste-card-style", "copy-cards-binder"];
+  for (const id of secondaryIds) {
+    const control = $(id);
+    if (!control) continue;
+    const label = document.createElement("span");
+    label.textContent = control.getAttribute("aria-label") || control.title || control.textContent;
+    control.append(label);
+    moreBody.append(control);
+  }
+  for (const [id, text] of [["pocket-content", "Design pocket"], ["pocket-style", "Customize"], ["merge", "Merge"]]) {
+    const label = document.createElement("span");
+    label.className = "selection-primary-label";
+    label.textContent = text;
+    $(id).append(label);
+  }
+  selectionActions.append($("pocket-style"), $("pocket-content"), $("merge"), $("inspect-pocket"), $("move-to-page"), more, $("to-overflow"), $("selection-dismiss"));
+  function selectionHierarchy() {
+    const merging = $("select-pockets").getAttribute("aria-pressed") === "true";
+    const primary = merging ? (!$("merge").hidden ? "merge" : null)
+      : !$("pocket-style").hidden ? "pocket-style" : !$("pocket-content").hidden ? "pocket-content" : null;
+    for (const id of ["pocket-content", "pocket-style", "merge"]) {
+      const node = $(id), active = id === primary;
+      if (node.classList.contains("selection-primary") !== active) node.classList.toggle("selection-primary", active);
+    }
+    if (selection.classList.contains("merge-toolbar") !== merging) selection.classList.toggle("merge-toolbar", merging);
+    const content = $("pocket-content"), contentParent = primary === "pocket-style" ? moreBody : selectionActions;
+    if (content.parentElement !== contentParent) {
+      if (contentParent === selectionActions) selectionActions.insertBefore(content, $("merge"));
+      else moreBody.prepend(content);
+    }
+    const hideMore = ![...moreBody.children].some(n => !n.hidden);
+    if (more.hidden !== hideMore) more.hidden = hideMore;
+    if (hideMore || selection.hidden) more.open = false;
+  }
+  more.addEventListener("toggle", () => {
+    if (!more.open) return;
+    const rect = more.getBoundingClientRect(), height = moreBody.getBoundingClientRect().height;
+    more.classList.toggle("opens-up", rect.bottom + height + 8 > innerHeight - 12 && rect.top > height + 12);
+  });
+  moreBody.addEventListener("click", event => {
+    if (event.target.closest("button")) more.open = false;
+  });
+  document.addEventListener("pointerdown", event => {
+    if (more.open && !more.contains(event.target)) more.open = false;
+  });
+  more.addEventListener("keydown", event => {
+    if (event.key === "Escape") { more.open = false; moreTrigger.focus(); event.stopPropagation(); }
+  });
+  new MutationObserver(selectionHierarchy).observe(selection, { subtree: true, attributes: true, attributeFilter: ["hidden", "class", "data-count"] });
+  selectionHierarchy();
   synchronizeAccessibility();
   layout();
   requestAnimationFrame(() =>

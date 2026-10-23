@@ -288,7 +288,15 @@
       copy.hidden = !cards.length;
       refreshPicker();
     }
-    return { refresh };
+    return {
+      refresh,
+      pickerSelection: () => [...chosen],
+      clearPickerSelection() {
+        chosen.clear();
+        selecting = false;
+        refreshPicker();
+      },
+    };
   }
   window.EditorArrange = { init };
 })();

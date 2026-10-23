@@ -79,6 +79,14 @@
       throw Error("Invalid binder cover theme.");
     if (value.theme === "custom" && !validImage(value.artwork))
       throw Error("Choose a valid cover image and crop.");
+    if (value.subtitle !== undefined &&
+        (typeof value.subtitle !== "string" || value.subtitle.length > 60))
+      throw Error("Keep the cover subtitle within 60 characters.");
+    const appearance = value.pageStyle;
+    if (appearance !== undefined && (!appearance ||
+        !/^#[0-9a-f]{6}$/i.test(appearance.background) ||
+        !["none", "subtle", "defined"].includes(appearance.pockets)))
+      throw Error("Choose a valid page color and pocket border.");
     const title = value.title;
     if (
       title !== undefined &&
@@ -94,6 +102,10 @@
       throw Error("Invalid cover title settings.");
     return {
       theme: value.theme,
+      ...(value.subtitle !== undefined ? { subtitle: value.subtitle } : {}),
+      ...(appearance ? { pageStyle: {
+        background: appearance.background, pockets: appearance.pockets,
+      }} : {}),
       ...(value.theme === "custom"
         ? {
             artwork: {
@@ -122,6 +134,12 @@
         : {}),
     };
   }
+  function rectangular(cells) {
+    if (!cells.length) return false;
+    const ys = cells.map(c => c[0]), xs = cells.map(c => c[1]);
+    return new Set(cells.map(c => c.join(","))).size ===
+      (Math.max(...ys) - Math.min(...ys) + 1) * (Math.max(...xs) - Math.min(...xs) + 1);
+  }
   function connected(cells) {
     if (!cells.length) return false;
     const keys = new Set(cells.map((cell) => cell.join(",")));
@@ -138,6 +156,7 @@
   }
   window.BinderSchema = Object.freeze({
     connected,
+    rectangular,
     validIdentifier,
     limits,
     frameValues,

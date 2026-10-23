@@ -137,7 +137,9 @@
       });
       if (occupied.size !== p.rows * p.columns)
         throw Error("Page contains missing pockets.");
-      return { id: pid, rows: p.rows, columns: p.columns, regions };
+      return { id: pid, rows: p.rows, columns: p.columns, regions,
+        ...(p.pageStyle !== undefined ? { pageStyle: window.BinderSchema.cover({ theme: "classic", pageStyle: p.pageStyle }).pageStyle } : {}),
+      };
     });
     return {
       name: doc.name.trim(),

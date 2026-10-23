@@ -2,7 +2,10 @@
 <html lang="en" class="editor-loading">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <title>Binder editor — Binder Minder</title>
     <style>
       #editor-startup {
@@ -123,8 +126,8 @@
             id="cards-tool"
             class="rail-button"
             type="button"
-            title="Cards"
-            aria-label="Cards"
+            title="Add cards"
+            aria-label="Add cards"
             aria-controls="cards-drawer"
             aria-expanded="true"
           >
@@ -139,8 +142,8 @@
             id="edit-cover-preview"
             class="rail-button"
             type="button"
-            title="Cover"
-            aria-label="Cover"
+            title="Customize binder"
+            aria-label="Customize binder"
             aria-controls="cover-customizer"
             aria-expanded="false"
           >
@@ -170,8 +173,8 @@
             id="customize-binder"
             class="rail-button"
             type="button"
-            title="Card styles"
-            aria-label="Card styles"
+            title="Customize cards"
+            aria-label="Customize cards"
             aria-controls="cover-customizer"
             aria-expanded="false"
           >
@@ -227,37 +230,54 @@
               </svg>
             </button>
           </div>
-          <p class="panel-hint">Drag to place. Drop at an edge to shift.</p>
-          <label class="editor-search">
-            <input
-              id="card-search"
-              type="search"
-              placeholder="Name or card number"
-              aria-label="Search cards"
-            />
-          </label>
-          <div class="catalogue-filters">
-            <label class="type-filter">
-              Type
-              <select id="type-filter">
-                <option value="">All types</option>
-                <option>Grass</option>
-                <option>Fire</option>
-                <option>Water</option>
-                <option>Psychic</option>
-                <option>Lightning</option>
-                <option>Dragon</option>
-                <option>Fighting</option>
-                <option>Colorless</option>
-                <option>Darkness</option>
-              </select>
+          <p class="panel-hint">Drag to place &middot; Edge to shift</p>
+          <div class="editor-search-bar">
+            <label class="editor-search">
+              <input
+                id="card-search"
+                type="search"
+                placeholder="Find cards"
+                aria-label="Search cards"
+              />
             </label>
-            <label class="type-filter">
-              Set
-              <select id="set-filter">
-                <option value="">All sets</option>
-              </select>
-            </label>
+            <details class="card-filter-menu" id="card-filters">
+              <summary aria-label="Filter cards" title="Filter cards">
+                <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16M7 12h10M10 17h4" />
+                </svg>
+                <span id="card-filter-count" hidden></span>
+              </summary>
+              <div class="catalogue-filters">
+                <label class="type-filter">
+                  Type
+                  <select id="type-filter">
+                    <option value="">All types</option>
+                    <option>Grass</option>
+                    <option>Fire</option>
+                    <option>Water</option>
+                    <option>Psychic</option>
+                    <option>Lightning</option>
+                    <option>Dragon</option>
+                    <option>Fighting</option>
+                    <option>Colorless</option>
+                    <option>Darkness</option>
+                  </select>
+                </label>
+                <label class="type-filter">
+                  Set
+                  <select id="set-filter">
+                    <option value="">All sets</option>
+                  </select>
+                </label>
+                <button
+                  id="card-filters-clear"
+                  class="button secondary"
+                  type="button"
+                >
+                  Clear filters
+                </button>
+              </div>
+            </details>
           </div>
           <p id="result-count" class="result-count"></p>
           <div id="card-results" class="card-results"></div>
@@ -442,6 +462,7 @@
                 <div class="layout-settings-body">
                   <h2>Page settings</h2>
                   <form id="layout-form">
+                    <div class="page-layout-heading"><span>Layout</span><span id="layout-target"></span></div>
                     <div class="layout-fields">
                       <label class="field">
                         Rows
@@ -466,7 +487,8 @@
                         />
                       </label>
                     </div>
-                    <button class="button secondary" type="submit">
+                    <p id="layout-count" class="panel-hint"></p>
+                    <button id="layout-apply" class="button primary" type="submit">
                       Apply layout
                     </button>
                   </form>
@@ -530,6 +552,7 @@
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
+            <div class="sidebar-view-switch" role="group" aria-label="Sidebar content">
             <button
               id="pages-view"
               type="button"
@@ -541,6 +564,7 @@
               <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 3h10v14H5zM9 17v4h10V7h-4" />
               </svg>
+              <span class="sidebar-view-label">Pages</span>
             </button>
             <button
               id="overflow-view"
@@ -551,23 +575,12 @@
               aria-pressed="false"
             >
               <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" />
+                <path d="M4 5h16l2 10v5H2v-5L4 5zM2 15h6l2 3h4l2-3h6M7 8h10M7 11h10" />
               </svg>
-
+              <span class="sidebar-view-label">Overflow</span>
               <span id="overflow-badge" class="sidebar-count" hidden></span>
             </button>
-            <button
-              id="empty-overflow"
-              class="icon-button"
-              type="button"
-              aria-label="Clear overflow"
-              title="Clear overflow"
-              disabled
-            >
-              <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M9 10l6 7m0-7-6 7" />
-              </svg>
-            </button>
+            </div>
           </div>
           <div
             id="pages-body"
@@ -582,6 +595,15 @@
             aria-label="Overflow"
             hidden
           >
+            <div class="overflow-heading">
+              <span>Displaced cards</span>
+              <button id="empty-overflow" class="icon-button" type="button"
+                aria-label="Clear overflow" title="Clear overflow" disabled>
+                <svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M9 10l6 7m0-7-6 7" />
+                </svg>
+              </button>
+            </div>
             <section class="overflow-section">
               <span id="overflow-count" class="sr-only"></span>
               <div id="overflow-items" class="overflow-items"></div>
@@ -619,10 +641,12 @@
             aria-label="Live binder cover preview"
             hidden
           >
-            <div id="cover-preview-art"></div>
-            <div class="cover-preview-caption">
-              <strong id="cover-preview-name"></strong>
-              <span id="cover-preview-theme"></span>
+            <div class="customizer-preview-pair">
+              <div id="cover-preview-art"></div>
+              <div class="cover-preview-caption">
+                <strong id="cover-preview-name"></strong>
+                <span id="cover-preview-theme"></span>
+              </div>
             </div>
           </div>
           <div
@@ -655,6 +679,7 @@
               <option value="binder">Entire binder</option>
             </select>
           </label>
+          <p id="frame-scope-note" class="panel-hint" hidden></p>
           <button
             id="pick-style-card"
             class="button secondary"
@@ -726,10 +751,17 @@
       <input
         id="help-search"
         type="search"
-        placeholder="Search guides and shortcuts"
+        placeholder="Search help"
         aria-label="Search workshop help"
       />
-      <div id="help-guides"></div>
+      <div class="help-tabs" role="group" aria-label="Help section">
+        <button id="help-basics-tab" type="button" aria-pressed="true" aria-controls="help-guides">Basics</button>
+        <button id="help-shortcuts-tab" type="button" aria-pressed="false" aria-controls="help-shortcuts">Shortcuts</button>
+      </div>
+      <div class="help-scroll">
+        <div id="help-guides" role="region" aria-label="Basics"></div>
+        <div id="help-shortcuts" role="region" aria-label="Keyboard shortcuts" hidden></div>
+      </div>
       <p id="help-empty" hidden>No matching guides.</p>
       <div id="help-credits"></div>
     </dialog>
@@ -999,6 +1031,7 @@
     <script src="data/sample-card-details.js"></script>
     <script src="vendor/backend-config.js"></script>
     <script src="scripts/backend-fetch.js"></script>
+    <script src="scripts/discover-core.js"></script>
     <script src="scripts/card-catalogue.js"></script>
     <script src="scripts/binder-visuals.js"></script>
     <script src="scripts/binder-schema.js"></script>
@@ -1013,6 +1046,7 @@
     <script src="scripts/editor-studio.js"></script>
     <script src="scripts/binder-geometry.js"></script>
     <script src="scripts/editor-arrange.js"></script>
+    <script src="scripts/editor-card-browser.js"></script>
     <script src="scripts/editor.js"></script>
     <script src="scripts/editor-layout.js"></script>
     <script src="scripts/ui-controls.js"></script>

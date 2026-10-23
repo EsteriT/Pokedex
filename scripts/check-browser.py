@@ -532,8 +532,30 @@ def check_feature_parity(cdp, base, route):
     assert cdp.evaluate("document.getElementById('save').disabled"),'One Undo must restore the saved card positions'
     cdp.evaluate("document.getElementById('redo').click();document.getElementById('save').click()")
     assert cdp.evaluate("BinderStore.read().find(b=>b.id==="+json.dumps(source)+").document.pages[0].regions.map(r=>r.content?.cardId||null)")==['167','166',None]
+    cdp.evaluate("EditorLayout.setCards(true);document.getElementById('expand-cards').click()")
+    cdp.wait("document.getElementById('binder-card-browser').open&&document.querySelectorAll('.card-browser-tile').length===24")
+    assert cdp.evaluate("document.querySelectorAll('.card-browser-filters select').length===5&&document.getElementById('browser-add-cards').disabled"), 'Expand opens the filterable binder catalogue with a disabled empty Add action'
+    cdp.evaluate("document.querySelector('.card-browser-tile').click();[...document.querySelectorAll('.card-browser-catalogue button')].find(b=>b.textContent==='Load more cards').click()")
+    cdp.wait("document.querySelectorAll('.card-browser-tile').length===48")
+    assert cdp.evaluate("document.querySelectorAll('.card-browser-tile[aria-pressed=true]').length===1&&!document.getElementById('browser-add-cards').disabled"), 'Modal loading preserves selection'
+    cdp.evaluate("document.querySelector('.card-browser-actions').querySelectorAll('button')[1].click()")
+    assert cdp.evaluate("!document.getElementById('binder-card-browser').open&&document.getElementById('save').disabled"), 'Cancel leaves the saved binder unchanged'
+    cdp.evaluate("document.getElementById('expand-cards').click()")
+    cdp.wait("document.querySelectorAll('.card-browser-tile').length===24")
+    cdp.evaluate("document.querySelector('.card-browser-tile').click();document.getElementById('browser-add-cards').click()")
+    assert cdp.evaluate("!document.getElementById('binder-card-browser').open&&!document.getElementById('undo').disabled"), 'Adding through the modal is an undoable draft edit'
+    cdp.evaluate("document.getElementById('undo').click()")
+    assert cdp.evaluate("document.getElementById('save').disabled"), 'One Undo restores the saved binder after modal insertion'
+    cdp.evaluate("document.querySelector('#card-filters summary').click()")
+    cdp.escape()
+    assert cdp.evaluate("!document.getElementById('card-filters').open&&!document.getElementById('cards-drawer').hidden"), 'Escape closes filters before the editor drawer'
     cdp.evaluate("EditorLayout.setCards(true);document.getElementById('picker-select-cards').click();document.querySelectorAll('#card-results .catalogue-card')[0].click();document.querySelectorAll('#card-results .catalogue-card')[1].click();document.getElementById('card-search').value='Squirtle';document.getElementById('card-search').dispatchEvent(new Event('input'))")
     assert cdp.evaluate("document.getElementById('picker-add-selected').textContent==='Add 2 cards'"),'Picker selection must survive search/filter changes'
+    cdp.evaluate("document.getElementById('expand-cards').click()")
+    cdp.wait("document.getElementById('binder-card-browser').open&&document.querySelectorAll('.card-browser-tile').length>0")
+    assert cdp.evaluate("document.getElementById('browser-add-cards').textContent==='Add 2 cards to binder'"), 'Expanded catalogue inherits the drawer selection'
+    cdp.evaluate("document.querySelector('.card-browser-actions').querySelectorAll('button')[1].click()")
+    assert cdp.evaluate("document.getElementById('picker-add-selected').textContent==='Add 2 cards'"), 'Modal Cancel preserves the drawer selection'
     cdp.evaluate("document.querySelector('#card-results .catalogue-card').focus()")
     for kind in ('keyDown','keyUp'):
         cdp.call('Input.dispatchKeyEvent',{'type':kind,'key':'Enter','code':'Enter','windowsVirtualKeyCode':13,'text':'\r' if kind=='keyDown' else ''})
@@ -631,9 +653,22 @@ def check_workshop(cdp, base, route):
     assert cdp.evaluate("!document.querySelectorAll('.editor-pocket')[0].classList.contains('has-content')&&document.querySelectorAll('.editor-pocket')[4].classList.contains('has-content')"),'Move icon must offer a keyboard/click alternative on the current page'
     click('#undo');click('#clear-selection')
     click('.layout-settings > summary')
-    assert cdp.evaluate("['page-rows','page-columns','page-view','layout-apply'].every(id=>{let n=document.getElementById(id);return n.getBoundingClientRect().height>=40&&parseFloat(getComputedStyle(n).borderLeftWidth)>=1})"),'Layout fields and actions must look like real controls'
+    assert cdp.evaluate("['page-rows','page-columns','layout-apply'].every(id=>{let n=document.getElementById(id);return n.getBoundingClientRect().height>=40&&parseFloat(getComputedStyle(n).borderLeftWidth)>=1})&&[...document.querySelectorAll('[data-page-view]')].every(n=>n.getBoundingClientRect().height>=40)"),'Layout fields, view buttons and actions must have visible controls'
+    assert cdp.evaluate("document.getElementById('layout-apply').disabled&&document.getElementById('layout-impact').hidden&&document.querySelector('[data-page-view][aria-pressed=true]')"),'Unchanged page settings must not show an active Apply action or unnecessary warning'
+    if cdp.evaluate("Number(document.getElementById('page-rows').value)<6"):
+        cdp.evaluate("window.originalLayoutRows=document.getElementById('page-rows').value;document.getElementById('page-rows').value=Number(window.originalLayoutRows)+1;document.getElementById('page-rows').dispatchEvent(new Event('input'))")
+        click('#layout-apply')
+        assert cdp.evaluate("!document.getElementById('confirm-dialog').open&&document.getElementById('layout-apply').disabled"),'An increase without affected content must apply without a confirmation'
+        click('#undo')
+        assert cdp.evaluate("document.getElementById('page-rows').value===window.originalLayoutRows"),'Undo must restore the original layout'
     cdp.escape();click('#help-trigger')
     assert cdp.evaluate("document.getElementById('workshop-help').open&&document.activeElement.id==='help-search'")
+    click('#help-shortcuts-tab')
+    assert cdp.evaluate("document.getElementById('help-guides').hidden&&!document.getElementById('help-shortcuts').hidden&&document.querySelectorAll('#help-shortcuts kbd').length>=8"),'Shortcuts must show keycaps separately from Basics'
+    cdp.evaluate("document.getElementById('help-search').value='redo';document.getElementById('help-search').dispatchEvent(new Event('input'))")
+    assert cdp.evaluate("[...document.querySelectorAll('.help-shortcut-row')].filter(n=>!n.hidden).length===1"),'Shortcut search must isolate Redo'
+    cdp.evaluate("document.getElementById('help-search').value='';document.getElementById('help-search').dispatchEvent(new Event('input'))")
+    click('#help-basics-tab')
     cdp.evaluate("document.getElementById('help-search').value='overflow';document.getElementById('help-search').dispatchEvent(new Event('input'))")
     assert cdp.evaluate("[...document.querySelectorAll('#help-guides details')].some(n=>!n.hidden)&&[...document.querySelectorAll('#help-guides details')].some(n=>n.hidden)")
     cdp.evaluate("document.getElementById('help-search').value='nonsense-qzz';document.getElementById('help-search').dispatchEvent(new Event('input'))")
@@ -685,7 +720,10 @@ def check_workshop(cdp, base, route):
         assert cdp.evaluate("(()=>{let r=document.querySelector('.layout-settings-body').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight})()"),(w,h,'settings popup bounds')
         cdp.escape()
         cdp.evaluate('EditorLayout.setCards(true)');cdp.wait("!document.getElementById('cards-drawer').hidden&&document.getElementById('card-results').getBoundingClientRect().height>100")
-        assert cdp.evaluate("document.getElementById('card-results').getBoundingClientRect().height>100&&['card-search','type-filter','set-filter'].every(id=>document.getElementById(id).getBoundingClientRect().height>=39.5)"),(w,h,'visible cards and controls',cdp.evaluate("['card-search','type-filter','set-filter'].map(id=>document.getElementById(id).getBoundingClientRect().height)"))
+        assert cdp.evaluate("document.getElementById('card-results').getBoundingClientRect().height>100&&document.getElementById('card-search').getBoundingClientRect().height>=35.5&&!document.getElementById('card-filters').open"),(w,h,'visible cards and compact search')
+        cdp.evaluate("document.getElementById('card-filters').open=true")
+        assert cdp.evaluate("['type-filter','set-filter'].every(id=>document.getElementById(id).getBoundingClientRect().height>=33.5)"),(w,h,'usable filter controls')
+        cdp.evaluate("document.getElementById('card-filters').open=false")
         cdp.wait("(()=>{let b=document.getElementById('binder-page').getBoundingClientRect(),s=document.getElementById('canvas-stage').getBoundingClientRect();return b.left>=s.left-1&&b.right<=s.right+1&&b.top>=s.top-1&&b.bottom<=s.bottom+1})()")
         cdp.evaluate('EditorLayout.setCards(false)')
     cdp.evaluate("if(document.getElementById('pages-toggle').getAttribute('aria-expanded')==='false')document.getElementById('pages-toggle').click();document.getElementById('add-page').click()")
@@ -789,12 +827,16 @@ def check_workshop_refinements(cdp, base, route):
     cdp.evaluate("document.getElementById('undo').click();document.getElementById('feedback-dismiss').click()")
     assert cdp.evaluate("document.querySelector('.editor-feedback').hidden")
     click('#edit-cover-preview')
-    cdp.evaluate("document.getElementById('custom-cover-controls').open=true")
-    assert cdp.evaluate("(()=>{let n=document.querySelector('#custom-cover-controls > summary'),s=getComputedStyle(n,'::after'),r=n.getBoundingClientRect(),p=n.parentElement.getBoundingClientRect();return s.backgroundImage==='none'&&r.left>=p.left&&r.right<=p.right&&parseFloat(getComputedStyle(n).paddingLeft)>=10})()"),'Artwork header must have one padded, bounded chevron'
-    assert cdp.evaluate("[...document.querySelectorAll('.workshop-icon,.icon-button,.rail-button,.selection-icon,.sidebar-views button,.floating-handle')].filter(n=>n.getBoundingClientRect().width&&n.querySelector('svg.ui-symbol')?.getBoundingClientRect().width).every(n=>{let r=n.getBoundingClientRect(),s=n.querySelector('svg.ui-symbol').getBoundingClientRect();return Math.abs(r.x+r.width/2-s.x-s.width/2)<1&&Math.abs(r.y+r.height/2-s.y-s.height/2)<1})"),'Icon-only controls must center their visible SVG'
+    click('#binder-option-custom-cover-controls')
+    assert cdp.evaluate("!document.getElementById('custom-cover-controls').hidden&&document.querySelectorAll('#cover-design-controls details').length===0&&document.querySelectorAll('#binder-customization-options button[aria-pressed=true]').length===1"),'Binder options must use direct buttons and show one settings section'
+    assert cdp.evaluate("[...document.querySelectorAll('.workshop-icon,.icon-button,.rail-button,.selection-icon,.sidebar-views button,.floating-handle')].filter(n=>n.getBoundingClientRect().width&&n.querySelector('svg.ui-symbol')?.getBoundingClientRect().width&&![...n.querySelectorAll('.sidebar-view-label,.selection-primary-label,.mobile-tool-label,.customizer-tabs span')].some(label=>label.getClientRects().length)).every(n=>{let r=n.getBoundingClientRect(),s=n.querySelector('svg.ui-symbol').getBoundingClientRect();return Math.abs(r.x+r.width/2-s.x-s.width/2)<1&&Math.abs(r.y+r.height/2-s.y-s.height/2)<1})"),'Icon-only controls must center their visible SVG'
+    click('#binder-option-binder-page-settings')
+    cdp.evaluate("document.getElementById('page-appearance-scope').value='all';document.getElementById('page-appearance-scope').dispatchEvent(new Event('change'));document.getElementById('binder-pocket-borders').value='defined';document.getElementById('binder-pocket-borders').dispatchEvent(new Event('change'))")
+    click('#binder-option-cover-presets-settings');click('[data-cover-theme=transparent]')
+    assert cdp.evaluate("document.querySelector('#binder-page .cover-transparent').style.getPropertyValue('--pocket-border')==='var(--muted)'&&document.querySelector('#cover-preview-art .cover-transparent').style.getPropertyValue('--pocket-border')==='var(--muted)'"),'Both transparent previews must include unapplied all-page appearance'
     click('#cover-cancel')
     assert cdp.evaluate('testErrors.length===0'),cdp.evaluate('testErrors')
-    print('PASS:',route,'Cover-to-style navigation, both-page/both-sidebar centering, quiet collapsed state, empty pluses, native swap, shrinking draggable bars, three-second text toasts and artwork headers',flush=True)
+    print('PASS:',route,'Cover-to-style navigation, both-page/both-sidebar centering, quiet collapsed state, empty pluses, native swap, shrinking draggable bars, three-second text toasts, artwork headers and resolved transparent previews',flush=True)
 
 
 def check_desktop_reliability(cdp, base, route):
@@ -813,7 +855,7 @@ def check_desktop_reliability(cdp, base, route):
     go({'name':'Fixture setup','cards':[]})
     cdp.evaluate("BinderStore.write([{id:'reliable-source',name:'Source',pages:2,rows:2,columns:2,cards:['166'],revision:0},{id:'reliable-target',name:'Destination',pages:4,rows:2,columns:3,cards:['167','168'],revision:0}])")
     go({'id':'reliable-source'},'-source')
-    click('.editor-pocket.has-content');click('#copy-cards-binder');click('#open-copy-destination')
+    click('.editor-pocket.has-content');click('#selection-more > summary');click('#copy-cards-binder');click('#open-copy-destination')
     cdp.wait("document.getElementById('binder-title').textContent==='Destination'&&!!window.EditorLayout")
     assert cdp.evaluate("document.querySelectorAll('.page-button').length===4&&document.querySelectorAll('.editor-pocket').length===6&&document.querySelectorAll('.editor-pocket.has-content').length===2"),'Copying into a metadata-only binder must restore its existing layout and cards'
     cdp.evaluate('EditorLayout.setCards(true)')

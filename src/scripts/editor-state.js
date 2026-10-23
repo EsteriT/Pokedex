@@ -320,9 +320,22 @@
         );
       },
 
-      setCoverDetails(value) {
+      setCoverDetails(value, appearance) {
         return change(() => {
           current.cover = window.BinderSchema.cover(value);
+          if (appearance) {
+            if (appearance.all !== undefined) {
+              if (appearance.all === null) delete current.cover.pageStyle;
+              else current.cover.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: appearance.all }).pageStyle;
+              current.pages.forEach(p => delete p.pageStyle);
+            }
+            for (const [pid, style] of appearance.pages || []) {
+              const target = findPage(pid);
+              if (!target) throw Error("Page no longer exists.");
+              if (style === null) delete target.pageStyle;
+              else target.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: style }).pageStyle;
+            }
+          }
           window.BinderStore.validate(current);
         });
       },
@@ -457,6 +470,8 @@
           const cells = regions.flatMap((r) => r.cells);
           if (!window.BinderSchema.connected(cells))
             throw Error("Selected pockets must connect along an edge.");
+          if (!window.BinderSchema.rectangular(cells))
+            throw Error("Select a solid rectangle, square or strip. L-shaped merges are not supported.");
           regions.forEach((r) => {
             if (r.content) current.overflow.push(r.content);
           });
@@ -500,9 +515,9 @@
           findPage(pid)?.regions.filter((r) => rids.includes(r.id)) || [];
         if (regions.length < 2) return "Select at least two connected pockets.";
         const cells = regions.flatMap((r) => r.cells);
-        return window.BinderSchema.connected(cells)
-          ? ""
-          : "Selected pockets must connect along an edge.";
+        if (!window.BinderSchema.connected(cells)) return "Selected pockets must connect along an edge.";
+        return window.BinderSchema.rectangular(cells) ? ""
+          : "Select a solid rectangle, square or strip. L-shaped merges are not supported.";
       },
       save(snapshot = current) {
         saved = copy(snapshot);

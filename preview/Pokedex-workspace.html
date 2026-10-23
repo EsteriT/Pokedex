@@ -9316,6 +9316,14 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       throw Error("Invalid binder cover theme.");
     if (value.theme === "custom" && !validImage(value.artwork))
       throw Error("Choose a valid cover image and crop.");
+    if (value.subtitle !== undefined &&
+        (typeof value.subtitle !== "string" || value.subtitle.length > 60))
+      throw Error("Keep the cover subtitle within 60 characters.");
+    const appearance = value.pageStyle;
+    if (appearance !== undefined && (!appearance ||
+        !/^#[0-9a-f]{6}$/i.test(appearance.background) ||
+        !["none", "subtle", "defined"].includes(appearance.pockets)))
+      throw Error("Choose a valid page color and pocket border.");
     const title = value.title;
     if (
       title !== undefined &&
@@ -9331,6 +9339,10 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       throw Error("Invalid cover title settings.");
     return {
       theme: value.theme,
+      ...(value.subtitle !== undefined ? { subtitle: value.subtitle } : {}),
+      ...(appearance ? { pageStyle: {
+        background: appearance.background, pockets: appearance.pockets,
+      }} : {}),
       ...(value.theme === "custom"
         ? {
             artwork: {
@@ -9359,6 +9371,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         : {}),
     };
   }
+  function rectangular(cells) {
+    if (!cells.length) return false;
+    const ys = cells.map(c => c[0]), xs = cells.map(c => c[1]);
+    return new Set(cells.map(c => c.join(","))).size ===
+      (Math.max(...ys) - Math.min(...ys) + 1) * (Math.max(...xs) - Math.min(...xs) + 1);
+  }
   function connected(cells) {
     if (!cells.length) return false;
     const keys = new Set(cells.map((cell) => cell.join(",")));
@@ -9375,6 +9393,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   }
   window.BinderSchema = Object.freeze({
     connected,
+    rectangular,
     validIdentifier,
     limits,
     frameValues,
@@ -9523,7 +9542,9 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       });
       if (occupied.size !== p.rows * p.columns)
         throw Error("Page contains missing pockets.");
-      return { id: pid, rows: p.rows, columns: p.columns, regions };
+      return { id: pid, rows: p.rows, columns: p.columns, regions,
+        ...(p.pageStyle !== undefined ? { pageStyle: window.BinderSchema.cover({ theme: "classic", pageStyle: p.pageStyle }).pageStyle } : {}),
+      };
     });
     return {
       name: doc.name.trim(),
@@ -9969,9 +9990,22 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         );
       },
 
-      setCoverDetails(value) {
+      setCoverDetails(value, appearance) {
         return change(() => {
           current.cover = window.BinderSchema.cover(value);
+          if (appearance) {
+            if (appearance.all !== undefined) {
+              if (appearance.all === null) delete current.cover.pageStyle;
+              else current.cover.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: appearance.all }).pageStyle;
+              current.pages.forEach(p => delete p.pageStyle);
+            }
+            for (const [pid, style] of appearance.pages || []) {
+              const target = findPage(pid);
+              if (!target) throw Error("Page no longer exists.");
+              if (style === null) delete target.pageStyle;
+              else target.pageStyle = window.BinderSchema.cover({ theme: "classic", pageStyle: style }).pageStyle;
+            }
+          }
           window.BinderStore.validate(current);
         });
       },
@@ -10106,6 +10140,8 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
           const cells = regions.flatMap((r) => r.cells);
           if (!window.BinderSchema.connected(cells))
             throw Error("Selected pockets must connect along an edge.");
+          if (!window.BinderSchema.rectangular(cells))
+            throw Error("Select a solid rectangle, square or strip. L-shaped merges are not supported.");
           regions.forEach((r) => {
             if (r.content) current.overflow.push(r.content);
           });
@@ -10149,9 +10185,9 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
           findPage(pid)?.regions.filter((r) => rids.includes(r.id)) || [];
         if (regions.length < 2) return "Select at least two connected pockets.";
         const cells = regions.flatMap((r) => r.cells);
-        return window.BinderSchema.connected(cells)
-          ? ""
-          : "Selected pockets must connect along an edge.";
+        if (!window.BinderSchema.connected(cells)) return "Selected pockets must connect along an edge.";
+        return window.BinderSchema.rectangular(cells) ? ""
+          : "Select a solid rectangle, square or strip. L-shaped merges are not supported.";
       },
       save(snapshot = current) {
         saved = copy(snapshot);
@@ -10980,7 +11016,11 @@ PERFORMANCE OF THIS SOFTWARE.
     book.setAttribute("aria-hidden", "true");
     if (theme === "transparent") {
       const doc = documentValue?.document || documentValue;
+
       const page = Array.isArray(doc?.pages) ? doc.pages[0] : null;
+      const effectiveCover = { ...cover, pageStyle: page?.pageStyle || cover.pageStyle };
+      stylePage(book, effectiveCover);
+      if (effectiveCover.pageStyle) book.style.background = effectiveCover.pageStyle.background;
       const rows = page?.rows || doc?.rows || 3,
         columns = page?.columns || doc?.columns || 3;
       const regions =
@@ -11026,7 +11066,8 @@ PERFORMANCE OF THIS SOFTWARE.
         const rect = document.createElementNS(svg.namespaceURI, "rect");
         rect.setAttribute("width", width);
         rect.setAttribute("height", height);
-        rect.setAttribute("fill", "var(--soft)");
+        rect.setAttribute("fill", !region.content ? "var(--pocket-fill)"
+          : effectiveCover.pageStyle ? "var(--page-background)" : "var(--soft)");
         rect.setAttribute("clip-path", "url(#" + clipId + ")");
         group.append(rect);
         if (region.content && window.BinderVisuals)
@@ -11043,6 +11084,13 @@ PERFORMANCE OF THIS SOFTWARE.
               return n;
             },
           );
+        if (effectiveCover.pageStyle) {
+          const border = document.createElementNS(svg.namespaceURI, "path");
+          border.setAttribute("d", geometry.outline);
+          border.setAttribute("fill", "none");
+          border.setAttribute("stroke", "var(--pocket-border)");
+          group.append(border);
+        }
         svg.append(group);
       }
       book.append(svg);
@@ -11059,7 +11107,7 @@ PERFORMANCE OF THIS SOFTWARE.
     book.append(seal);
     const title = make("div", "cover-book-title");
     title.append(
-      make("span", "", "POKÉMON COLLECTION"),
+      make("span", "", cover.subtitle ?? "POK\u00c9MON COLLECTION"),
       make("strong", "", name),
     );
     book.append(title);
@@ -11092,7 +11140,17 @@ PERFORMANCE OF THIS SOFTWARE.
     }
     return book;
   }
+  function stylePage(node, cover) {
+    const appearance = cover?.pageStyle;
+    const valid = appearance && /^#[0-9a-f]{6}$/i.test(appearance.background);
+    node.style.setProperty("--page-background", valid ? appearance.background : "var(--surface)");
+    node.style.setProperty("--pocket-fill", "var(--soft)");
+    node.style.setProperty("--pocket-border", appearance?.pockets === "defined"
+      ? "var(--muted)" : appearance?.pockets === "subtle" ? "var(--line)" : "transparent");
+    node.dataset.pocketBorders = appearance?.pockets || "none";
+  }
   window.BinderCovers = {
+    stylePage,
     themes,
     create,
     name: (id) =>
@@ -11240,13 +11298,9 @@ PERFORMANCE OF THIS SOFTWARE.
     const card = cards.get(c.cardId);
     if (!card) return;
     const frames = c.frames || defaults || {},
-      pad =
-        Math.min(w, h) *
-        (frames.toploader && frames.toploader !== "none"
-          ? 0.11
-          : frames.sleeve && frames.sleeve !== "none"
-            ? 0.075
-            : 0);
+      // Only framed cards reserve room for the holder and its inner gap.
+      pad = ((frames.sleeve && frames.sleeve !== "none") ||
+        (frames.toploader && frames.toploader !== "none")) ? Math.min(w, h) * 0.045 : 0;
     const iw = Math.min(w - 2 * pad, ((h - 2 * pad) * 245) / 337),
       ih = (iw * 337) / 245,
       x = (w - iw) / 2,
@@ -11303,7 +11357,7 @@ PERFORMANCE OF THIS SOFTWARE.
         [1, "#9db5ce"],
       ],
     };
-    function rim(style, inset, thickness, rigid) {
+    function rim(style, margin, thickness, rigid) {
       const id = "ball-rim-" + ++frameSequence;
       const defs = make("defs"),
         gradient = make("linearGradient", {
@@ -11319,10 +11373,11 @@ PERFORMANCE OF THIS SOFTWARE.
         );
       defs.append(gradient);
       group.append(defs);
-      const bx = x - inset,
-        by = y - inset,
-        bw = iw + 2 * inset,
-        bh = ih + 2 * inset;
+      // The outer holder fills the pocket; its stroke stays inside the bounds.
+      const bx = margin + thickness / 2,
+        by = margin + thickness / 2,
+        bw = w - 2 * margin - thickness,
+        bh = h - 2 * margin - thickness;
       group.append(
         make("rect", {
           x: bx,
@@ -11331,7 +11386,7 @@ PERFORMANCE OF THIS SOFTWARE.
           height: bh,
           rx: Math.min(w, h) * 0.025,
           fill: rigid ? "#a9c4e0" : "var(--surface)",
-          "fill-opacity": rigid ? 0.13 : 1,
+          "fill-opacity": rigid ? 0.2 : 1,
           stroke: "url(#" + id + ")",
           "stroke-width": thickness,
         }),
@@ -11346,7 +11401,7 @@ PERFORMANCE OF THIS SOFTWARE.
             rx: 3,
             fill: "none",
             stroke: "#d4e5fc",
-            "stroke-opacity": 0.45,
+            "stroke-opacity": 0.65,
             "stroke-width": thickness * 0.65,
           }),
         );
@@ -11369,15 +11424,15 @@ PERFORMANCE OF THIS SOFTWARE.
     if (frames.toploader && frames.toploader !== "none")
       rim(
         frames.toploader,
-        pad * 0.8,
-        Math.max(1, Math.min(w, h) * 0.025),
+        0,
+        Math.min(w, h) * 0.018,
         true,
       );
     if (frames.sleeve && frames.sleeve !== "none")
       rim(
         frames.sleeve,
-        Math.min(w, h) * 0.035,
-        Math.max(1, Math.min(w, h) * 0.012),
+        frames.toploader && frames.toploader !== "none" ? Math.min(w, h) * 0.014 : 0,
+        Math.min(w, h) * 0.018,
         false,
       );
     const image = make("image", {
@@ -11401,6 +11456,30 @@ PERFORMANCE OF THIS SOFTWARE.
       group.append(text);
     });
     group.append(image);
+    const rigid = frames.toploader && frames.toploader !== "none",
+      sleeved = frames.sleeve && frames.sleeve !== "none";
+    if (rigid || sleeved) {
+      const unit = Math.min(w, h);
+      // A clear retaining edge sits in front of the card, without tinting its artwork.
+      group.append(make("rect", {
+        x: x - unit * 0.004, y: y - unit * 0.004,
+        width: iw + unit * 0.008, height: ih + unit * 0.008,
+        rx: unit * 0.012, fill: "none", stroke: "#e8f2ff",
+        "stroke-opacity": rigid ? 0.7 : 0.45,
+        "stroke-width": unit * 0.005,
+      }));
+      const lip = rigid ? 0.019 : 0.01;
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * lip}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#111b29", "stroke-opacity": 0.8,
+        "stroke-width": unit * (rigid ? 0.008 : 0.004),
+      }));
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * (lip + 0.004)}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#eff7ff", "stroke-opacity": rigid ? 0.85 : 0.6,
+        "stroke-width": unit * 0.003,
+      }));
+    }
   }
   window.BinderVisuals = {
     name,

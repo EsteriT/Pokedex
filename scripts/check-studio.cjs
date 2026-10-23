@@ -86,7 +86,7 @@ for (const bad of [
   assert.equal(JSON.stringify(state.document), before);
 }
 p = state.document.pages[0];
-state.merge(p.id, [p.regions[3].id, p.regions[4].id, p.regions[7].id]);
+state.merge(p.id, [p.regions[3].id, p.regions[4].id]);
 const beforePages = JSON.stringify(state.document.pages),
   original = state.document.pages[0],
   full = state.duplicatePage(original.id, true),

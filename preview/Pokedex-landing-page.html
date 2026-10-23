@@ -7320,7 +7320,11 @@ document.querySelectorAll(".faq-question").forEach((details) => {
     book.setAttribute("aria-hidden", "true");
     if (theme === "transparent") {
       const doc = documentValue?.document || documentValue;
+
       const page = Array.isArray(doc?.pages) ? doc.pages[0] : null;
+      const effectiveCover = { ...cover, pageStyle: page?.pageStyle || cover.pageStyle };
+      stylePage(book, effectiveCover);
+      if (effectiveCover.pageStyle) book.style.background = effectiveCover.pageStyle.background;
       const rows = page?.rows || doc?.rows || 3,
         columns = page?.columns || doc?.columns || 3;
       const regions =
@@ -7366,7 +7370,8 @@ document.querySelectorAll(".faq-question").forEach((details) => {
         const rect = document.createElementNS(svg.namespaceURI, "rect");
         rect.setAttribute("width", width);
         rect.setAttribute("height", height);
-        rect.setAttribute("fill", "var(--soft)");
+        rect.setAttribute("fill", !region.content ? "var(--pocket-fill)"
+          : effectiveCover.pageStyle ? "var(--page-background)" : "var(--soft)");
         rect.setAttribute("clip-path", "url(#" + clipId + ")");
         group.append(rect);
         if (region.content && window.BinderVisuals)
@@ -7383,6 +7388,13 @@ document.querySelectorAll(".faq-question").forEach((details) => {
               return n;
             },
           );
+        if (effectiveCover.pageStyle) {
+          const border = document.createElementNS(svg.namespaceURI, "path");
+          border.setAttribute("d", geometry.outline);
+          border.setAttribute("fill", "none");
+          border.setAttribute("stroke", "var(--pocket-border)");
+          group.append(border);
+        }
         svg.append(group);
       }
       book.append(svg);
@@ -7399,7 +7411,7 @@ document.querySelectorAll(".faq-question").forEach((details) => {
     book.append(seal);
     const title = make("div", "cover-book-title");
     title.append(
-      make("span", "", "POKÉMON COLLECTION"),
+      make("span", "", cover.subtitle ?? "POK\u00c9MON COLLECTION"),
       make("strong", "", name),
     );
     book.append(title);
@@ -7432,7 +7444,17 @@ document.querySelectorAll(".faq-question").forEach((details) => {
     }
     return book;
   }
+  function stylePage(node, cover) {
+    const appearance = cover?.pageStyle;
+    const valid = appearance && /^#[0-9a-f]{6}$/i.test(appearance.background);
+    node.style.setProperty("--page-background", valid ? appearance.background : "var(--surface)");
+    node.style.setProperty("--pocket-fill", "var(--soft)");
+    node.style.setProperty("--pocket-border", appearance?.pockets === "defined"
+      ? "var(--muted)" : appearance?.pockets === "subtle" ? "var(--line)" : "transparent");
+    node.dataset.pocketBorders = appearance?.pockets || "none";
+  }
   window.BinderCovers = {
+    stylePage,
     themes,
     create,
     name: (id) =>
@@ -7580,13 +7602,9 @@ document.querySelectorAll(".faq-question").forEach((details) => {
     const card = cards.get(c.cardId);
     if (!card) return;
     const frames = c.frames || defaults || {},
-      pad =
-        Math.min(w, h) *
-        (frames.toploader && frames.toploader !== "none"
-          ? 0.11
-          : frames.sleeve && frames.sleeve !== "none"
-            ? 0.075
-            : 0);
+      // Only framed cards reserve room for the holder and its inner gap.
+      pad = ((frames.sleeve && frames.sleeve !== "none") ||
+        (frames.toploader && frames.toploader !== "none")) ? Math.min(w, h) * 0.045 : 0;
     const iw = Math.min(w - 2 * pad, ((h - 2 * pad) * 245) / 337),
       ih = (iw * 337) / 245,
       x = (w - iw) / 2,
@@ -7643,7 +7661,7 @@ document.querySelectorAll(".faq-question").forEach((details) => {
         [1, "#9db5ce"],
       ],
     };
-    function rim(style, inset, thickness, rigid) {
+    function rim(style, margin, thickness, rigid) {
       const id = "ball-rim-" + ++frameSequence;
       const defs = make("defs"),
         gradient = make("linearGradient", {
@@ -7659,10 +7677,11 @@ document.querySelectorAll(".faq-question").forEach((details) => {
         );
       defs.append(gradient);
       group.append(defs);
-      const bx = x - inset,
-        by = y - inset,
-        bw = iw + 2 * inset,
-        bh = ih + 2 * inset;
+      // The outer holder fills the pocket; its stroke stays inside the bounds.
+      const bx = margin + thickness / 2,
+        by = margin + thickness / 2,
+        bw = w - 2 * margin - thickness,
+        bh = h - 2 * margin - thickness;
       group.append(
         make("rect", {
           x: bx,
@@ -7671,7 +7690,7 @@ document.querySelectorAll(".faq-question").forEach((details) => {
           height: bh,
           rx: Math.min(w, h) * 0.025,
           fill: rigid ? "#a9c4e0" : "var(--surface)",
-          "fill-opacity": rigid ? 0.13 : 1,
+          "fill-opacity": rigid ? 0.2 : 1,
           stroke: "url(#" + id + ")",
           "stroke-width": thickness,
         }),
@@ -7686,7 +7705,7 @@ document.querySelectorAll(".faq-question").forEach((details) => {
             rx: 3,
             fill: "none",
             stroke: "#d4e5fc",
-            "stroke-opacity": 0.45,
+            "stroke-opacity": 0.65,
             "stroke-width": thickness * 0.65,
           }),
         );
@@ -7709,15 +7728,15 @@ document.querySelectorAll(".faq-question").forEach((details) => {
     if (frames.toploader && frames.toploader !== "none")
       rim(
         frames.toploader,
-        pad * 0.8,
-        Math.max(1, Math.min(w, h) * 0.025),
+        0,
+        Math.min(w, h) * 0.018,
         true,
       );
     if (frames.sleeve && frames.sleeve !== "none")
       rim(
         frames.sleeve,
-        Math.min(w, h) * 0.035,
-        Math.max(1, Math.min(w, h) * 0.012),
+        frames.toploader && frames.toploader !== "none" ? Math.min(w, h) * 0.014 : 0,
+        Math.min(w, h) * 0.018,
         false,
       );
     const image = make("image", {
@@ -7741,6 +7760,30 @@ document.querySelectorAll(".faq-question").forEach((details) => {
       group.append(text);
     });
     group.append(image);
+    const rigid = frames.toploader && frames.toploader !== "none",
+      sleeved = frames.sleeve && frames.sleeve !== "none";
+    if (rigid || sleeved) {
+      const unit = Math.min(w, h);
+      // A clear retaining edge sits in front of the card, without tinting its artwork.
+      group.append(make("rect", {
+        x: x - unit * 0.004, y: y - unit * 0.004,
+        width: iw + unit * 0.008, height: ih + unit * 0.008,
+        rx: unit * 0.012, fill: "none", stroke: "#e8f2ff",
+        "stroke-opacity": rigid ? 0.7 : 0.45,
+        "stroke-width": unit * 0.005,
+      }));
+      const lip = rigid ? 0.019 : 0.01;
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * lip}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#111b29", "stroke-opacity": 0.8,
+        "stroke-width": unit * (rigid ? 0.008 : 0.004),
+      }));
+      group.append(make("path", {
+        d: `M${x - unit * lip} ${y - unit * (lip + 0.004)}H${x + iw + unit * lip}`,
+        fill: "none", stroke: "#eff7ff", "stroke-opacity": rigid ? 0.85 : 0.6,
+        "stroke-width": unit * 0.003,
+      }));
+    }
   }
   window.BinderVisuals = {
     name,

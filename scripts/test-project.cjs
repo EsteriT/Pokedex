@@ -6,6 +6,8 @@ require("./check-collection.cjs");
 require("./check-covers.cjs");
 
 require("./check-customization.cjs");
+require("./check-frame-sizing.cjs");
+require("./check-page-appearance.cjs");
 
 require("./check-studio.cjs");
 require("./check-backup-crypto.cjs");

@@ -30,6 +30,7 @@
     if (open && phone.matches) setPages(false);
     cardsOpen = open;
     cards.hidden = !open;
+    if (!open) $("card-filters").open = false;
     shell.classList.toggle("cards-open", open);
     cardsTool.setAttribute("aria-expanded", String(open));
     if (persist) {
@@ -73,16 +74,41 @@
   pagesControls.append(dock);
   const settings = document.querySelector(".layout-settings");
   const settingsBody = document.querySelector(".layout-settings-body");
-  settings.querySelector("summary").title = "View and page settings";
+  settings.querySelector("summary").title = "Page settings";
   settings
     .querySelector("summary")
-    .setAttribute("aria-label", "View and page settings");
-  settingsBody.querySelector("h2").textContent = "View and settings";
+    .setAttribute("aria-label", "Page settings");
+  settingsBody.querySelector("h2").textContent = "Page settings";
   const view = document.querySelector(".page-view-control");
   view.querySelector("span").classList.remove("sr-only");
   view.querySelector("span").textContent = "Page view";
   view.classList.add("field");
-  settingsBody.querySelector(".layout-fields").prepend(view);
+  view.hidden = true;
+  settingsBody.prepend(view);
+  const viewSection = document.createElement("div"), viewLabel = document.createElement("span"), viewButtons = document.createElement("div");
+  viewSection.className = "page-view-section";
+  viewLabel.textContent = "View";
+  viewButtons.className = "page-view-buttons";
+  viewButtons.setAttribute("role", "group");
+  viewButtons.setAttribute("aria-label", "Page view");
+  for (const [value, label] of [["one", "Single"], ["two", "Spread"]]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.pageView = value;
+    button.textContent = label;
+    button.setAttribute("aria-pressed", String($("page-view").value === value));
+    button.addEventListener("click", () => {
+      if ($("page-view").value === value) return;
+      $("page-view").value = value;
+      $("page-view").dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    viewButtons.append(button);
+  }
+  viewSection.append(viewLabel, viewButtons);
+  settingsBody.insertBefore(viewSection, $("layout-form"));
+  $("layout-form").insertBefore($("layout-impact"), $("layout-count").nextSibling);
+  $("move-page-left").hidden = true;
+  $("move-page-right").hidden = true;
   const rail = document.querySelector(".editor-rail");
   rail.append(settings, $("undo"), $("redo"));
   document.querySelector(".history-tools").remove();
@@ -121,6 +147,7 @@
       "aria-label",
       (open ? "Collapse" : "Expand") + " binder sidebar",
     );
+    $("pages-toggle").title = open ? "Hide pages and overflow" : "Show pages and overflow";
     if (!open) closePopovers();
     requestAnimationFrame(layout);
   }
@@ -129,7 +156,7 @@
   );
   const mobileLabels = [
     ["cards-tool", "Cards"],
-    ["edit-cover-preview", "Cover"],
+    ["edit-cover-preview", "Binder"],
     ["customize-binder", "Styles"],
     ["select-pockets", "Select"],
   ];
@@ -253,7 +280,7 @@
     const close = document.createElement("button");
     close.type = "button";
     close.className = "utility-close icon-button";
-    close.setAttribute("aria-label", "Close view and page settings");
+    close.setAttribute("aria-label", "Close page settings");
     close.title = close.getAttribute("aria-label");
     close.innerHTML =
       '<svg class="ui-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -697,6 +724,20 @@
     (event) => {
       if (document.querySelector("dialog[open]")) return;
       if (event.key === "Escape") {
+        if ($("selection-more")?.open) {
+          $("selection-more").open = false;
+          $("selection-more").querySelector("summary").focus();
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        if (cardsOpen && $("card-filters").open) {
+          $("card-filters").open = false;
+          $("card-filters").querySelector("summary").focus();
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
         if (shell.classList.contains("picking-style-card")) {
           $("pick-style-card").click();
           event.preventDefault();
@@ -852,6 +893,23 @@
     $("return-results"),
   );
   $("editor-download-slot").remove();
+  for (const group of [
+    [
+      $("cards-tool"),
+      $("edit-cover-preview"),
+      $("customize-binder"),
+      $("select-pockets"),
+    ],
+    [settings, $("undo"), $("redo")],
+    [preview, download, $("restore-backup")],
+  ]) {
+    group.forEach((node) => node.classList.add("workshop-tool"));
+    group[0].classList.add("workshop-group-start");
+    group[0].style.setProperty(
+      "--group-height",
+      group.length * 40 + (group.length - 1) * 6 + 8 + "px",
+    );
+  }
   $("restore-backup").addEventListener("click", () => $("import-file").click());
   settingsBody.querySelector(".page-actions").append($("delete-page"));
   const applyLayout = document.querySelector(
@@ -872,7 +930,6 @@
     ["move-to-page", "Move to page"],
     ["copy-cards-binder", "Copy cards to another binder"],
     ["swap-selected-cards", "Swap selected cards"],
-    ["layout-apply", "Apply layout"],
     ["delete-page", "Delete page"],
     ["cover-apply", "Apply customization"],
     ["cover-cancel", "Cancel customization"],
@@ -882,6 +939,11 @@
     ["feedback-undo", "Undo"],
   ])
     icon($(id), label);
+  for (const [id, label] of [["custom-tab-sleeve", "Sleeves"], ["custom-tab-toploader", "Toploaders"]]) {
+    const text = document.createElement("span");
+    text.textContent = label;
+    $(id).append(text);
+  }
   const placementIcon = document.createElement("span");
   placementIcon.id = "placement-indicator";
   placementIcon.hidden = true;
@@ -896,60 +958,93 @@
   icon($("help-close"), "Close help");
   const help = $("workshop-help");
   const guides = [
-    [
-      "Add and insert cards",
-      "Open Cards. Drag a card into a pocket, or choose a card and then its destination. On phones, tap a card and then a pocket. A left-edge drop pushes cards right; a right-edge drop pushes left. Centre drops replace content. Shifts stop at a gap; a full row sends the end card to Overflow. Artwork and merged pockets block shifting.",
-    ],
-    [
-      "Select and move cards",
-      "Click or tap cards to select or deselect them. Each extra click adds another card to the selection. Selected cards are highlighted; other cards dim. Drag a card to move it into an empty pocket or swap it with another placed card. On a touchscreen, hold a placed card briefly, then drag. Escape clears the selection. Delete moves the selected items to Overflow.",
-    ],
-    [
-      "Merge and design pockets",
-      "Use Select pockets to merge, select pockets connected along an edge, then choose Merge. Replaced contents are kept in Overflow. Select one merged pocket to split it with Unmerge. Design pocket adds artwork or a reserved placeholder.",
-    ],
-    [
-      "Covers, sleeves and toploaders",
-      "Cover changes the binder cover. Transparent shows its first page. Card styles changes sleeves or toploaders for selected cards, the active page or the binder. Turn pages while styling, then click a card to target it. On phones, use the target icon beside Apply to. Apply creates a draft edit; Save keeps it.",
-    ],
-    [
-      "Pages and layout",
-      "Use the side arrows to turn pages; the plus adds a page at the end. Pages previews can be dragged to reorder; keyboard users can focus a preview and press Alt + Up or Alt + Down. View and settings changes page view, rows and columns, duplicates or deletes pages. The binder fits automatically between open side panels. Up to 30 pages.",
-    ],
-    [
-      "Overflow and history",
-      "Overflow keeps displaced cards and artwork separately from Pages. Choose an item and a destination pocket to put it back. Clear Overflow asks for confirmation and supports Undo. Undo and Redo are on the left toolbar.",
-    ],
-    [
-      "Save and backups",
-      "Save stores your binder in this browser only. Download backup exports the current binder. Restore backup validates a file and asks before replacing your draft; Save is still required. Backups let you move binders between browsers. There is no cloud sync or automatic save.",
-    ],
-    [
-      "Copy and swap",
-      "Select exactly two cards to Swap. Copy cards to another binder opens a destination chooser; open that binder, Paste, then Save. Copy styles and Paste styles reuse a card's sleeve and toploader choices. Add cards supports selecting several catalogue cards at once.",
-    ],
-    [
-      "Keyboard shortcuts",
-      "Ctrl or Command + S: Save. Ctrl or Command + Z: Undo. Shift + Ctrl or Command + Z: Redo. Left / Right: turn pages when focus is outside a field or toolbar. Escape: dismiss the active popup, placement or selection. Delete: move selected items to Overflow. Tab: move between controls. Alt + Up / Down: reorder a focused page preview.",
-    ],
+    ["Cards", [["Place", "Drag a card into a pocket, or choose a card then its pocket."], ["Insert", "Drop near an edge to shift the row."], ["Replace", "Drop in the center to replace content."]], "Shifts stop at a gap. A full row sends its end card to Overflow. Artwork and merged pockets block shifting. On phones, tap a catalogue card then a pocket."],
+    ["Selection", [["Select", "Click cards to select or deselect."], ["Move / swap", "Drag onto an empty pocket or another card."], ["Remove", "Move selected items to Overflow."]], "On touchscreens, hold a placed card briefly, then drag. Select exactly two cards for Swap. More contains copy/paste styles and copy to another binder."],
+    ["Pockets", [["Merge", "Select pockets forming a rectangle, then Merge."], ["Split", "Select a merged pocket, then More > Unmerge."], ["Design", "Add artwork or a placeholder with Design pocket."]], "Strips and squares are allowed. L-shaped merges are not. Displaced contents go to Overflow."],
+    ["Appearance", [["Binder", "Change the cover, text, artwork or page appearance."], ["Cards", "Choose sleeves or toploaders and an Apply to target."], ["Keep", "Apply changes, then Save."]], "Page appearance can target This page or All pages. All pages replaces individual page styles and sets the default for new pages. Card styles can target selected cards, this page or the binder."],
+    ["Pages", [["Turn", "Use the side arrows."], ["Add", "Choose Add page after the last thumbnail."], ["Reorder", "Drag page thumbnails into order."]], "View and settings contains page view, rows, columns, duplicate and delete. Up to 30 pages. The canvas fits automatically."],
+    ["Overflow", [["Find", "Open the tray beside Pages."], ["Restore", "Choose an item, then its destination pocket."], ["Recover", "Use Undo to reverse a recent edit."]], "Overflow holds displaced cards and artwork. Clear overflow asks for confirmation and supports Undo. Redo restores an undone change."],
+    ["Saving", [["Save", "Signed in: saves to your account. Local demo: saves in this browser."], ["Back up", "Download backup exports this binder."], ["Restore", "Choose a backup, confirm, then Save."]], "Saving is manual. Restore validates the file before replacing your draft. Keep a downloaded backup for a portable copy."],
   ];
-  for (const [title, copy] of guides) {
+  for (const [title, rows, extra] of guides) {
     const guide = document.createElement("details");
+    guide.className = "help-topic";
+    guide.name = "workshop-help-topics";
+    guide.open = title === "Cards";
     const summary = document.createElement("summary");
     summary.textContent = title;
-    const body = document.createElement("p");
-    body.textContent = copy;
+    const body = document.createElement("div");
+    body.className = "help-topic-body";
+    for (const [action, instruction] of rows) {
+      const row = document.createElement("div");
+      row.className = "help-action-row";
+      const label = document.createElement("strong"), copy = document.createElement("span");
+      label.textContent = action;
+      copy.textContent = instruction;
+      row.append(label, copy);
+      body.append(row);
+    }
+    const more = document.createElement("details"), label = document.createElement("summary"), copy = document.createElement("p");
+    more.className = "help-more";
+    label.textContent = "More details";
+    copy.textContent = extra;
+    more.append(label, copy);
+    body.append(more);
     guide.append(summary, body);
     $("help-guides").append(guide);
   }
-  $("help-search").addEventListener("input", () => {
+  const modifier = /Mac|iPhone|iPad/.test(navigator.platform) ? "\u2318" : "Ctrl";
+  const shortcuts = [
+    ["Save", [modifier, "S"]],
+    ["Undo", [modifier, "Z"]],
+    ["Redo", [modifier, "Shift", "Z"]],
+    ["Turn pages", ["\u2190", "\u2192"], " / "],
+    ["Dismiss / clear selection", ["Esc"]],
+    ["Move selection to Overflow", ["Delete"]],
+    ["Reorder focused page", ["Alt", "\u2191 / \u2193"]],
+    ["Move between controls", ["Tab"]],
+  ];
+  for (const [action, keys, separator = " + "] of shortcuts) {
+    const row = document.createElement("div"), label = document.createElement("span"), caps = document.createElement("span");
+    row.className = "help-shortcut-row";
+    caps.className = "help-keycaps";
+    label.textContent = action;
+    keys.forEach((key, i) => {
+      if (i) caps.append(document.createTextNode(separator));
+      const cap = document.createElement("kbd");
+      cap.textContent = key;
+      caps.append(cap);
+    });
+    row.append(label, caps);
+    $("help-shortcuts").append(row);
+  }
+  const keyNote = document.createElement("p");
+  keyNote.className = "help-key-note";
+  keyNote.textContent = "Shortcuts depend on focus and open dialogs. Reorder needs a focused page thumbnail.";
+  $("help-shortcuts").append(keyNote);
+  let helpSection = "basics";
+  function filterHelp() {
     const q = $("help-search").value.trim().toLowerCase();
-    for (const guide of $("help-guides").children)
-      guide.hidden = !guide.textContent.toLowerCase().includes(q);
-    $("help-empty").hidden = [...$("help-guides").children].some(
-      (g) => !g.hidden,
-    );
-  });
+    const basics = helpSection === "basics", panel = $(basics ? "help-guides" : "help-shortcuts");
+    $("help-guides").hidden = !basics;
+    $("help-shortcuts").hidden = basics;
+    for (const section of ["basics", "shortcuts"])
+      $("help-" + section + "-tab").setAttribute("aria-pressed", String(section === helpSection));
+    const entries = [...panel.children].filter(node => !node.classList.contains("help-key-note"));
+    for (const entry of entries) {
+      entry.hidden = !entry.textContent.toLowerCase().includes(q);
+      if (basics && q && !entry.hidden) entry.open = true;
+    }
+    $("help-empty").hidden = entries.some(entry => !entry.hidden);
+    $("help-empty").textContent = "No matches in " + (basics ? "Basics. Try Shortcuts." : "Shortcuts. Try Basics.");
+  }
+  for (const section of ["basics", "shortcuts"])
+    $("help-" + section + "-tab").addEventListener("click", () => {
+      helpSection = section;
+      filterHelp();
+      document.querySelector(".help-scroll").scrollTop = 0;
+    });
+  $("help-search").addEventListener("input", filterHelp);
   helpButton.addEventListener("click", () => {
     closePopovers();
     help.showModal();
@@ -1002,6 +1097,67 @@
     restoreCards = cardsOpen;
     setCards(false);
   }
+  // Selection actions share a stable hierarchy; secondary tools stay available in More.
+  const selectionActions = $("selection-actions"),
+    more = document.createElement("details"),
+    moreTrigger = document.createElement("summary"),
+    moreBody = document.createElement("div");
+  more.id = "selection-more";
+  moreTrigger.textContent = "\u22ef";
+  moreTrigger.setAttribute("aria-label", "More selection actions");
+  moreTrigger.title = "More actions";
+  moreBody.className = "selection-more-body";
+  more.append(moreTrigger, moreBody);
+  const secondaryIds = ["swap-selected-cards", "unmerge", "copy-card-style", "paste-card-style", "copy-cards-binder"];
+  for (const id of secondaryIds) {
+    const control = $(id);
+    if (!control) continue;
+    const label = document.createElement("span");
+    label.textContent = control.getAttribute("aria-label") || control.title || control.textContent;
+    control.append(label);
+    moreBody.append(control);
+  }
+  for (const [id, text] of [["pocket-content", "Design pocket"], ["pocket-style", "Customize"], ["merge", "Merge"]]) {
+    const label = document.createElement("span");
+    label.className = "selection-primary-label";
+    label.textContent = text;
+    $(id).append(label);
+  }
+  selectionActions.append($("pocket-style"), $("pocket-content"), $("merge"), $("inspect-pocket"), $("move-to-page"), more, $("to-overflow"), $("selection-dismiss"));
+  function selectionHierarchy() {
+    const merging = $("select-pockets").getAttribute("aria-pressed") === "true";
+    const primary = merging ? (!$("merge").hidden ? "merge" : null)
+      : !$("pocket-style").hidden ? "pocket-style" : !$("pocket-content").hidden ? "pocket-content" : null;
+    for (const id of ["pocket-content", "pocket-style", "merge"]) {
+      const node = $(id), active = id === primary;
+      if (node.classList.contains("selection-primary") !== active) node.classList.toggle("selection-primary", active);
+    }
+    if (selection.classList.contains("merge-toolbar") !== merging) selection.classList.toggle("merge-toolbar", merging);
+    const content = $("pocket-content"), contentParent = primary === "pocket-style" ? moreBody : selectionActions;
+    if (content.parentElement !== contentParent) {
+      if (contentParent === selectionActions) selectionActions.insertBefore(content, $("merge"));
+      else moreBody.prepend(content);
+    }
+    const hideMore = ![...moreBody.children].some(n => !n.hidden);
+    if (more.hidden !== hideMore) more.hidden = hideMore;
+    if (hideMore || selection.hidden) more.open = false;
+  }
+  more.addEventListener("toggle", () => {
+    if (!more.open) return;
+    const rect = more.getBoundingClientRect(), height = moreBody.getBoundingClientRect().height;
+    more.classList.toggle("opens-up", rect.bottom + height + 8 > innerHeight - 12 && rect.top > height + 12);
+  });
+  moreBody.addEventListener("click", event => {
+    if (event.target.closest("button")) more.open = false;
+  });
+  document.addEventListener("pointerdown", event => {
+    if (more.open && !more.contains(event.target)) more.open = false;
+  });
+  more.addEventListener("keydown", event => {
+    if (event.key === "Escape") { more.open = false; moreTrigger.focus(); event.stopPropagation(); }
+  });
+  new MutationObserver(selectionHierarchy).observe(selection, { subtree: true, attributes: true, attributeFilter: ["hidden", "class", "data-count"] });
+  selectionHierarchy();
   synchronizeAccessibility();
   layout();
   requestAnimationFrame(() =>

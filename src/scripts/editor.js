@@ -342,9 +342,10 @@ window.EditorReady = (async () => {
       );
     }),
   );
-  function confirm(title, copy, action) {
+  function confirm(title, copy, action, label = "Confirm") {
     $("confirm-title").textContent = title;
     $("confirm-copy").textContent = copy;
+    $("confirm-yes").textContent = label;
     confirmation = action;
     openDialog($("confirm-dialog"));
     $("confirm-cancel").focus();
@@ -624,105 +625,119 @@ window.EditorReady = (async () => {
     return b;
   }
   let catalogueQuery = null,
-    resultPage = 1,
-    resultRequest = 0;
-  const resultPager = el("div", "catalogue-pagination");
-  const previousCards = el("button", "button secondary", "Previous");
-  const nextCards = el("button", "button secondary", "Next");
-  const resultPageLabel = el("span");
-  previousCards.type = nextCards.type = "button";
-  resultPager.append(previousCards, resultPageLabel, nextCards);
-  resultPager.hidden = true;
+    cardBrowser,
+    resultRequest = 0,
+    resultCards = [],
+    resultTotal = 0,
+    resultsLoaded = false;
+  const resultPager = el("div", "catalogue-pagination editor-card-expand");
+  const expandCards = el("button", "button secondary", "Expand");
+  expandCards.id = "expand-cards";
+  expandCards.type = "button";
+  expandCards.setAttribute("aria-haspopup", "dialog");
+  expandCards.setAttribute("aria-controls", "binder-card-browser");
+  resultPager.append(expandCards);
   $("card-results").after(resultPager);
-  previousCards.addEventListener("click", () => {
-    resultPage--;
+  expandCards.addEventListener("click", () => cardBrowser.open());
+  const cardFilters = $("card-filters");
+  $("card-filters-clear").addEventListener("click", () => {
+    $("type-filter").value = "";
+    $("set-filter").value = "";
     renderResults();
   });
-  nextCards.addEventListener("click", () => {
-    resultPage++;
-    renderResults();
+  document.addEventListener("pointerdown", (event) => {
+    if (!cardFilters.contains(event.target)) cardFilters.open = false;
   });
   async function renderResults() {
     const focus = focusKey(),
-      scroll = $("card-results").scrollTop;
+      grid = $("card-results"),
+      scroll = grid.scrollTop;
     const q = $("card-search").value.trim().toLowerCase(),
       type = $("type-filter").value,
       set = $("set-filter").value;
+    const count = Number(!!type) + Number(!!set);
+    $("card-filter-count").textContent = count;
+    $("card-filter-count").hidden = !count;
+    cardFilters
+      .querySelector("summary")
+      .setAttribute(
+        "aria-label",
+        count ? "Filter cards, " + count + " active" : "Filter cards",
+      );
     const signature = JSON.stringify([q, type, set]);
-    if (signature !== catalogueQuery) resultPage = 1;
-    catalogueQuery = signature;
-    let results, total;
-    const request = ++resultRequest;
-    try {
-      if (window.CardCatalogue?.enabled) {
-        previousCards.disabled = nextCards.disabled = true;
-        $("result-count").textContent = "Loading cards...";
-        const result = await window.CardCatalogue.search(
-          { q, type, set },
-          resultPage,
-        );
-        if (request !== resultRequest) return;
-        results = result.cards;
-        total = result.total;
-        resultPager.hidden = total <= 24;
-        resultPageLabel.textContent =
-          resultPage + " / " + Math.max(1, Math.ceil(total / 24));
-        previousCards.disabled = resultPage === 1;
-        nextCards.disabled = resultPage * 24 >= total;
-      } else {
-        results = window.CARDS.filter(
-          (c) =>
-            (!q ||
-              [c.name, c.collectorNumber, c.setName]
-                .join(" ")
-                .toLowerCase()
-                .includes(q) ||
-              String(Number(c.collectorNumber)) === q) &&
-            (!type || c.pokemonTypes.includes(type)) &&
-            (!set || c.setName === set),
-        );
-        total = results.length;
-      }
-    } catch (error) {
-      if (request !== resultRequest) return;
-      $("result-count").textContent = error.message;
-      const retry = el("button", "button secondary", "Retry search");
-      retry.type = "button";
-      retry.addEventListener("click", () => renderResults());
-      $("card-results").replaceChildren(retry);
-      resultPager.hidden = true;
-      return;
+    if (signature !== catalogueQuery) {
+      catalogueQuery = signature;
+      resultRequest++;
+      resultCards = [];
+      resultsLoaded = false;
     }
-    $("result-count").textContent = total + (total === 1 ? " card" : " cards");
-    $("card-results").replaceChildren(
-      ...results.map((c) =>
+    if (!resultsLoaded) {
+      const request = ++resultRequest;
+      $("result-count").textContent = "Loading cards...";
+      try {
+        if (window.CardCatalogue?.enabled) {
+          const result = await window.CardCatalogue.search({ q, type, set }, 1);
+          if (request !== resultRequest) return;
+          resultCards = result.cards;
+          resultTotal = result.total;
+        } else {
+          const matches = window.CARDS.filter(
+            (c) =>
+              (!q ||
+                [c.name, c.collectorNumber, c.setName]
+                  .join(" ")
+                  .toLowerCase()
+                  .includes(q) ||
+                String(Number(c.collectorNumber)) === q) &&
+              (!type || c.pokemonTypes.includes(type)) &&
+              (!set || c.setName === set),
+          );
+          resultTotal = matches.length;
+          resultCards = matches.slice(0, 24);
+        }
+        resultsLoaded = true;
+      } catch (error) {
+        if (request !== resultRequest) return;
+        $("result-count").textContent = error.message;
+        const retry = el("button", "button secondary", "Retry search");
+        retry.type = "button";
+        retry.addEventListener("click", () => renderResults());
+        grid.replaceChildren(retry);
+        return;
+      }
+    }
+    $("result-count").textContent =
+      resultCards.length + " of " + resultTotal + " cards";
+    grid.replaceChildren(
+      ...resultCards.map((c) =>
         catalogueCard(
           { cardId: c.id || c.collectorNumber },
           { kind: "catalogue", cardId: c.id || c.collectorNumber },
         ),
       ),
     );
-    if (!results.length)
-      $("card-results").append(
+    if (!resultCards.length)
+      grid.append(
         el(
           "p",
           "empty-results",
           "No matches. Try another name or clear the filters.",
         ),
       );
-    $("card-results").scrollTop = scroll;
+    grid.scrollTop = scroll;
     renderCoverControls();
     restoreFocus(focus);
   }
   function renderOverflow() {
     const items = state.document.overflow;
     $("overflow-count").textContent = items.length;
-    $("overflow-badge").textContent = items.length;
+    $("overflow-badge").textContent = items.length > 99 ? "99+" : items.length;
     $("overflow-badge").hidden = !items.length;
     $("overflow-view").setAttribute(
       "aria-label",
       "Overflow, " + items.length + (items.length === 1 ? " item" : " items"),
     );
+    $("overflow-view").title = "Overflow, " + items.length + (items.length === 1 ? " item" : " items");
     $("empty-overflow").disabled = !items.length;
     $("overflow-items").replaceChildren(
       ...items.map((c) => catalogueCard(c, { kind: "overflow", id: c.id })),
@@ -780,9 +795,12 @@ window.EditorReady = (async () => {
     const px = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     const py = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     if (stage.clientWidth <= px || stage.clientHeight <= py) return;
-    const showCover = coverOpen && customTab === "cover";
+    const showCover = coverOpen && customTab === "cover" && !studio?.showPages();
+    window.BinderCovers.stylePage(area, coverOpen && customTab === "cover"
+      ? studio.coverValue(coverDraft) : state.document.cover);
     area.classList.toggle("is-cover-preview", showCover);
     if (showCover) {
+      const previewDoc = studio.designDocument(coverDraft);
       const fit = Math.max(
         0.001,
         Math.min(
@@ -799,9 +817,9 @@ window.EditorReady = (async () => {
       area.style.height = width / 0.75 + "px";
       area.setAttribute("aria-label", "Live binder cover preview");
       const book = window.BinderCovers.create(
-        studio.coverValue(coverDraft),
-        state.document.name,
-        state.document,
+        previewDoc.cover,
+        previewDoc.name,
+        previewDoc,
       );
       book.style.width = "100%";
       book.style.height = "100%";
@@ -811,6 +829,9 @@ window.EditorReady = (async () => {
       return;
     }
     area.setAttribute("aria-label", "Binder page pockets");
+    const appearanceDocument = coverOpen && customTab === "cover" ? studio.designDocument(coverDraft) : state.document;
+    window.BinderCovers.stylePage(area, { ...appearanceDocument.cover,
+      pageStyle: appearanceDocument.pages.find(p => p.id === pageId)?.pageStyle || appearanceDocument.cover?.pageStyle });
     const shown = visiblePages();
     const contents = shown
       .flatMap((page) => page.regions)
@@ -867,6 +888,8 @@ window.EditorReady = (async () => {
     dimensions.forEach((dimension, pageIndex) => {
       const p = shown[pageIndex];
       const sheet = spreadMode ? el("section", "editor-sheet") : area;
+      window.BinderCovers.stylePage(sheet, { ...appearanceDocument.cover,
+        pageStyle: appearanceDocument.pages.find(page => page.id === p?.id)?.pageStyle || appearanceDocument.cover?.pageStyle });
       if (spreadMode) {
         sheet.style.left = sheetOffset + "px";
         sheet.style.top = labelSpace + "px";
@@ -961,14 +984,21 @@ window.EditorReady = (async () => {
           clip = svgNode("clipPath", { id: "clip-" + r.id }),
           geometry = pocketGeometry(r.cells, cw, ch, gap);
         const outline = geometry.outline;
-        geometry.rects.forEach((rect) => clip.append(svgNode("rect", rect)));
+        geometry.rects.forEach((rect) =>
+          clip.append(
+            svgNode("rect", {
+              ...rect,
+              rx: !r.content && r.cells.length === 1 ? 8 : 0,
+            }),
+          ),
+        );
         defs.append(clip);
         svg.append(
           defs,
           svgNode("rect", {
             width,
             height,
-            fill: r.content ? "transparent" : "var(--soft)",
+            fill: r.content ? "transparent" : "var(--pocket-fill, var(--soft))",
             "clip-path": "url(#clip-" + r.id + ")",
           }),
         );
@@ -1015,8 +1045,8 @@ window.EditorReady = (async () => {
             );
             Object.assign(plus.style, {
               inset: "auto",
-              left: (x - x0) * (cw + gap) + cw / 2 + "px",
-              top: (y - y0) * (ch + gap) + ch / 2 + "px",
+              left: (window.BinderSchema.rectangular(r.cells) ? width / 2 : (x - x0) * (cw + gap) + cw / 2) + "px",
+              top: (window.BinderSchema.rectangular(r.cells) ? height / 2 : (y - y0) * (ch + gap) + ch / 2) + "px",
               transform: "translate(-50%, -50%)",
             });
           }
@@ -1026,7 +1056,7 @@ window.EditorReady = (async () => {
           svgNode("path", {
             d: outline,
             fill: "none",
-            stroke: selected.includes(r.id) ? "var(--accent)" : "none",
+            stroke: selected.includes(r.id) ? "var(--accent)" : "var(--pocket-border, transparent)",
             "stroke-width": selected.includes(r.id) ? 8 : 1,
             "stroke-dasharray": "0",
           }),
@@ -1190,6 +1220,7 @@ window.EditorReady = (async () => {
         (insertDirection === 1 ? "right" : "left") +
         ": choose a pocket.";
     document.querySelector(".selection-status").dataset.count = selected.length;
+    if (!pending && selected.length > 1) $("selection-copy").textContent = selected.length + " selected";
     $("selection-copy").classList.toggle(
       "sr-only",
       !!pending || selected.length === 1,
@@ -1202,7 +1233,7 @@ window.EditorReady = (async () => {
     $("clear-selection").hidden = !pending && !selected.length;
     const reason = state.mergeReason(pageId, selected);
     $("merge").disabled = !!reason;
-    $("merge").title = reason || "Merge selected connected pockets";
+    $("merge").title = reason || "Merge selected rectangular pockets";
     $("merge").setAttribute("aria-describedby", "tool-help");
     $("tool-help").textContent =
       selected.length > 1 && reason
@@ -1295,8 +1326,10 @@ window.EditorReady = (async () => {
     return b;
   }
   function renderCoverControls() {
-    $("customize-label").textContent = "Card styles";
-    $("customize-binder").title = "Style card sleeves and toploaders";
+    $("customize-label").textContent = "Customize cards";
+    $("customize-binder").title = "Customize cards";
+    $("customize-binder").setAttribute("aria-label", "Customize cards");
+    $("edit-cover-preview").title = "Customize binder";
     $("customize-binder").setAttribute(
       "aria-expanded",
       String(coverOpen && customTab !== "cover"),
@@ -1314,7 +1347,7 @@ window.EditorReady = (async () => {
     );
     $("edit-cover-preview").setAttribute(
       "aria-label",
-      "Cover design · " + window.BinderCovers.name(state.document.cover?.theme),
+      "Customize binder",
     );
     $("rename-binder").disabled = coverOpen;
     $("feedback-undo").disabled = coverOpen;
@@ -1348,7 +1381,8 @@ window.EditorReady = (async () => {
         b.type = "button";
         b.dataset.frameStyle = value;
         b.setAttribute("aria-pressed", String(frameDraft[key] === value));
-        const styles = { ...previewFrames(), [key]: value };
+        // Isolate this holder so the other style cannot obscure the choices.
+        const styles = { sleeve: "none", toploader: "none", [key]: value };
         b.append(
           visualSVG({ ...previewCard(), frames: styles }, 48, 66, styles),
           el(
@@ -1375,6 +1409,9 @@ window.EditorReady = (async () => {
           none: "#aeb6c5",
         }[value];
         name.prepend(dot);
+        const check = el("i", "frame-choice-check");
+        check.setAttribute("aria-hidden", "true");
+        b.append(check);
         const show = () => {
           frameHover = { [key]: value };
           previewCover();
@@ -1393,6 +1430,7 @@ window.EditorReady = (async () => {
           frameTouched[key] = value;
           renderFrameChoices();
           previewCover();
+          $("frame-style-options").querySelector('[data-frame-style="' + value + '"]').focus({ preventScroll: true });
         });
         return b;
       }),
@@ -1456,33 +1494,28 @@ window.EditorReady = (async () => {
       if (frameDraft[k] !== "mixed") base[k] = frameDraft[k];
     return { ...base, ...(frameHover || {}) };
   }
-  function styleScopeText() {
-    const scope = $("frame-scope").value;
-    const mixed = ["sleeve", "toploader"].filter(
-      (k) => frameDraft[k] === "mixed",
-    );
-    return (
-      (scope === "binder" ? "Includes overflow and future additions" : "") +
-      (mixed.length
-        ? (scope === "binder" ? " · " : "") +
-          "Mixed " +
-          mixed.join(" / ") +
-          ": unchanged until chosen"
-        : "")
-    );
+  function frameStyleName(value) {
+    return value === "none" ? "None" : value === "mixed" ? "Mixed"
+      : value === "clear" ? "Clear" : window.BinderCovers.name(value);
   }
 
   function previewCover() {
     const cover = customTab === "cover";
+    $("cover-preview-stage").setAttribute("aria-label", cover ? "Live binder cover preview" : "Live card style preview");
+    $("customizer-title").textContent = cover ? "Customize binder" : "Customize cards";
+    $("cover-customizer").classList.toggle("binder-design-panel", cover);
+    $("custom-tab-cover").hidden = true;
+    $("custom-tab-sleeve").parentElement.hidden = cover;
+    $("binder-customization-options").hidden = !cover;
     $("customizer-tab-hint").textContent = cover
-      ? "Preview on your binder. Apply cover, then Save."
+      ? "Apply changes, then Save."
       : customTab === "sleeve"
         ? "Sleeves protect the surface of a card."
         : "Toploaders are rigid cases around a card.";
     document
       .querySelector(".editor-shell")
       .classList.toggle("styling-card", !cover);
-    $("cover-selection-status").hidden = cover;
+    $("cover-selection-status").hidden = false;
     if (!cover) {
       syncStyleScope();
     }
@@ -1495,6 +1528,8 @@ window.EditorReady = (async () => {
       String(coverOpen && !cover),
     );
     $("frame-scope").parentElement.hidden = cover;
+    $("frame-scope-note").hidden = cover;
+    $("pick-style-card").hidden = cover;
     $("cover-design-controls").hidden = !cover;
     $("frame-design-controls").hidden = cover;
     for (const tab of ["cover", "sleeve", "toploader"])
@@ -1503,25 +1538,25 @@ window.EditorReady = (async () => {
         String(tab === customTab),
       );
     if (cover) {
-      $("cover-preview-art").replaceChildren(
-        window.BinderCovers.create(
-          studio.coverValue(coverDraft),
-          state.document.name,
-          state.document,
-        ),
-      );
-      $("cover-preview-name").textContent =
-        studio.coverValue(coverDraft).title?.text || state.document.name;
-      $("cover-preview-theme").textContent =
-        window.BinderCovers.name(coverDraft);
-      $("cover-selection-status").textContent =
-        window.BinderCovers.name(coverDraft) + " · preview only.";
+      const pagePreview = studio.showPages();
+      studio.syncPageStyle();
+      const previewDoc = studio.designDocument(coverDraft);
+      $("cover-preview-art").replaceChildren(pagePreview
+        ? studio.pageSVG(currentPage(), previewDoc, null, true)
+        : window.BinderCovers.create(previewDoc.cover, previewDoc.name, previewDoc));
+      $("cover-preview-name").textContent = pagePreview
+        ? "Page " + (state.document.pages.findIndex(p => p.id === pageId) + 1)
+        : studio.coverValue(coverDraft).title?.text || state.document.name;
+      $("cover-preview-theme").textContent = pagePreview
+        ? currentPage().rows + " \u00d7 " + currentPage().columns + " layout" : window.BinderCovers.name(coverDraft);
       $("customizer-copy").textContent =
         "Choose a cover, then apply your design.";
-      $("cover-apply").textContent = "Apply cover";
+      $("cover-apply").textContent = "Apply";
       $("cover-apply").disabled =
         (coverDraft === "custom" && !studio.coverValue(coverDraft).artwork) ||
-        JSON.stringify(studio.coverValue(coverDraft)) === coverBaseline;
+        (JSON.stringify(studio.coverValue(coverDraft)) === coverBaseline && !studio.appearanceDirty());
+      $("cover-selection-status").textContent = $("cover-apply").disabled
+        ? "Choose a design." : "Ready to apply. Save afterward to keep changes.";
     } else {
       const card = previewCard();
       $("cover-preview-art").replaceChildren(
@@ -1533,33 +1568,31 @@ window.EditorReady = (async () => {
         ),
       );
       $("cover-preview-name").textContent = window.BinderVisuals.name(card);
-      $("cover-preview-theme").textContent =
-        (frameDraft.sleeve === "none"
-          ? "No sleeve"
-          : frameDraft.sleeve === "mixed"
-            ? "Mixed sleeves"
-            : window.BinderCovers.name(frameDraft.sleeve) + " sleeve") +
-        " · " +
-        (frameDraft.toploader === "none"
-          ? "No toploader"
-          : frameDraft.toploader === "clear"
-            ? "Clear toploader"
-            : frameDraft.toploader === "mixed"
-              ? "Mixed toploaders"
-              : window.BinderCovers.name(frameDraft.toploader) + " toploader");
-      $("cover-selection-status").textContent =
-        "Preview only · artwork and ownership are unchanged.";
+      const items = scopeCards();
+      $("cover-preview-theme").replaceChildren(...["sleeve", "toploader"].map(key => {
+        const values = new Set(items.map(item => (item.frames || state.document.frames)?.[key] || "none"));
+        const value = values.size > 1 ? "mixed" : values.values().next().value || state.document.frames?.[key] || "none";
+        return el("span", "", (key === "sleeve" ? "Sleeve: " : "Toploader: ") + frameStyleName(value));
+      }));
+      const count = items.length;
+      $("frame-scope-note").textContent = $("frame-scope").value === "binder"
+        ? count + " cards, including overflow. Also applies to future additions."
+        : count ? count + (count === 1 ? " card" : " cards") + " in this target."
+          : "Choose cards or a populated page.";
       $("customizer-copy").textContent =
         $("frame-scope").value === "binder"
           ? "Applies to every card and future additions. Replaces individual styles."
           : "Applies to your chosen cards.";
-      $("cover-apply").textContent = "Apply card styles";
+      $("cover-apply").textContent = "Apply";
       $("cover-apply").disabled =
         !Object.keys(frameTouched).length ||
         ($("frame-scope").value !== "binder" && !scopeCards().length);
-      $("cover-selection-status").textContent = styleScopeText();
-      $("cover-selection-status").hidden = !$("cover-selection-status")
-        .textContent;
+      const changes = Object.entries(frameTouched).map(([key, value]) =>
+        (key === "sleeve" ? "Sleeve: " : "Toploader: ") + frameStyleName(value));
+      $("cover-selection-status").textContent = changes.length
+        ? "Ready to apply — " + changes.join(" · ") + ". Save afterward to keep changes."
+        : "Choose a style. Existing mixed styles stay until changed.";
+      $("cover-selection-status").hidden = false;
     }
     document
       .querySelectorAll("[data-cover-theme]")
@@ -1571,7 +1604,12 @@ window.EditorReady = (async () => {
       );
     updatePageNavigation();
     renderCoverControls();
-    window.EditorIcon?.($("cover-apply"), $("cover-apply").textContent);
+    for (const [id, label] of [["cover-apply", $("cover-apply").textContent], ["cover-cancel", "Cancel"]]) {
+      $(id).textContent = label;
+      $(id).classList.remove("workshop-icon");
+      $(id).setAttribute("aria-label", label);
+      $(id).title = label;
+    }
     renderCanvas();
   }
   function openCover(tab = "cover") {
@@ -1622,6 +1660,9 @@ window.EditorReady = (async () => {
           window.BinderCovers.create(theme.id, "", state.document),
           el("span", "", theme.name),
         );
+        const check = el("i", "frame-choice-check");
+        check.setAttribute("aria-hidden", "true");
+        b.append(check);
         b.addEventListener("click", () => {
           coverDraft = theme.id;
           studio.coverPreset(theme.id);
@@ -1633,7 +1674,8 @@ window.EditorReady = (async () => {
     render();
     renderFrameChoices();
     previewCover();
-    $("custom-tab-" + tab).focus({ preventScroll: true });
+    (tab === "cover" ? $("binder-customization-options").querySelector("button")
+      : $("custom-tab-" + tab)).focus({ preventScroll: true });
 
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
@@ -1694,15 +1736,16 @@ window.EditorReady = (async () => {
       theme = coverDraft,
       frames = { ...frameTouched },
       coverValue = studio.coverValue(theme),
+      appearancePatch = studio.appearancePatch(),
       tab = customTab;
     closeCover();
     run(
       () =>
         tab === "cover"
-          ? state.setCoverDetails(coverValue)
+          ? state.setCoverDetails(coverValue, appearancePatch)
           : state.applyFramePatch(frames, scope, pid, rids),
       tab === "cover"
-        ? "Cover applied. Save binder to keep it."
+        ? "Binder design applied. Save to keep it."
         : "Card styles applied. Save binder to keep them.",
     );
   });
@@ -2008,11 +2051,13 @@ window.EditorReady = (async () => {
     $("save-status").hidden = !needsSave;
     updatePageNavigation();
     $("page-view").value = spreadMode ? "two" : "one";
+    document.querySelectorAll("[data-page-view]").forEach(button =>
+      button.setAttribute("aria-pressed", String(button.dataset.pageView === $("page-view").value)));
     $("move-page-left").disabled = index === 0;
     $("move-page-right").disabled = index === state.document.pages.length - 1;
     $("delete-page").disabled = state.document.pages.length === 1;
     $("delete-page").title =
-      state.document.pages.length === 1 ? "Keep at least one page" : "";
+      state.document.pages.length === 1 ? "Keep at least one page" : "Delete this page";
     $("add-page").disabled = state.document.pages.length >= 30;
     $("add-page").title =
       state.document.pages.length >= 30 ? "Maximum 30 pages" : "";
@@ -2105,7 +2150,14 @@ window.EditorReady = (async () => {
   $("card-search").addEventListener("input", () => {
     if (!window.CardCatalogue?.enabled) return renderResults();
     clearTimeout(cardSearchTimer);
-    resultRequest++;
+    if (
+      JSON.stringify([
+        $("card-search").value.trim().toLowerCase(),
+        $("type-filter").value,
+        $("set-filter").value,
+      ]) !== catalogueQuery
+    )
+      resultRequest++;
     cardSearchTimer = setTimeout(renderResults, 250);
   });
   $("type-filter").addEventListener("change", renderResults);
@@ -2355,19 +2407,22 @@ window.EditorReady = (async () => {
   function updateLayoutImpact() {
     const rows = Number($("page-rows").value),
       columns = Number($("page-columns").value);
-    const count = currentPage().regions.filter(
+    const page = currentPage();
+    const count = page.regions.filter(
       (r) => r.content && r.cells.some(([y, x]) => y >= rows || x >= columns),
     ).length;
-    $("layout-impact").textContent = [rows, columns].every(
+    const valid = [rows, columns].every(
       (n) => Number.isInteger(n) && n >= 1 && n <= 6,
-    )
-      ? count
-        ? count +
-          (count === 1
-            ? " card will move to overflow."
-            : " cards will move to overflow.")
-        : "No cards will move to overflow."
-      : "Choose whole numbers from 1 to 6.";
+    );
+    const changed = rows !== page.rows || columns !== page.columns;
+    const split = page.regions.filter(r => r.cells.length > 1 && r.cells.some(([y, x]) => y >= rows || x >= columns)).length;
+    $("layout-count").textContent = valid ? rows * columns + " pocket spaces" : "";
+    $("layout-target").textContent = "This page · " + (state.document.pages.findIndex(p => p.id === pageId) + 1);
+    $("layout-apply").disabled = !valid || !changed;
+    $("layout-impact").hidden = valid && (!changed || (!count && !split));
+    $("layout-impact").textContent = !valid ? "Choose whole numbers from 1 to 6."
+      : [count ? count + (count === 1 ? " item will move to Overflow." : " items will move to Overflow.") : "",
+        split ? split + (split === 1 ? " merged pocket will split." : " merged pockets will split.") : ""].filter(Boolean).join(" ");
   }
   for (const id of ["page-rows", "page-columns"])
     $(id).addEventListener("input", updateLayoutImpact);
@@ -2382,18 +2437,12 @@ window.EditorReady = (async () => {
       message("Choose whole numbers from 1 to 6.", true);
       return;
     }
+    if (rows === p.rows && columns === p.columns) return;
     const affected = p.regions.filter((r) =>
       r.cells.some(([y, x]) => y >= rows || x >= columns),
     );
     const cards = affected.filter((r) => r.content).length,
       split = affected.filter((r) => r.cells.length > 1).length;
-    const details = affected
-      .filter((r) => r.content || r.cells.length > 1)
-      .map(
-        (r) =>
-          `Row ${Math.min(...r.cells.map((c) => c[0])) + 1}, column ${Math.min(...r.cells.map((c) => c[1])) + 1}: ${r.content ? window.BinderVisuals.name(r.content) : "empty merged pocket"}`,
-      )
-      .join("; ");
     const apply = () =>
       run(
         () => state.resize(pageId, rows, columns),
@@ -2403,20 +2452,23 @@ window.EditorReady = (async () => {
               " item" +
               (cards === 1 ? "" : "s") +
               " moved to overflow."
-          : "Page layout updated. No cards moved to overflow.",
+          : "Page layout updated.",
       );
-    if (affected.length)
-      confirm(
-        "Preview layout change",
-        `${rows} rows × ${columns} columns. ${cards} cards move to overflow; ${split} merged pockets are removed and their remaining cells become separate pockets. ${details} Undo is available.`,
-        apply,
-      );
-    else apply();
+    if (!cards) { apply(); return; }
+    confirm(
+      "Change page layout?",
+      [p.rows + " \u00d7 " + p.columns + " \u2192 " + rows + " \u00d7 " + columns,
+        cards ? cards + (cards === 1 ? " item moves to Overflow." : " items move to Overflow.") : "",
+        split ? split + (split === 1 ? " merged pocket splits." : " merged pockets split.") : "",
+      ].filter(Boolean).join("\n"),
+      apply,
+      "Apply layout",
+    );
   });
   const addPageTile = el("button", "add-page");
   addPageTile.append(
     el("span", "add-page-symbol", "+"),
-    el("span", "add-page-caption sr-only", "Add page"),
+    el("span", "add-page-caption", "Add page"),
   );
   addPageTile.id = "add-page";
   addPageTile.type = "button";
@@ -2437,7 +2489,7 @@ window.EditorReady = (async () => {
     $("next-page").dataset.add = String(lastSpread);
     $("next-page").disabled =
       lastSpread && (state.document.pages.length >= 30 || coverOpen);
-    if (coverOpen && customTab === "cover")
+    if (coverOpen && customTab === "cover" && !studio.showPages())
       $("previous-page").disabled = $("next-page").disabled = true;
     $("next-page").setAttribute(
       "aria-label",
@@ -2471,10 +2523,14 @@ window.EditorReady = (async () => {
     }
   }
   $("page-view").addEventListener("change", () => {
+    const draftRows = $("page-rows").value, draftColumns = $("page-columns").value;
     spreadMode = $("page-view").value === "two";
     selected = [];
     pending = null;
     render();
+    $("page-rows").value = draftRows;
+    $("page-columns").value = draftColumns;
+    updateLayoutImpact();
   });
   $("previous-page").addEventListener("click", () => turn(-1));
   $("next-page").addEventListener("click", () => {
@@ -2698,6 +2754,13 @@ window.EditorReady = (async () => {
     },
   });
 
+  cardBrowser = window.EditorCardBrowser.init({
+    page: currentPage,
+    state,
+    run,
+    selected: () => arrangeTools.pickerSelection(),
+    clearSelection: () => arrangeTools.clearPickerSelection(),
+  });
   render();
   if (seed.customize) openCover();
   if (seed.placeCard) {

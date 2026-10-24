@@ -4,7 +4,11 @@ const vm = require("node:vm");
 const scope = { window: { CARDS: [{ id: "test", name: "Test", imageUrl: "test.jpg" }] } };
 vm.runInNewContext(fs.readFileSync(require("node:path").join(__dirname, "../src/scripts/binder-visuals.js"), "utf8"), scope);
 function node(tag, attrs = {}) {
-  return { tag, attrs, children: [], append(...items) { this.children.push(...items); }, addEventListener() {} };
+  return { tag, attrs, children: [], events: {},
+    append(...items) { for (const item of items) { this.children.push(item); item.parent = this; } },
+    addEventListener(type, fn) { this.events[type] = fn; },
+    remove() { if (this.parent) this.parent.children = this.parent.children.filter(n => n !== this); },
+  };
 }
 function flatten(n) { return [n, ...n.children.flatMap(flatten)]; }
 for (const [w, h] of [[48, 66], [245, 337], [490, 337], [80, 400]]) {
@@ -36,5 +40,13 @@ for (const [w, h] of [[48, 66], [245, 337], [490, 337], [80, 400]]) {
       assert(a.x + a.width + stroke <= w + 0.001 && a.y + a.height + stroke <= h + 0.001);
     }
   }
+}
+for (const source of ["", "broken.jpg"]) {
+  scope.window.CARDS[0].imageUrl = source;
+  const root = node("svg");
+  scope.window.BinderVisuals.append(root, { cardId: "test" }, 245, 337, {}, "", node);
+  if (source) flatten(root).find(n => n.tag === "image").events.error();
+  assert(!flatten(root).some(n => n.tag === "image"));
+  assert(flatten(root).some(n => n.tag === "text" && n.textContent === "Image unavailable"));
 }
 console.log("PASS: unframed cards fill available space; framed styles share consistent geometry; outer holders fill normal, small and merged pockets with cards inset inside.");

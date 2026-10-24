@@ -6,6 +6,8 @@ module.exports = async function (db, as, document) {
       id: "base1-1",
       localId: "1",
       name: "Alakazam",
+      hp: 80,
+      illustrator: "Test Artist",
       category: "Pokemon",
       types: ["Psychic"],
       rarity: "Rare",
@@ -48,6 +50,21 @@ module.exports = async function (db, as, document) {
     1,
   );
   assert.equal((await search({ set: "base1", finish: "reverse" })).total, 0);
+  assert.equal((await search({set:['base1','missing'],type:['Fire','Psychic'],rarity:['Rare','Uncommon']})).total,1);
+  assert.equal((await search({type:['Water','Fire']})).total,0);
+  assert.equal((await search({category:'Pokemon',illustrator:'artist',hpMin:80,hpMax:80})).total,1);
+  assert.equal((await search({q:'Test Artist'})).total,1);
+  assert.equal((await search({category:['Pokemon','Trainer'],finish:['holo','reverse'],illustrator:['Test Artist','Other']})).total,1);
+  for (const [q,qScope,total] of [['Alakazam','name',1],['Alakazam','illustrator',0],['Test Artist','illustrator',1],['Test Artist','name',0],['Base Set','set',1],['Base Set','name',0],['#001','number',1]])
+    assert.equal((await search({q,qScope})).total,total);
+  await db.query("update binder_private.catalogue set record=jsonb_set(record,'{pokemonTypes}',$1::jsonb) where card_id=$2",[JSON.stringify(['Dragon','Fighting']),card.id]);
+  assert.equal((await search({type:['Dragon','Fighting'],typeMatch:'all'})).total,1);
+  assert.equal((await search({type:['Dragon','Water'],typeMatch:'all'})).total,0);
+  assert.equal((await search({type:['Dragon','Water'],typeMatch:'any'})).total,1);
+  await db.query("update binder_private.catalogue set record=$1::jsonb where card_id=$2",[JSON.stringify(card),card.id]);
+  assert.equal((await search({hpMin:81})).total,0);
+  for (const filters of [{set:{}},{type:[12]},{finish:['invalid']},{category:[12]},{illustrator:{}},{qScope:'private'},{typeMatch:'invalid'},{rarity:Array(21).fill('Rare')},{hpMin:90,hpMax:80},{hpMin:-1},{hpMax:'abc'}])
+    await assert.rejects(search(filters),/Invalid/);
   await assert.rejects(search({}, 0), /Invalid catalogue search/);
   await assert.rejects(
     search({ q: "x".repeat(121) }),
@@ -108,12 +125,14 @@ module.exports = async function (db, as, document) {
     false,
   );
   // Reimporting provider corrections must preserve finishes used by saved cards,
-  // including cards loaded through set previews rather than explicit lookups.
+  // including the compact directory's finish options.
   await db.query("update binder_private.catalogue set variants=jsonb_set(variants,'{normal}','true') where card_id=$1",[card.id]);
   const {sql,setIds}=require('./catalogue-import.cjs');
-  await db.exec(sql({provider:'tcgdex',language:'en',cards:[card],sets:setIds.map(id=>({id,name:id,count:1,preview:id==='base1'?[card]:[]}))}));
+  await db.exec(sql({provider:'tcgdex',language:'en',cards:setIds.map(id=>({...card,id:id+'-1',providerId:id+'-1',setId:id,setName:id})),sets:setIds.map(id=>({id,name:id,count:1}))}));
   const info=(await as(null,tx=>tx.query('select public.catalogue_info() as result'), 'anon')).rows[0].result;
-  assert.equal(info.sets.find(s=>s.id==='base1').preview[0].variants.normal,true);
+  assert.equal(info.sets.find(s=>s.id==='base1').preview.length,0);
+  assert(info.finishes.includes('normal'));
+  assert.equal((await search({q:card.providerId})).cards[0].variants.normal,true);
   console.log(
     "PASS: anonymous catalogue reads, direct access/write denial, bounded search and authoritative finish validation.",
   );

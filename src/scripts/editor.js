@@ -610,11 +610,7 @@ window.EditorReady = (async () => {
         : pending.id === source.id)
     )
       b.classList.add("is-selected");
-    const image = el("img");
-    image.src = window.CardCatalogue?.thumbnail(data) || data?.imageUrl || "";
-    image.alt = nameOf(content.cardId);
-    image.draggable = false;
-    image.loading = "lazy";
+    const image = window.CardCatalogue.picture(data);
     b.append(
       image,
       el("strong", "", nameOf(content.cardId)),
@@ -1351,10 +1347,6 @@ window.EditorReady = (async () => {
     );
     $("rename-binder").disabled = coverOpen;
     $("feedback-undo").disabled = coverOpen;
-    if (coverOpen) {
-      $("undo").disabled = true;
-      $("redo").disabled = true;
-    }
   }
   function previewCard() {
     return (
@@ -1804,7 +1796,17 @@ window.EditorReady = (async () => {
   }
   let placeholderQuery = null,
     placeholderMatches = [],
-    placeholderRequest = 0;
+    placeholderRequest = 0,
+    placeholderTimer,
+    placeholderLoading = false,
+    placeholderError = "";
+  $("pocket-dialog").addEventListener("close", () => {
+    clearTimeout(placeholderTimer);
+    ++placeholderRequest;
+    placeholderQuery = null;
+    placeholderLoading = false;
+    placeholderError = "";
+  });
   function renderPlaceholderChoices() {
     $("placeholder-style-options").replaceChildren(
       ...["outline", "soft", "ball"].map((style) => {
@@ -1833,19 +1835,27 @@ window.EditorReady = (async () => {
     );
     const q = $("placeholder-search").value.trim().toLowerCase();
     if (window.CardCatalogue?.enabled && placeholderQuery !== q) {
+      clearTimeout(placeholderTimer);
       placeholderQuery = q;
       placeholderMatches = [];
+      placeholderLoading = true;
+      placeholderError = "";
       const request = ++placeholderRequest;
-      void window.CardCatalogue.search({ q })
-        .then((result) => {
+      placeholderTimer = setTimeout(async () => {
+        try {
+          const result = await window.CardCatalogue.search({ q });
           if (request !== placeholderRequest) return;
           placeholderMatches = result.cards.slice(0, 6);
-          renderPlaceholderChoices();
-        })
-        .catch((error) => {
-          if (request === placeholderRequest)
-            $("placeholder-target-note").textContent = error.message;
-        });
+        } catch (error) {
+          if (request !== placeholderRequest) return;
+          placeholderError = error.message || "Cards could not load.";
+        } finally {
+          if (request === placeholderRequest) {
+            placeholderLoading = false;
+            renderPlaceholderChoices();
+          }
+        }
+      }, 250);
     }
     const results = window.CardCatalogue?.enabled
       ? placeholderMatches
@@ -1857,6 +1867,8 @@ window.EditorReady = (async () => {
               .toLowerCase()
               .includes(q),
         ).slice(0, 6);
+    $("placeholder-card-options").setAttribute("aria-busy", String(placeholderLoading));
+    $("placeholder-target-note").setAttribute("role", "status");
     $("placeholder-card-options").replaceChildren(
       ...results.map((c) => {
         const b = el("button", "placeholder-card-choice");
@@ -1870,10 +1882,7 @@ window.EditorReady = (async () => {
           "aria-pressed",
           String(placeholderDraft.cardId === b.dataset.placeholderCard),
         );
-        const img = el("img");
-        img.src = window.CardCatalogue?.thumbnail(c) || c.imageUrl;
-        img.alt = "";
-        img.loading = "lazy";
+        const img = window.CardCatalogue.picture(c);
         b.append(
           img,
           el("span", "", c.name),
@@ -1887,17 +1896,30 @@ window.EditorReady = (async () => {
         return b;
       }),
     );
+    if (placeholderError) {
+      const retry = el("button", "button secondary", "Retry search");
+      retry.type = "button";
+      retry.addEventListener("click", () => {
+        placeholderQuery = null;
+        renderPlaceholderChoices();
+      });
+      $("placeholder-card-options").append(retry);
+    }
     $("placeholder-clear-target").setAttribute(
       "aria-pressed",
       String(!placeholderDraft.cardId),
     );
-    $("placeholder-target-note").textContent = placeholderDraft.cardId
-      ? "Target: " +
-        nameOf(placeholderDraft.cardId) +
-        ". This does not change your collection or Wanted records."
-      : results.length
-        ? "Reserve a space without a target card."
-        : "No matching cards.";
+    $("placeholder-target-note").textContent = placeholderLoading
+      ? "Loading cards..."
+      : placeholderError
+        ? placeholderError
+        : placeholderDraft.cardId
+          ? "Target: " +
+            nameOf(placeholderDraft.cardId) +
+            ". This does not change your collection or Wanted records."
+          : results.length
+            ? "Reserve a space without a target card."
+            : "No matching cards.";
   }
   function setPocketTab(tab) {
     pocketTab = tab;
@@ -2027,11 +2049,11 @@ window.EditorReady = (async () => {
     $("page-columns").value = p.columns;
     updateLayoutImpact();
 
-    $("undo").disabled = !state.canUndo;
+    $("undo").disabled = coverOpen || !state.canUndo;
     $("undo").title = state.canUndo
       ? "Undo the last edit (Ctrl/⌘ + Z)"
       : "No edits to undo.";
-    $("redo").disabled = !state.canRedo;
+    $("redo").disabled = coverOpen || !state.canRedo;
     $("redo").title = state.canRedo
       ? "Redo the last undone edit"
       : "Undo an edit before using Redo.";
@@ -2114,12 +2136,7 @@ window.EditorReady = (async () => {
           "in-spread",
           spreadMode && Math.floor(i / 2) === Math.floor(index / 2),
         );
-        b.addEventListener("click", () => {
-          pageId = page.id;
-          selected = [];
-          selectMode = false;
-          render();
-        });
+        b.addEventListener("click", () => showPage(page.id));
         return b;
       }),
     );
@@ -2177,12 +2194,12 @@ window.EditorReady = (async () => {
     pending = null;
     render();
   });
-  $("undo").addEventListener("click", () =>
-    run(() => state.undo(), "Change undone.", "redo"),
-  );
-  $("redo").addEventListener("click", () =>
-    run(() => state.redo(), "Change restored."),
-  );
+  $("undo").addEventListener("click", () => {
+    if (!coverOpen) run(() => state.undo(), "Change undone.", "redo");
+  });
+  $("redo").addEventListener("click", () => {
+    if (!coverOpen) run(() => state.redo(), "Change restored.");
+  });
   async function saveLocal() {
     if (
       saving ||
@@ -2504,23 +2521,22 @@ window.EditorReady = (async () => {
       .querySelector("path")
       .setAttribute("d", lastSpread ? "M5 12h14M12 5v14" : "M10 6l6 6-6 6");
   }
+  function showPage(id) {
+    if (!state.document.pages.some(p => p.id === id)) return;
+    pageId = id;
+    selected = [];
+    selectMode = false;
+    if (coverOpen && customTab !== "cover") renderFrameChoices();
+    render();
+    if (coverOpen) previewCover();
+  }
   function turn(delta) {
     const pages = state.document.pages,
       index = pages.findIndex((p) => p.id === pageId);
     const target = spreadMode
       ? Math.floor(index / 2) * 2 + delta * 2
       : index + delta;
-    if (pages[target]) {
-      pageId = pages[target].id;
-      selected = [];
-      selectMode = false;
-      if (coverOpen && customTab !== "cover") {
-        syncStyleScope();
-        renderFrameChoices();
-      }
-      render();
-      if (coverOpen) previewCover();
-    }
+    if (pages[target]) showPage(pages[target].id);
   }
   $("page-view").addEventListener("change", () => {
     const draftRows = $("page-rows").value, draftColumns = $("page-columns").value;

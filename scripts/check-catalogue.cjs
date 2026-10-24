@@ -1,7 +1,13 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const vm = require("node:vm");
-const { normalize, samples, setIds } = require("./catalogue-import.cjs");
+const {
+  normalize,
+  samples,
+  setIds,
+  selectSets,
+  validateSnapshot,
+} = require("./catalogue-import.cjs");
 const raw = {
   id: "base1-1",
   localId: "1",
@@ -42,9 +48,60 @@ const preserved = normalize(
 );
 assert.equal(preserved.id, "001");
 assert.equal(preserved.variants.reverse, true);
+const unown = normalize(
+  { ...raw, id: "exu-%3F", localId: "%3F", set: { id: "exu" }, image: null },
+  { id: "exu", name: "Unseen Forces Unown" },
+);
+assert.equal(unown.id, "exu-unown-question");
+assert.equal(unown.collectorNumber, "?");
+assert.equal(unown.providerId, "exu-%3F");
+assert.throws(() =>
+  validateSnapshot({
+    provider: "tcgdex",
+    language: "en",
+    scope: "english-physical",
+    sets: [{ id: "base1", name: "Base Set", count: 1 }],
+    cards: [{ ...unown, setId: "base1" }],
+  }),
+);
+assert.equal(normalize({ ...raw, illustrator: "" }, set).illustrator, "");
+assert.throws(() =>
+  normalize({ ...raw, id: "base1-%2F", localId: "%2F" }, set),
+);
+const directory = [
+  ...setIds.map((id) => ({ id, cardCount: { total: 1 } })),
+  { id: "A1", cardCount: { total: 1 } },
+];
+assert.equal(
+  selectSets(directory, { id: "tcgp", sets: [{ id: "A1" }] }).length,
+  10,
+);
+assert.throws(() =>
+  selectSets([...directory, directory[0]], {
+    id: "tcgp",
+    sets: [{ id: "A1" }],
+  }),
+);
+assert.throws(() => selectSets(directory, { id: "tcgp", sets: [] }));
+const snapshot = {
+  provider: "tcgdex",
+  language: "en",
+  scope: "english-physical",
+  sets: [{ id: set.id, name: set.name, count: 1 }],
+  cards: [card],
+};
+assert.equal(validateSnapshot(snapshot), snapshot);
+assert.throws(() => validateSnapshot({ ...snapshot, cards: [card, card] }));
+assert.throws(() =>
+  validateSnapshot({ ...snapshot, sets: [{ ...snapshot.sets[0], count: 2 }] }),
+);
+assert.throws(() =>
+  validateSnapshot({ ...snapshot, cards: [{ ...card, setId: "other" }] }),
+);
 async function main() {
   let calls = 0,
     fail = false;
+  let lastSearch;
   const window = {
     CARDS: samples(),
     POKEDEX_BACKEND: {
@@ -65,12 +122,18 @@ async function main() {
       if (fail) return new Response("{}", { status: 503 });
       if (url.endsWith("catalogue_info"))
         return Response.json({
-          sets: [{ id: set.id, name: set.name, count: 1, preview: [] }],
+          sets: Array.from({ length: 205 }, (_, i) => ({
+            id: "set" + i,
+            name: "Set " + i,
+            count: 100,
+            logo: null,
+          })),
           types: ["Psychic"],
           rarities: ["Rare"],
           count: 1,
         });
       if (url.endsWith("catalogue_cards")) return Response.json([card]);
+      lastSearch = JSON.parse(options.body).filters;
       return Response.json({ total: 1, cards: [card] });
     },
   };
@@ -79,6 +142,41 @@ async function main() {
     scope,
   );
   const catalogue = window.CardCatalogue;
+  assert.equal(
+    catalogue.setLogo({ id: "base1", preview: [card] }),
+    "https://assets.tcgdex.net/en/base/base1/logo.webp",
+  );
+  assert.equal(
+    catalogue.setLogo({ id: "sv03.5", cards: [legacy] }),
+    "https://assets.tcgdex.net/en/sv/sv03.5/logo.webp",
+  );
+  assert.equal(
+    catalogue.setLogo({
+      id: "base1",
+      logo: "https://assets.tcgdex.net/en/base/base1/logo",
+    }),
+    "https://assets.tcgdex.net/en/base/base1/logo.webp",
+  );
+  assert.equal(
+    catalogue.setLogo({
+      id: "base1",
+      logo: "https://assets.tcgdex.net/en/base/base1/logo.webp",
+    }),
+    "https://assets.tcgdex.net/en/base/base1/logo.webp",
+  );
+  assert.equal(
+    catalogue.setLogo({ id: "base1", logo: null, preview: [card] }),
+    "",
+  );
+  for (const logo of [
+    "javascript:alert(1)",
+    "https://evil.test/logo",
+    "https://assets.tcgdex.net/en/base/base1/logo?tracking=1",
+    "https://assets.tcgdex.net/en/base/base2/logo",
+  ])
+    assert.equal(catalogue.setLogo({ id: "base1", logo }), "");
+  assert.equal(catalogue.setLogo({ id: "wrong-set", preview: [card] }), "");
+  assert.equal(catalogue.setLogo({ id: "missing" }), "");
   assert.equal(
     catalogue.thumbnail(card),
     card.imageUrl.replace("/high.webp", "/low.webp"),
@@ -100,6 +198,11 @@ async function main() {
   await catalogue.ready;
   assert(catalogue.enabled);
   assert.equal(
+    catalogue.sets().length,
+    205,
+    "Full directory loads without eagerly fetching every card",
+  );
+  assert.equal(
     window.CARDS.length,
     55,
     "Startup does not fetch every printing",
@@ -115,6 +218,27 @@ async function main() {
   const after = calls;
   await catalogue.search({ q: "Alakazam" });
   assert.equal(calls, after, "Identical searches use bounded public cache");
+  await catalogue.search({
+    set: ["base1", "xy1"],
+    type: ["Psychic", "Water"],
+    rarity: ["Rare"],
+    category: ["Pokemon", "Trainer"],
+    finish: ["normal", "holo"],
+    illustrator: ["Artist", "Second Artist"],
+    qScope: "illustrator",
+    typeMatch: "all",
+    hpMin: 0,
+    hpMax: 100,
+    sort: "hp-desc",
+  });
+  assert.deepEqual(lastSearch.set, ["base1", "xy1"]);
+  assert.deepEqual(lastSearch.type, ["Psychic", "Water"]);
+  assert.equal(lastSearch.hpMin, "0");
+  assert.equal(lastSearch.hpMax, "100");
+  assert.deepEqual(lastSearch.illustrator, ["Artist", "Second Artist"]);
+  assert.deepEqual(lastSearch.finish, ["normal", "holo"]);
+  assert.equal(lastSearch.qScope, "illustrator");
+  assert.equal(lastSearch.typeMatch, "all");
   const poisoned = JSON.parse(
     JSON.stringify(card).replace(
       '"name":"Alakazam"',

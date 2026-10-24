@@ -1,0 +1,372 @@
+Priority fix report - 24 October 2026
+
+The five priority fixes are implemented locally on the current branch. They have
+not been pushed or deployed. The live website is unchanged. No real account or
+saved binder was edited during testing. The card-image investigation is paused.
+
+1. SAVED BINDERS COULD PASS ONE CHECK AND FAIL ANOTHER
+
+Original problem:
+The saving side and opening side were using different rulebooks. The server could
+accept an overlong cover subtitle or an invalid page color/border setting, but the
+browser would refuse that same binder later. This could make a malformed saved
+binder impossible to open through the normal app. It was a confirmed weakness,
+not proof that anyone's existing binder is damaged.
+
+What I changed:
+The new database migration checks optional subtitles and page appearance using the
+same limits as the browser. Empty optional subtitles still work. Colors must be
+six-digit hex colors, and border choices must be recognized. It checks both the
+binder default and settings for an individual page.
+
+It does not rewrite saved records or remove older connected merged pockets. I did
+not apply the audit's suggestion to reject old L-shaped imports, because both
+existing loading systems accept them and suddenly banning them could break an
+older binder. Creating new L-shaped merges remains disallowed by the editor.
+
+How I checked:
+I applied all migration files to an isolated test database. Valid settings still
+pass. Invalid subtitles, invalid page settings and invalid save requests are
+rejected without changing the previously saved binder. Emoji length limits match
+the browser too. Existing ownership, restore, account isolation and backup checks
+also pass.
+
+Remaining limit:
+This is a prepared migration, not a live database change. It prevents new bad
+writes once deployed; it does not claim to repair previously malformed records.
+The live database has not been scanned for existing affected records in this task.
+
+2. DELETING PICTURES COULD SUCCEED BUT RETURN A FAILURE
+
+Original problem:
+Imagine the app deletes 60 pictures, then throws away the receipt because the
+receipt is too long. The files may already be gone, but cleanup/account deletion
+could still show an error. The request gateway allowed only a 16 KiB response,
+which was smaller than a normal-looking response describing all 60 files.
+
+What I changed:
+The deletion route now allows a bounded 64 KiB response. That gives the existing
+60-file operation room to return its result. The request size, access checks,
+rate limits and all other route limits remain in place. This does not turn off
+response protection or add automatic destructive retries.
+
+How I checked:
+A simulated response with metadata for 60 files now arrives intact. I tested it
+both with a stated response length and as a streamed response without that header.
+Responses beyond the new cap are still rejected. The account-deletion safety,
+partial-failure and account-switch fixtures still pass.
+
+Remaining limit:
+No real artwork was deleted. The original failure and the fix were verified using
+controlled responses, not a destructive test against the live service. The
+updated gateway is not deployed yet.
+
+3. CUSTOMIZATION COULD BE CHANGED UNDERNEATH AN UNFINISHED EDIT
+
+Original problem:
+Undo and Redo were first disabled while a customization panel was open, then a
+later screen refresh accidentally enabled them again. Clicking one could change
+the binder while its customization draft still described the old state.
+
+There was a second problem: clicking a page thumbnail changed the page without
+updating every customization control. The panel could still describe the old
+page, while Apply would act on the newly selected page.
+
+What I changed:
+Undo and Redo stay disabled during customization. Their click handlers also check
+that customization is closed. Canceling or applying restores normal history use.
+
+Page arrows and thumbnails now use the same page-change function. It clears the
+old selection and refreshes the card scope, style choices and preview. Binder
+page-appearance controls also follow the actual page.
+
+How I checked:
+In an isolated browser, I placed a card, undid it to create a pending Redo, opened
+customization, and confirmed both history buttons were disabled. Cancel restored
+Redo, which still worked. I also switched between a populated page and an empty
+page while customizing. The page scope became unavailable on the empty page and
+returned on the populated page. Binder appearance correctly said Page 2 only
+when page 2 was selected.
+The automated UI fixtures also check that history clicks cannot change the draft
+and that a page change clears the old selection and refreshes the preview/scope.
+
+4. CARDS WITHOUT PICTURES LOOKED BROKEN OR BLANK
+
+Original problem:
+Some card pickers created a picture element even when there was no picture URL.
+Others had incomplete handling when an image failed to load. The user could get a
+broken-picture symbol or blank card space instead of an explanation.
+
+What I changed:
+The editor drawer, expanded picker, placeholder picker, viewer inspection and
+collection picture controls share a small image helper. Missing pictures
+immediately show a clean
+Image unavailable placeholder. A picture that fails to load switches to the same
+placeholder. It does not repeatedly retry a broken URL.
+
+Binder pockets and the previews/viewer that use the shared SVG drawing also show
+an explicit placeholder when the card picture is missing. Card names and IDs stay
+available, so a missing picture does not prevent selecting or placing the card.
+Discover already had its own missing-picture handling, which is preserved.
+
+This does not fetch, invent, import or replace Pokemon artwork. A placeholder
+means the picture is unavailable; it is not a recovered card image.
+
+How I checked:
+I tested empty URLs and deliberately broken images, including the browser's real
+image-error event. The expanded picker displayed the placeholder, and a card with
+no image could still be placed. The standalone viewer also showed the missing
+picture placeholder in its card details dialog. The normal sleeve/toploader sizing tests still
+pass, including small and merged pockets. Collection/repository tests also pass.
+
+5. CLEARING FILTERS AND SEARCHING COULD GIVE MISLEADING FEEDBACK
+
+Original problem:
+Searching inside a filter hid options that did not match. Clear removed selected
+filters but did not necessarily remove that internal search or unhide the options.
+It could look as if choices had disappeared.
+
+The pocket target-card search also sent a request for every typed character and
+briefly said No matching cards while it was still waiting for the answer.
+
+What I changed:
+A filter's Clear button now clears its internal search and restores its options.
+Clear all does this for every picker as well as resetting the actual filters.
+Pending Discover search timers are canceled when clearing everything.
+
+Pocket search waits for a short 250 ms typing pause. While waiting, it says
+Loading cards. If loading fails, it shows the error and a Retry search button.
+No matching cards appears only after a successful empty answer. Old answers
+cannot replace a newer search. Closing the dialog cancels searches that have
+not started and ignores late answers from searches already in progress.
+
+How I checked:
+Automated fixtures cover all six pickers, quick typing, out-of-order answers,
+errors, retry and closing the dialog. Browser checks confirmed that Clear restored
+all six Set options and Clear all restored the full 55-card sample list. The
+pocket search visibly showed Loading cards, then the deliberate error and Retry,
+and recovered when a new successful search was entered.
+
+WHAT PASSED
+
+- Main model, catalogue, collection, customization, backup and operator tests.
+- Database rules, ownership/isolation, restore/deletion safety and new appearance
+  validation tests, using embedded PostgreSQL.
+- Gateway routing/security, 60-file response and response-limit tests.
+- Binder and collection repository tests with controlled SDK responses.
+- New missing-image/filter/search regression tests, included in the main suite.
+- All five generated preview builds and the project reference/syntax checks.
+- Targeted Brave browser interaction and visual checks in an isolated local site.
+
+The browser site used local test pictures/search responses and no real accounts.
+The old raw-CDP browser automation suite was not used. Safari/Firefox, full mobile
+browser coverage, real concurrent load and live production writes/deletions were
+not tested. Those are not claimed as passed.
+
+WHAT IS STILL NOT LIVE OR NOT FINISHED
+
+- No commit, merge, push, deployment or hosted migration was performed.
+- Publishing needs the reviewed frontend, migration and gateway changes.
+- No existing production data was rewritten or silently repaired.
+- The provider image investigation is still paused: 92 pictures are untested and
+  the two My First Battle picture requests remain unresolved.
+- These are the five prioritized fixes, not a claim that every cleanup item in
+  the attached audit has been changed.
+
+MAIN FILES
+
+supabase/migrations/20261023235754_binder_appearance_validation.sql
+supabase/functions/usage-gateway/gateway.mjs
+src/scripts/editor.js
+src/scripts/editor-card-browser.js
+src/scripts/card-catalogue.js
+src/scripts/binder-visuals.js
+src/scripts/collection-ui.js
+src/scripts/viewer.js
+src/scripts/discover-filter-pickers.js
+src/scripts/discover.js
+scripts/check-appearance-backend.cjs
+scripts/check-search-ui.cjs
+
+The new migration contains no data updates. Tests and generated previews were
+updated, and the work is recorded in docs/HANDOFF.md.
+
+APPENDIX: ALL 33 ORIGINAL AUDIT GROUPS
+
+The following statements describe what was found BEFORE this fix pass. Each item
+also says whether it was fixed here, left for later, or was an incorrect claim.
+This appendix preserves the distinction between an actual current failure and a
+possible future problem.
+
+A1: Expanded card browser creates broken images for empty URLs
+Original verdict: Confirmed
+Status: Fixed here: shared picture fallbacks.
+editor-card-browser.js:195-207 always appends an image with thumbnail(card) and has no unavailable/error fallback. thumbnail() returns an empty string for an empty image URL. The prepared snapshot still has 1,590 empty source image fields; downloaded investigation files have not changed them. Correction: the cited editor.js:613-622 drawer also lacks a fallback, so the attachment's claim that this drawer already handles it is incorrect. A blank image is invalid/broken; do not assume every browser fetches the document itself for an empty image URL.
+
+A2: Undo/Redo are re-enabled while customization is open
+Original verdict: Confirmed
+Status: Fixed here: history guard.
+renderCoverControls() disables them at editor.js:1354-1357, but render() overwrites those values at 2030-2034. Click handlers at 2180-2184 call the state history methods without a coverOpen guard. The customizer is an interactive side panel, not a native modal that automatically prevents rail clicks.
+
+A3: Page thumbnails skip customizer synchronization
+Original verdict: Confirmed
+Status: Fixed here: shared page navigation.
+Thumbnail clicks at editor.js:2117-2122 change page/selection and call only render(). Arrow navigation at 2507-2522 additionally synchronizes style scope/choices and calls previewCover(). studio.refresh() only updates selection actions; it does not synchronize these controls. The old .page-strip is made inert, but the page list has already been moved into the sidebar.
+
+A4: Editor Set filter fails in local fallback
+Original verdict: Incorrect as a current editor bug
+Status: Not changed in this priority pass; see the verdict and explanation.
+The name-versus-ID inconsistency exists in the generic search helper, but this caller does not take the alleged path. CardCatalogue.enabled returns remote (card-catalogue.js:278-279). The editor invokes its search only when enabled (editor.js:678-679); when disabled, it uses its own local filter comparing c.setName === set (693). The editor does not pass colorEnabled, which is the other route into the helper's local search.
+
+A5: Placeholder search lacks debounce and shows an empty state while loading
+Original verdict: Confirmed
+Status: Fixed here: debounced search and loading/error/retry states.
+The input handler calls renderPlaceholderChoices() directly (editor.js:1943). Changed queries clear matches, immediately render the empty result note, and issue a request (1834-1900). Stale-response protection exists, but it is not a debounce or a loading message. The attachment uses an outdated function name.
+
+B1: Underscore set IDs cause catalogue startup fallback
+Original verdict: Conditional defect; not present in the current snapshot
+Status: Not changed in this priority pass; see the verdict and explanation.
+A fixture with set_test is rejected by the startup regex at card-catalogue.js:131, leaving remote mode false. However, none of the current 201 populated snapshot set IDs contains _. The register regex cited by the attachment validates card IDs, not set IDs; its argument about uniform set-ID validation is imprecise. The current catch also does not emit the quoted Invalid set row message.
+
+B2: Registering remote metadata wipes curated sample palettes
+Original verdict: Conditional defect; current import avoids it
+Status: Not changed in this priority pass; see the verdict and explanation.
+Reproduced: registering an otherwise valid existing sample with palette: [] changes its shared palette from three colors to zero. The shallow sampleCards array shares those objects. However, catalogue-import.cjs:107 preserves legacy.palette, and the actual full snapshot loses none of the sample palettes. This is an adapter robustness gap, not proof that the current catalogue's color matching is broken.
+
+B3: Alphanumeric collector numbers sort incorrectly locally
+Original verdict: Confirmed helper defect
+Status: Not changed in this priority pass; see the verdict and explanation.
+Reproduced with a valid same-set input: GG10, GG2, GG01 remains in that order under ascending number sort. The comparator returns NaN at discover-core.js:71; descending uses a lexical provider-ID fallback, not natural collector-number ordering. This does not establish the same failure in remote SQL search, which uses a different comparator.
+
+B4: wPromo support is inconsistent across layers
+Original verdict: Conditional compatibility defect
+Status: Not changed in this priority pass; see the verdict and explanation.
+Import/registration/collection state support the key, while the finish labels, binder validation and SQL finish allowlist omit it. A synthetic wPromo-only card has no Discover finish choices. Crucial correction: the actual 21,256-card snapshot contains zero cards with wPromo true, so the empty-select scenario is not a current-data failure.
+
+B5: Clear does not reset picker text-search visibility
+Original verdict: Confirmed
+Status: Fixed here: individual and full picker resets.
+The picker input hides rows (discover-filter-pickers.js:102-104), while Clear resets only the select and checkbox state. sync() does not unhide rows or clear its search/empty message. Clear all resets forms but does not recompute those row visibility flags. A previously searched option list can remain restricted after clearing.
+
+B6: Collection bulk edit bypasses account guards and persists changes
+Original verdict: Partly true; consequence overstated
+Status: Not changed in this priority pass; see the verdict and explanation.
+The bulk-submit handler lacks the guards used by run() and open dialogs are not closed on account change. However, it does not call persist(); saving is explicit. Account change clears selected, so the handler's !selected.size guard prevents the claimed bulk edit in that scenario. Ordinary form apply/applyMany also check blocked and repository.check(). Closing stale dialogs and adding consistent guards are valid improvements; an actual cross-account write was not demonstrated.
+
+B7: Missing Optional status; batch spread order; picker IDs
+Original verdict: Mixed
+Status: Not changed in this priority pass; see the verdict and explanation.
+The missing-option claim is false: both Discover and Workspace currently contain <option value="">Optional</option>. The spread-order observation is true (collection-form.js:1038-1044): per-card saved details override the multi-card defaults; the return-to-picker flow can retain a prior single-card detail object. Whether those details should be retained or cleared needs an explicit behavior decision. loadPicker() uses c.id, but every current sample and accepted remote row has an ID, so its missing fallback is not a demonstrated current failure.
+
+C1: Viewer omits metadata loading and shows Missing card
+Original verdict: Partly true; normal cloud flow contradicts the claim
+Status: Not changed in this priority pass; see the verdict and explanation.
+viewer.js has no direct catalogue ready/ensure call. However, it awaits BinderRepository.ready, whose refresh calls CardCatalogue.ensure(data) before validating/publishing binders (binder-repository.js:100). Local mode is the sample/offline mode; unknown card IDs fail local validation/read instead of necessarily rendering a Missing card tile. No normal-cloud viewer reproduction was established. An offline binder with unavailable metadata needs a defined product policy, not just another await.
+
+C2: Fullscreen failure permanently exposes viewer announcements
+Original verdict: Confirmed
+Status: Not changed in this priority pass; see the verdict and explanation.
+The catch at viewer.js:543-546 removes sr-only from the shared status element. No matching restoration exists. Subsequent page/status announcements remain visually exposed. This is a small UI defect, not a data issue.
+
+C3: Landing entrances, side-slide clicks and scene switchers
+Original verdict: Mostly confirmed, with qualifications
+Status: Not changed in this priority pass; see the verdict and explanation.
+Customize entrances use raw node.animate() and are absent from DemoMotion's protected entrance set, so stopAnimations() can cancel them; the attachment's proposed DemoMotion.trackEntrance API does not currently exist. Cancellation can cause an abrupt appearance, not necessarily permanently invisible content because the pending class is already removed. Hero slide pointer clicks are deliberately excluded by event.detail === 0, while drag/wheel/dots work. Arrange/Discover scene buttons explicitly call playback.resume(), contrary to the general stop-after-interaction rule outside documented exceptions. These are interaction/consistency issues with different severities.
+
+D1: SQL document validation omits subtitle/style/rectangle/unknown-key rules
+Original verdict: Serious core finding confirmed; grouped explanation partly wrong
+Status: Fixed here for subtitles and page styles. Legacy merges and ignored keys intentionally remain compatible.
+With every migration applied to an isolated embedded PostgreSQL instance, a 61-character subtitle, invalid cover pageStyle and invalid individual pageStyle all return SQL-valid but fail browser BinderStore.validate(). Thus malformed data admitted through an API can become unreadable to normal clients/recovery. Unknown keys are accepted by both paths and normalized away by the client; that alone does not cause the claimed read failure. Connected L-shaped imports are also accepted by both validators, although the editor prevents creating new L-shaped merges. Tightening rectangle rules without checking legacy data could introduce a compatibility problem.
+
+D2: 16 KiB gateway output cap can break artwork deletion
+Original verdict: Limit and failure reproduced; live frequency unverified
+Status: Fixed here: larger finite deletion-response cap; tested with controlled responses.
+The DELETE route has a 16,384-byte response limit. A simulated valid 60-object response of 28,321 bytes reproduces HTTP 502 after the simulated deletion when Content-Length is supplied. Without that header, the response starts with status 200 but reading its stream fails. It is not guaranteed to be 502/503, and not every 60-object response has the attachment's quoted 18-25 KB size. No real files were deleted and no hosted failure was reproduced. See primary-source notes below.
+
+D3: SQL page limit supports only 24,000 unfiltered cards
+Original verdict: Confirmed future capacity mismatch
+Status: Not changed in this priority pass; see the verdict and explanation.
+The current SQL rejects page 1001; reproduced in embedded PostgreSQL. Its fixed 24-card page size permits 24,000 unfiltered entries, while snapshot limits permit 50,000. The current 21,256-entry catalogue fits below the limit. Filtering can still reach cards excluded from an unfiltered traversal. This is not today's import failure or evidence of missing stored records.
+
+D4: Numeric Pokewallet IDs; split CRLF passphrase prompt
+Original verdict: Both conditional cases reproduced/verified
+Status: Not changed in this priority pass; see the verdict and explanation.
+The pilot directory regex accepts a numeric ID, but later compares it against a string without converting both sides. Current cached provider IDs are strings and the real pilot succeeded. A dummy TTY simulation where CR and LF arrive separately reproduces a false passphrase mismatch; it does not prove all Windows terminals emit this sequence. No real passphrase/key or provider request was used for these checks.
+
+E1: <=360px filter grid rule is overridden
+Original verdict: Cascade observation confirmed; visual impact not browser-tested
+Status: Not changed in this priority pass; see the verdict and explanation.
+The more specific later two-column rule at discover-responsive.css:468 overrides the earlier single-column rule, and Finish is explicitly placed in column two. This proves it does not collapse as the earlier rule specifies, not that every 360px screen overflows. The final intended narrow layout should be decided before treating every override as a bug.
+
+E2: Great Ball descendant selector is wrong
+Original verdict: Dead selector confirmed; proposed repair unsafe
+Status: Not changed in this priority pass; see the verdict and explanation.
+Cover root classes are on the same element, so .binder-cover-art .cover-great does not match the normal drawing. But simply removing its space applies height:26% to the whole cover. That is not a safe fix. The generic .binder-cover-art .cover-mark already sets a 26% mark height; deleting the redundant unmatched rule is a better starting point after visual review.
+
+E3: Dark app pages lack the landing dark accent token
+Original verdict: Confirmed consistency difference
+Status: Not changed in this priority pass; see the verdict and explanation.
+workspace.css defines no dark override for the light accent. Only the landing loads dark-theme.css, so app pages retain the darker accent. This is a theme consistency decision; it is not independently proof of inaccessible contrast or a runtime error.
+
+E4: Stylesheets/scripts are loaded inconsistently
+Original verdict: Structural observations mostly true; not all are defects
+Status: Not changed in this priority pass; see the verdict and explanation.
+Editor does not load app-shell.css, but has dedicated header/editor styles; loading the whole file blindly can alter approved geometry. Workspace/Discover load footer rules despite having no footer. Viewer loads backend-account, which returns when no account panel exists, and omits ui-controls. Its close control uses a text glyph. These are cleanup/consistency observations; text close buttons are not inherently broken.
+
+F1: Obsolete editor-layout operations/branches
+Original verdict: Confirmed cleanup
+Status: Not changed in this priority pass; see the verdict and explanation.
+The dock is appended and later removed in the same setup, page movement buttons are hidden, and popover kinds currently contain only utility/account while other kinds retain branches. Reordering also exists through page dragging. This is maintenance overhead, not evidence that page reordering itself is broken.
+
+F2: Unused functions, palette export, retired selectors, duplicate focus
+Original verdict: Mixed
+Status: Not changed in this priority pass; see the verdict and explanation.
+setFrames() and setCover() are unused by production callers, but are called by existing customization/cover/studio tests, contradicting the unconditional never-called claim. The palette export has no consumer; retired icon selectors remain; the review-removal path can focus the search twice. These are cleanup candidates with compatibility/test consequences, not four runtime failures.
+
+F3: Artwork logic is duplicated
+Original verdict: Partly true
+Status: Not changed in this priority pass; see the verdict and explanation.
+Both modules repeat traversal, encoding and hashing. One path uses the authenticated SDK/cache/guard and the other portable-account validation and fetch; they are not interchangeable upload/download functions. Any consolidation must preserve their different trust checks and failure handling. Duplication is not itself proof of a current defect.
+
+F4: Dead CSS, duplication and self-overrides
+Original verdict: Mostly true cleanup; wording imprecise
+Status: Not changed in this priority pass; see the verdict and explanation.
+There are stale selectors, shared cover rules duplicated between files, and three later rules involving #layout-apply. The cited duplicate selector names are not exact current names (for example, the real class is .cover-custom-image). Layered overrides are normal CSS and not automatically dead/broken. This needs selective cleanup and visual checks, not wholesale deletion of later rules.
+
+F5: Python cache is unignored
+Original verdict: Incorrect
+Status: Not changed in this priority pass; see the verdict and explanation.
+.gitignore already contains both __pycache__/ and *.pyc. git check-ignore scripts/__pycache__/check-browser.cpython-312.pyc confirms it is ignored. A cache existing locally does not make it tracked or published.
+
+G1: Documentation contains corrupted punctuation/mojibake
+Original verdict: Partly true
+Status: Not changed in this priority pass; see the verdict and explanation.
+Literal replacement question marks exist in the cited gap, handoff, design and foundation/rollout text. The current DEPLOYMENT.md arrows are valid UTF-8 arrows, not the alleged mojibake. PowerShell's default decoding can display valid UTF-8 incorrectly; that must not be mistaken for file corruption. The gap table's question mark also represents an unknown total rather than necessarily a damaged dash.
+
+G2: Committed docs link to ignored scratch evidence; checker misses it
+Original verdict: Partly true
+Status: Not changed in this priority pass; see the verdict and explanation.
+Links to ignored local investigation evidence exist and will not work in a fresh checkout. However, the new gap document is still untracked, not already committed, and scratch evidence is explicitly documented as disposable/local. The stated validateMarkdownLinks function at lines 302-328 does not exist in the current roughly 100-line check-project script: it checks required document existence, not their Markdown targets. The limitation is real; the alleged implementation is not.
+
+G3: Exactly 34 modified/untracked files have CRLF
+Original verdict: Exact count false; general drift true
+Status: Not changed in this priority pass; see the verdict and explanation.
+At this check, 17 modified/untracked unignored files contain CRLF; 44 tracked/unignored files overall do. The attributes file sets LF per extension, rather than the exact wildcard line quoted by the attachment. Git's normalization warning is not a user-facing runtime error. The counts are working-tree observations and can change as files are edited.
+
+G4: Old docs and sample-mode copy contradict current app
+Original verdict: Partly true
+Status: Not changed in this priority pass; see the verdict and explanation.
+The capacity document/calculator still say protection OFF; the capacity document has the former 10,000-record limit. The goals document explicitly describes accounts/cloud as future despite their accepted rollout. AGENTS contains scope/anti-invention instructions, not a blanket factual assertion that no cloud functionality exists. Some sample wording remains in remote detail/related flows, but not every quoted no-results string exists in the current source. Sample/color-specific statements are still valid and should not all be replaced.
+
+G5: Deployment workflow is less pinned than backup
+Original verdict: Confirmed hardening difference
+Status: Not changed in this priority pass; see the verdict and explanation.
+Pages uses mutable action version tags and plain npm ci; backup pins action commits, disables persisted checkout credentials and uses --ignore-scripts. That supports a hardening task. It does not establish a compromise or that lifecycle scripts are inherently erroneous. Any change to install flags must still build/test required dependencies.
+
+Sources checked for the storage response contract:
+https://supabase.com/docs/reference/javascript/storage-from-remove
+https://github.com/supabase/storage/blob/master/src/http/routes/object/deleteObjects.ts
+
+The full original verification and controlled reproduction results are also in
+.scratch/qa/attached-audit-verification.md and attached-audit-results.json. Those
+scratch files are local disposable evidence; this report is a durable docs file.

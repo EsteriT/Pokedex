@@ -11295,6 +11295,11 @@ body.editor-page.calm-editor {
   }
   function search(cards, filters) {
     const q = (filters.q || "").trim().toLowerCase();
+    const accepts = (choice, value) => !choice || (Array.isArray(choice) ? !choice.length || choice.includes(value) : choice === value);
+    const choices = choice => Array.isArray(choice) ? choice : choice ? [choice] : [];
+    const numberMatches = c => /^#?\d+$/.test(q)
+      ? Number(q.replace('#','')) === Number(c.collectorNumber)
+      : c.collectorNumber.toLowerCase() === q.replace('#','');
     const results = cards.filter((c) => {
       const terms = [
         c.name,
@@ -11302,18 +11307,28 @@ body.editor-page.calm-editor {
         c.setName,
         c.setId,
         c.providerId,
+        c.illustrator,
       ]
         .join(" ")
         .toLowerCase();
+      const scope = filters.qScope || 'all';
+      const queryMatches = !q || (scope === 'name' ? c.name.toLowerCase().includes(q)
+        : scope === 'number' ? numberMatches(c)
+        : scope === 'set' ? (c.setName + ' ' + c.setId).toLowerCase().includes(q)
+        : scope === 'illustrator' ? (c.illustrator || '').toLowerCase().includes(q)
+        : /^#?\d+$/.test(q) ? numberMatches(c) : terms.includes(q));
       return (
-        (!q ||
-          terms.includes(q) ||
-          (q.match(/^#?\d+$/) &&
-            Number(q.replace("#", "")) === Number(c.collectorNumber))) &&
-        (!filters.set || c.setId === filters.set) &&
-        (!filters.type || c.pokemonTypes.includes(filters.type)) &&
-        (!filters.rarity || c.rarity === filters.rarity) &&
-        (!filters.finish || finishes(c).includes(filters.finish))
+        queryMatches &&
+        accepts(filters.set, c.setId) &&
+        (!choices(filters.type).length || (filters.typeMatch === 'all'
+          ? choices(filters.type).every(t => c.pokemonTypes.includes(t))
+          : c.pokemonTypes.some(t => accepts(filters.type,t)))) &&
+        accepts(filters.rarity, c.rarity) &&
+        accepts(filters.category, c.category) &&
+        (Array.isArray(filters.illustrator) ? accepts(filters.illustrator,c.illustrator) : !filters.illustrator || (c.illustrator || '').toLowerCase().includes(filters.illustrator.toLowerCase())) &&
+        (filters.hpMin == null || filters.hpMin === '' || c.hp != null && c.hp >= Number(filters.hpMin)) &&
+        (filters.hpMax == null || filters.hpMax === '' || c.hp != null && c.hp <= Number(filters.hpMax)) &&
+        (!choices(filters.finish).length || finishes(c).some(f => accepts(filters.finish,f)))
       );
     });
     if (filters.colorEnabled)
@@ -11323,15 +11338,20 @@ body.editor-page.calm-editor {
             distance(filters.color, b.palette) || a.name.localeCompare(b.name),
       );
     else
-      results.sort((a, b) =>
+      results.sort((a, b) => {
+        if (filters.sort === 'name-desc') return b.name.localeCompare(a.name) || a.providerId.localeCompare(b.providerId);
+        if (filters.sort === 'number-desc') return a.setName.localeCompare(b.setName) || Number(b.collectorNumber) - Number(a.collectorNumber) || a.providerId.localeCompare(b.providerId);
+        if (filters.sort === 'hp' || filters.sort === 'hp-desc') return (a.hp == null) - (b.hp == null) || (filters.sort === 'hp' ? 1 : -1) * ((a.hp || 0) - (b.hp || 0)) || a.name.localeCompare(b.name);
+        return (
         filters.sort === "number"
           ? a.setName.localeCompare(b.setName) ||
             Number(a.collectorNumber) - Number(b.collectorNumber)
           : filters.sort === "set"
             ? a.setName.localeCompare(b.setName) || a.name.localeCompare(b.name)
             : a.name.localeCompare(b.name) ||
-              a.providerId.localeCompare(b.providerId),
-      );
+              a.providerId.localeCompare(b.providerId)
+        );
+      });
     return results;
   }
   const subject = (card) =>
@@ -11481,7 +11501,13 @@ body.editor-page.calm-editor {
       const result = await rpc("catalogue_info", {});
       if (!Array.isArray(result?.sets) || !result.sets.length) return;
       if (
-        result.sets.length > 10 ||
+        result.sets.length > 500 ||
+        !Number.isInteger(result.count) || result.count < 1 || result.count > 50000 ||
+        result.sets.some(set => !set || typeof set.id !== 'string' ||
+          !/^[A-Za-z0-9.-]{1,40}$/.test(set.id) || typeof set.name !== 'string' ||
+          set.name.length > 160 || !Number.isInteger(set.count) || set.count < 1 ||
+          set.count > 1000 || (set.preview && (!Array.isArray(set.preview) || set.preview.length > 3))) ||
+        new Set(result.sets.map(set => set.id)).size !== result.sets.length ||
         !Array.isArray(result.types) ||
         !Array.isArray(result.rarities)
       )
@@ -11520,9 +11546,9 @@ body.editor-page.calm-editor {
       };
     }
     const clean = Object.fromEntries(
-      ["q", "set", "type", "rarity", "finish", "sort"].map((key) => [
+      ["q", "set", "type", "rarity", "finish", "sort", "category", "illustrator", "hpMin", "hpMax", "qScope", "typeMatch"].map((key) => [
         key,
-        String(filters[key] || ""),
+        Array.isArray(filters[key]) ? [...filters[key]] : String(filters[key] ?? ""),
       ]),
     );
     if (!clean.sort) clean.sort = "name";
@@ -11600,8 +11626,45 @@ body.editor-page.calm-editor {
       ? source.replace(/\/high\.webp$/, "/low.webp")
       : source;
   }
+  function picture(card, large = false) {
+    const image = document.createElement("img");
+    const unavailable = () => {
+      image.dataset.imageUnavailable = "true";
+      image.alt = "Image unavailable for " + (card?.name || "this card");
+      image.src = "data:image/svg+xml," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 337"><rect x="1" y="1" width="243" height="335" rx="8" fill="#edf1f7" stroke="#8b95a5"/><path d="M85 147h75v54H85zm0 42 23-22 18 17 12-12 22 20" fill="none" stroke="#596273" stroke-width="3"/><text x="122.5" y="230" text-anchor="middle" fill="#596273" font-family="sans-serif" font-size="15">Image unavailable</text></svg>',
+      );
+    };
+    image.alt = card?.name || "Card";
+    image.loading = large ? "eager" : "lazy";
+    image.decoding = "async";
+    image.draggable = false;
+    image.addEventListener("error", unavailable, { once: true });
+    const source = large ? card?.imageUrl : thumbnail(card);
+    if (source) image.src = source;
+    else unavailable();
+    return image;
+  }
+  function setLogo(set) {
+    if (set?.logo === null) return "";
+    const asset = /^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/logo(?:\.webp)?$/;
+    if (typeof set?.logo === "string") {
+      const match = set.logo.match(asset);
+      if (match && match[2] === set.id)
+        return set.logo.replace(/(?:\.webp)?$/, ".webp");
+    }
+    // Older catalogue responses omit logos; reuse their canonical card asset directory.
+    for (const card of set?.preview || set?.cards || []) {
+      const match = card.imageUrl?.match(/^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/[A-Za-z0-9_.-]+\/high\.webp$/);
+      if (match && match[2] === set.id)
+        return "https://assets.tcgdex.net/en/" + match[1] + "/" + match[2] + "/logo.webp";
+    }
+    return "";
+  }
   window.CardCatalogue = {
+    setLogo,
     thumbnail,
+    picture,
     ready,
     byId,
     search,
@@ -11892,27 +11955,34 @@ body.editor-page.calm-editor {
         Math.min(w, h) * 0.018,
         false,
       );
-    const image = make("image", {
+    const image = card.imageUrl ? make("image", {
       href: card.imageUrl,
       x,
       y,
       width: iw,
       height: ih,
       preserveAspectRatio: "xMidYMid meet",
-    });
-    image.addEventListener("error", () => {
-      image.remove();
+    }) : null;
+    const unavailable = () => {
+      image?.remove();
+      group.append(make("rect", {
+        x, y, width: iw, height: ih, rx: Math.min(iw, ih) * 0.025,
+        fill: "var(--soft)", stroke: "var(--muted)", "stroke-width": 1,
+      }));
       const text = make("text", {
         x: w / 2,
         y: h / 2,
         "text-anchor": "middle",
         fill: "var(--muted)",
-        "font-size": 10,
+        "font-size": Math.min(14, iw * 0.075),
       });
-      text.textContent = card.name;
+      text.textContent = "Image unavailable";
       group.append(text);
-    });
-    group.append(image);
+    };
+    if (card.imageUrl) {
+      image.addEventListener("error", unavailable, { once: true });
+      group.append(image);
+    } else unavailable();
     const rigid = frames.toploader && frames.toploader !== "none",
       sleeved = frames.sleeve && frames.sleeve !== "none";
     if (rigid || sleeved) {
@@ -15412,11 +15482,7 @@ PERFORMANCE OF THIS SOFTWARE.
         );
         b.title =
           card.name + " \u00b7 " + card.setName + " #" + card.collectorNumber;
-        const img = make("img");
-        img.src = window.CardCatalogue.thumbnail(card);
-        img.alt = card.name;
-        img.loading = "lazy";
-        img.draggable = false;
+        const img = window.CardCatalogue.picture(card);
         const check = make("span", "\u2713", "card-browser-check");
         check.setAttribute("aria-hidden", "true");
         b.append(
@@ -16116,11 +16182,7 @@ PERFORMANCE OF THIS SOFTWARE.
         : pending.id === source.id)
     )
       b.classList.add("is-selected");
-    const image = el("img");
-    image.src = window.CardCatalogue?.thumbnail(data) || data?.imageUrl || "";
-    image.alt = nameOf(content.cardId);
-    image.draggable = false;
-    image.loading = "lazy";
+    const image = window.CardCatalogue.picture(data);
     b.append(
       image,
       el("strong", "", nameOf(content.cardId)),
@@ -16857,10 +16919,6 @@ PERFORMANCE OF THIS SOFTWARE.
     );
     $("rename-binder").disabled = coverOpen;
     $("feedback-undo").disabled = coverOpen;
-    if (coverOpen) {
-      $("undo").disabled = true;
-      $("redo").disabled = true;
-    }
   }
   function previewCard() {
     return (
@@ -17310,7 +17368,17 @@ PERFORMANCE OF THIS SOFTWARE.
   }
   let placeholderQuery = null,
     placeholderMatches = [],
-    placeholderRequest = 0;
+    placeholderRequest = 0,
+    placeholderTimer,
+    placeholderLoading = false,
+    placeholderError = "";
+  $("pocket-dialog").addEventListener("close", () => {
+    clearTimeout(placeholderTimer);
+    ++placeholderRequest;
+    placeholderQuery = null;
+    placeholderLoading = false;
+    placeholderError = "";
+  });
   function renderPlaceholderChoices() {
     $("placeholder-style-options").replaceChildren(
       ...["outline", "soft", "ball"].map((style) => {
@@ -17339,19 +17407,27 @@ PERFORMANCE OF THIS SOFTWARE.
     );
     const q = $("placeholder-search").value.trim().toLowerCase();
     if (window.CardCatalogue?.enabled && placeholderQuery !== q) {
+      clearTimeout(placeholderTimer);
       placeholderQuery = q;
       placeholderMatches = [];
+      placeholderLoading = true;
+      placeholderError = "";
       const request = ++placeholderRequest;
-      void window.CardCatalogue.search({ q })
-        .then((result) => {
+      placeholderTimer = setTimeout(async () => {
+        try {
+          const result = await window.CardCatalogue.search({ q });
           if (request !== placeholderRequest) return;
           placeholderMatches = result.cards.slice(0, 6);
-          renderPlaceholderChoices();
-        })
-        .catch((error) => {
-          if (request === placeholderRequest)
-            $("placeholder-target-note").textContent = error.message;
-        });
+        } catch (error) {
+          if (request !== placeholderRequest) return;
+          placeholderError = error.message || "Cards could not load.";
+        } finally {
+          if (request === placeholderRequest) {
+            placeholderLoading = false;
+            renderPlaceholderChoices();
+          }
+        }
+      }, 250);
     }
     const results = window.CardCatalogue?.enabled
       ? placeholderMatches
@@ -17363,6 +17439,8 @@ PERFORMANCE OF THIS SOFTWARE.
               .toLowerCase()
               .includes(q),
         ).slice(0, 6);
+    $("placeholder-card-options").setAttribute("aria-busy", String(placeholderLoading));
+    $("placeholder-target-note").setAttribute("role", "status");
     $("placeholder-card-options").replaceChildren(
       ...results.map((c) => {
         const b = el("button", "placeholder-card-choice");
@@ -17376,10 +17454,7 @@ PERFORMANCE OF THIS SOFTWARE.
           "aria-pressed",
           String(placeholderDraft.cardId === b.dataset.placeholderCard),
         );
-        const img = el("img");
-        img.src = window.CardCatalogue?.thumbnail(c) || c.imageUrl;
-        img.alt = "";
-        img.loading = "lazy";
+        const img = window.CardCatalogue.picture(c);
         b.append(
           img,
           el("span", "", c.name),
@@ -17393,17 +17468,30 @@ PERFORMANCE OF THIS SOFTWARE.
         return b;
       }),
     );
+    if (placeholderError) {
+      const retry = el("button", "button secondary", "Retry search");
+      retry.type = "button";
+      retry.addEventListener("click", () => {
+        placeholderQuery = null;
+        renderPlaceholderChoices();
+      });
+      $("placeholder-card-options").append(retry);
+    }
     $("placeholder-clear-target").setAttribute(
       "aria-pressed",
       String(!placeholderDraft.cardId),
     );
-    $("placeholder-target-note").textContent = placeholderDraft.cardId
-      ? "Target: " +
-        nameOf(placeholderDraft.cardId) +
-        ". This does not change your collection or Wanted records."
-      : results.length
-        ? "Reserve a space without a target card."
-        : "No matching cards.";
+    $("placeholder-target-note").textContent = placeholderLoading
+      ? "Loading cards..."
+      : placeholderError
+        ? placeholderError
+        : placeholderDraft.cardId
+          ? "Target: " +
+            nameOf(placeholderDraft.cardId) +
+            ". This does not change your collection or Wanted records."
+          : results.length
+            ? "Reserve a space without a target card."
+            : "No matching cards.";
   }
   function setPocketTab(tab) {
     pocketTab = tab;
@@ -17533,11 +17621,11 @@ PERFORMANCE OF THIS SOFTWARE.
     $("page-columns").value = p.columns;
     updateLayoutImpact();
 
-    $("undo").disabled = !state.canUndo;
+    $("undo").disabled = coverOpen || !state.canUndo;
     $("undo").title = state.canUndo
       ? "Undo the last edit (Ctrl/⌘ + Z)"
       : "No edits to undo.";
-    $("redo").disabled = !state.canRedo;
+    $("redo").disabled = coverOpen || !state.canRedo;
     $("redo").title = state.canRedo
       ? "Redo the last undone edit"
       : "Undo an edit before using Redo.";
@@ -17620,12 +17708,7 @@ PERFORMANCE OF THIS SOFTWARE.
           "in-spread",
           spreadMode && Math.floor(i / 2) === Math.floor(index / 2),
         );
-        b.addEventListener("click", () => {
-          pageId = page.id;
-          selected = [];
-          selectMode = false;
-          render();
-        });
+        b.addEventListener("click", () => showPage(page.id));
         return b;
       }),
     );
@@ -17683,12 +17766,12 @@ PERFORMANCE OF THIS SOFTWARE.
     pending = null;
     render();
   });
-  $("undo").addEventListener("click", () =>
-    run(() => state.undo(), "Change undone.", "redo"),
-  );
-  $("redo").addEventListener("click", () =>
-    run(() => state.redo(), "Change restored."),
-  );
+  $("undo").addEventListener("click", () => {
+    if (!coverOpen) run(() => state.undo(), "Change undone.", "redo");
+  });
+  $("redo").addEventListener("click", () => {
+    if (!coverOpen) run(() => state.redo(), "Change restored.");
+  });
   async function saveLocal() {
     if (
       saving ||
@@ -18010,23 +18093,22 @@ PERFORMANCE OF THIS SOFTWARE.
       .querySelector("path")
       .setAttribute("d", lastSpread ? "M5 12h14M12 5v14" : "M10 6l6 6-6 6");
   }
+  function showPage(id) {
+    if (!state.document.pages.some(p => p.id === id)) return;
+    pageId = id;
+    selected = [];
+    selectMode = false;
+    if (coverOpen && customTab !== "cover") renderFrameChoices();
+    render();
+    if (coverOpen) previewCover();
+  }
   function turn(delta) {
     const pages = state.document.pages,
       index = pages.findIndex((p) => p.id === pageId);
     const target = spreadMode
       ? Math.floor(index / 2) * 2 + delta * 2
       : index + delta;
-    if (pages[target]) {
-      pageId = pages[target].id;
-      selected = [];
-      selectMode = false;
-      if (coverOpen && customTab !== "cover") {
-        syncStyleScope();
-        renderFrameChoices();
-      }
-      render();
-      if (coverOpen) previewCover();
-    }
+    if (pages[target]) showPage(pages[target].id);
   }
   $("page-view").addEventListener("change", () => {
     const draftRows = $("page-rows").value, draftColumns = $("page-columns").value;

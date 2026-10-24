@@ -8,6 +8,12 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Frontend MVP](FRONTEND-MVP.md) | Accepted scope, milestone and known limits |
 | [Backend foundation](BACKEND-FOUNDATION.md) | Binder cloud implementation, local setup and accepted hosted milestone |
 | [Account collection](COLLECTION-CLOUD.md) | Collection cloud implementation, import/conflict behavior, tests and approved hosted rollout |
+| [English catalogue preparation](FULL-ENGLISH-CATALOGUE.md) | Full-size local snapshot, upstream coverage gaps, import/search/recovery tests and pending release |
+| [Monday beta roadmap](MONDAY-BETA-ROADMAP.md) | 26 October release scope, set-to-binder workflow, polish priorities, acceptance and deferred features |
+| [Fallback coverage audit](CATALOGUE-FALLBACK-AUDIT.md) | Missing-record/image/logo inventory, real TCGCSV candidate pilot and private Pokewallet test setup |
+| [Full catalogue gap details](CATALOGUE-GAP-DETAILS.md) | All 65 image-gap groups, 34 name-difference counterparts, and correction of the raw 228 group-count discrepancy |
+| [Image verification](CATALOGUE-IMAGE-VERIFICATION.md) | Actual downloads, anniversary printing checks, Pokewallet image samples and remaining gaps |
+| [Priority fixes - plain-text report](PRIORITY-FIX-REPORT-2026-10-24.txt) | Original problems, five fixes, tests, remaining limits and all 33 audit claim dispositions |
 | [Account data and recovery](ACCOUNT-DATA-AND-RECOVERY.md) | Account export/restore/deletion, encrypted operator backups and recovery procedures |
 | [Account data audit](ACCOUNT-DATA-AUDIT.md) | Pre-merge findings, fixes, diagnostic evidence and remaining hosted release gates |
 | [Account controls rollout](ACCOUNT-DATA-ROLLOUT.md) | Authorized hosted migrations, security verification, deployment and manual acceptance |

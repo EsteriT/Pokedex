@@ -67,7 +67,7 @@
           <span class="title-dot">.</span>
         </h1>
         <p id="catalogue-note">
-          Sample catalogue · full catalogue and live prices coming later.
+          Loading catalogue…
         </p>
       </div>
       <div id="discover-collection-bar" class="discover-collection-bar" hidden>
@@ -146,18 +146,17 @@
         role="tabpanel"
         aria-labelledby="cards-tab"
       >
-        <button
-          id="back-to-sets"
-          class="button secondary back-to-sets"
-          type="button"
-          hidden
-        >
-          Back to sets
-        </button>
+        <div class="discover-search-panel">
         <div class="discover-toolbar">
           <form id="search-form" class="discover-search" role="search">
-            <label class="search">
-              <span aria-hidden="true">⌕</span>
+            <div class="search">
+              <select id="search-scope" aria-label="Search by">
+                <option value="all">All</option>
+                <option value="name">Name</option>
+                <option value="number">Number</option>
+                <option value="set">Set</option>
+                <option value="illustrator">Illustrator</option>
+              </select>
               <input
                 id="card-query"
                 type="search"
@@ -165,34 +164,46 @@
                 aria-label="Search cards by name, card number, or set"
                 maxlength="120"
               />
-            </label>
-            <button class="button primary" type="submit">Search</button>
+            </div>
+            <button class="button primary search-submit" type="submit" aria-label="Search"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Search</span></button>
           </form>
-          <details id="filters-panel" class="discover-filters">
-            <summary id="filters-title">
-              Filters
-              <span id="filter-count"></span>
-            </summary>
-            <form id="filters-form">
-              <div class="filter-fields">
-                <label class="field">
+
+
+        </div>
+        <div class="quick-filters" aria-label="Quick filters">                <label class="field">
                   Set
-                  <select id="set-filter">
+                  <select form="filters-form" id="set-filter">
                     <option value="">All sets</option>
                   </select>
                 </label>
                 <label class="field">
                   Type
-                  <select id="type-filter">
+                  <select form="filters-form" id="type-filter">
                     <option value="">All types</option>
+                  </select>
+                </label>
+                <label id="type-match-field" hidden>Match
+                  <select id="type-match" form="filters-form">
+                    <option value="any">Any selected type</option>
+                    <option value="all">All selected types</option>
                   </select>
                 </label>
                 <label class="field">
                   Rarity
-                  <select id="rarity-filter">
+                  <select form="filters-form" id="rarity-filter">
                     <option value="">All rarities</option>
                   </select>
                 </label>
+          <details id="filters-panel" class="discover-filters">
+            <summary id="filters-title">
+              More filters
+              <span id="filter-count"></span>
+            </summary>
+            <form id="filters-form">
+              <div class="filter-fields">
+                <label class="field">Category<select id="category-filter"><option value="">All categories</option></select></label>
+                <label class="field">Illustrator<select id="illustrator-filter"><option value="">All illustrators</option></select></label>
+                <div class="hp-fields"><label class="field">Min HP<input id="hp-min" type="number" min="0" max="10000" step="1" placeholder="Any" /></label><label class="field">Max HP<input id="hp-max" type="number" min="0" max="10000" step="1" placeholder="Any" /></label></div>
                 <label class="field">
                   Finish
                   <select id="finish-filter">
@@ -200,31 +211,23 @@
                   </select>
                 </label>
               </div>
-              <button
+
+
+<div class="filter-actions">              <button
                 id="clear-filters"
                 class="button secondary clear-filters"
                 type="button"
                 disabled
               >
-                Clear search &amp; filters
-              </button>
+                Reset all
+              </button><button id="show-filter-results" class="button primary" type="button">Show cards</button></div>
             </form>
           </details>
-          <label>
-            Sort
-            <select id="sort-order">
-              <option value="name">Name A–Z</option>
-              <option value="set">Set, then name</option>
-              <option value="number">Set, then number</option>
-              <option value="color" hidden disabled>Closest color</option>
-            </select>
-          </label>
-        </div>
         <details id="color-tools" class="color-tools">
-          <summary>Match a color</summary>
+          <summary id="color-title">Color <span id="color-count" class="filter-badge" hidden></span></summary>
           <div class="color-section">
             <label>
-              <input id="color-enabled" type="checkbox" />
+              <input form="filters-form" id="color-enabled" type="checkbox" />
               Rank by color
             </label>
             <div
@@ -312,30 +315,51 @@
             </div>
             <div class="color-control">
               <input
-                id="chosen-color"
+                form="filters-form" id="chosen-color"
                 type="color"
                 value="#7eac91"
                 aria-label="Color to match"
               />
               <output id="color-value" for="chosen-color">#7EAC91</output>
             </div>
-            <p>Curated sample palettes · artwork analysis coming later.</p>
+            <p>Color matching uses the sample catalogue.</p>
+            <button id="close-color-filter" class="button secondary" type="button">Done</button>
           </div>
         </details>
+</div>
+
+        </div>
         <div class="discover-layout">
           <section class="results-main" aria-labelledby="results-heading">
+            <div id="active-filter-row" class="active-filter-row" hidden>
+            <div
+              id="active-filters"
+              class="active-filters"
+              aria-label="Active filters"
+            ></div>
+<button id="clear-all-filters" class="clear-all-link" type="button" hidden>Clear all</button>
+            </div>
             <div class="results-toolbar">
               <h2 id="results-heading" tabindex="-1">
                 <span id="result-count" role="status" aria-live="polite">
                   Loading cards…
                 </span>
               </h2>
+          <label class="results-sort">
+            Sort
+            <select id="sort-order">
+              <option value="name">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="number-desc">Set, then number ↓</option>
+              <option value="hp">HP low–high</option>
+              <option value="hp-desc">HP high–low</option>
+              <option value="set">Set, then name</option>
+              <option value="number">Set, then number</option>
+              <option value="color" hidden disabled>Closest color</option>
+            </select>
+          </label>
             </div>
-            <div
-              id="active-filters"
-              class="active-filters"
-              aria-label="Active filters"
-            ></div>
+
             <div id="results-state" class="discover-state" role="status">
               Loading sample catalogue…
             </div>
@@ -358,7 +382,7 @@
                 class="button secondary"
                 type="button"
               >
-                Clear search &amp; filters
+                Reset all
               </button>
             </div>
             <div id="pagination" class="pagination">
@@ -391,15 +415,25 @@
               Explore sample cards. Full sets are coming later.
             </p>
           </div>
-          <label class="search">
-            <input
-              id="set-query"
-              type="search"
-              maxlength="120"
-              placeholder="Find a set"
-              aria-label="Search available sample sets"
-            />
-          </label>
+          <div class="sets-controls">
+            <label class="search">
+              <input
+                id="set-query"
+                type="search"
+                maxlength="120"
+                placeholder="Find a set"
+                aria-label="Search sets"
+              />
+            </label>
+            <label class="sets-sort">
+              Sort
+              <select id="sets-sort">
+                <option value="name">Name A–Z</option>
+                <option value="name-desc">Name Z–A</option>
+                <option value="count">Most printings</option>
+              </select>
+            </label>
+          </div>
         </div>
         <p
           id="sets-count"
@@ -409,7 +443,7 @@
         ></p>
         <div id="sets-grid" class="sets-grid"></div>
         <div id="sets-empty" class="sets-empty" hidden>
-          <p>No sample sets match your search.</p>
+          <p>No sets match your search.</p>
           <button id="reset-set-search" class="button secondary" type="button">
             Clear search
           </button>
@@ -417,10 +451,10 @@
         <div class="sets-future" aria-labelledby="future-sets-title">
           <h3 id="future-sets-title">On the horizon</h3>
           <div class="sets-future-grid">
-            <article class="future-set">
+            <article id="future-english-sets" class="future-set">
               <span class="set-coming">Coming later</span>
               <h4>More English sets</h4>
-              <p>The full catalogue of printings from 2010 onward.</p>
+              <p>More English printings as catalogue coverage grows.</p>
             </article>
             <article class="future-set">
               <span class="set-coming">Coming later</span>
@@ -938,6 +972,7 @@
     <script src="scripts/collection-form.js"></script>
     <script src="scripts/discover-collection.js"></script>
     <script src="scripts/discover-images.js"></script>
+    <script src="scripts/discover-filter-pickers.js"></script>
     <script src="scripts/discover.js"></script>
     <script src="scripts/discover-sets.js"></script>
     <script src="scripts/app-info.js"></script>

@@ -7,8 +7,8 @@ module.exports = async function (client) {
     throw Error("Local catalogue checks only.");
   const info = await client.rpc("catalogue_info");
   assert(!info.error, info.error?.message);
-  assert.equal(info.data.sets.length, 10);
-  assert.equal(info.data.count, 1291);
+  assert(info.data.sets.length >= 10 && info.data.sets.length <= 500);
+  assert(info.data.count >= 1291);
   const timings = [];
   for (const q of [
     "",
@@ -58,7 +58,7 @@ module.exports = async function (client) {
   });
   assert(oversized.error);
   console.log(
-    "PASS: local ten-set public API, 24-card pages, stable aliases, numeric search and direct-write denial. Slowest sampled local search: " +
+    "PASS: local public catalogue API, 24-card pages, stable aliases, numeric search and direct-write denial. Slowest sampled local search: " +
       Math.ceil(Math.max(...timings)) +
       " ms.",
   );

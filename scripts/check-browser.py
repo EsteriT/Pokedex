@@ -263,7 +263,10 @@ def check_discover_gallery(cdp, base, route):
     cdp.go(base+'/'+route,"!!window.DiscoverCollection&&document.querySelectorAll('#card-grid > button').length===24")
     assert cdp.evaluate("!document.getElementById('color-tools').open"), 'Advanced color tools are collapsed for ordinary browsing'
     cdp.evaluate("document.getElementById('filters-panel').open=true")
-    assert cdp.evaluate("document.getElementById('filters-form').getBoundingClientRect().width<=355"), 'Discover filters remain a compact dropdown'
+    assert cdp.evaluate("document.getElementById('filters-form').getBoundingClientRect().width<=450"), 'Discover filters remain a compact dropdown'
+    cdp.wait("document.getElementById('filters-form').getBoundingClientRect().bottom<=innerHeight")
+    assert cdp.evaluate("document.getElementById('sort-order').closest('.results-toolbar')!==null"), 'Sorting belongs with the result count'
+    assert cdp.evaluate("document.getElementById('clear-all-filters').hidden"), 'Clear all should not appear before a filter is selected'
     cdp.evaluate("document.getElementById('filters-panel').open=false")
     cdp.evaluate("localStorage.removeItem('pokedex.collection.v1')")
     cdp.call('Page.reload');time.sleep(.15)
@@ -277,8 +280,10 @@ def check_discover_gallery(cdp, base, route):
     cdp.escape()
     assert cdp.evaluate("!document.getElementById('filters-panel').open&&document.activeElement===document.getElementById('filters-title')"),'Filter dismissal must restore keyboard focus'
     cdp.evaluate("document.getElementById('sets-tab').click();document.getElementById('set-query').value='151';document.getElementById('set-query').dispatchEvent(new Event('input'));document.querySelector('.set-tile').click()")
-    assert cdp.evaluate("!document.getElementById('color-enabled').checked&&document.getElementById('set-filter').value==='sv03.5'&&document.getElementById('sort-order').value==='number'&&!document.getElementById('back-to-sets').hidden"),'Opening a set must reset external color controls and sort by card number'
+    assert cdp.evaluate("!document.getElementById('color-enabled').checked&&document.getElementById('set-filter').value==='sv03.5'&&document.getElementById('sort-order').value==='number'&&!document.getElementById('back-to-sets')&&document.activeElement===document.getElementById('cards-tab')"),'Opening a set must reset filters, sort by number and focus the Cards tab without duplicate navigation'
+    assert cdp.evaluate("!document.getElementById('selected-set')&&document.querySelector('.set-filter-chip').getAttribute('aria-label')==='Remove filter: 151'&&document.querySelector('.set-filter-logo').dataset.cardSrc===undefined&&document.querySelector('.set-filter-logo').src.endsWith('/sv03.5/logo.webp')"), 'Selected set uses its compact removable logo chip without a banner'
     cdp.evaluate("document.getElementById('clear-filters').click();document.getElementById('next-results').click()")
+    assert cdp.evaluate("!document.querySelector('.set-filter-chip')"), 'Clearing the set filter must remove the logo chip'
     assert cdp.evaluate("new URL(location.href).searchParams.get('page')==='2'&&document.querySelectorAll('#card-grid > button').length===24"),'Pagination must survive the gallery layout'
     cdp.call('Page.reload');time.sleep(.15);cdp.wait("document.getElementById('page-status').textContent==='Page 2 of 3'")
     for width,height in ((1366,768),(1920,1080),(2560,1440),(768,1024),(390,844),(320,740)):
@@ -293,6 +298,10 @@ def check_discover_gallery(cdp, base, route):
             assert cdp.evaluate("(()=>{let r=document.getElementById('filters-form').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.width>0})()"),(route,width,'Filter panel must fit the viewport')
             cdp.evaluate("document.getElementById('filters-panel').open=false;document.getElementById('sets-tab').click()")
             assert cdp.evaluate("document.documentElement.scrollWidth<=innerWidth&&document.querySelectorAll('.set-tile').length===6"),'Set directory must stay responsive'
+            cdp.evaluate("document.getElementById('sets-sort').value='name-desc';document.getElementById('sets-sort').dispatchEvent(new Event('change'))")
+            assert cdp.evaluate("document.querySelector('.set-meta strong').textContent==='XY'"), 'Set name sorting must reorder the tiles'
+            cdp.evaluate("document.getElementById('sets-sort').value='count';document.getElementById('sets-sort').dispatchEvent(new Event('change'))")
+            assert cdp.evaluate("document.querySelector('.set-meta strong').textContent==='151'"), 'Printing-count sorting must put the largest available set first'
     cdp.call('Emulation.setDeviceMetricsOverride',{'width':1366,'height':768,'deviceScaleFactor':1,'mobile':False})
     cdp.evaluate("document.getElementById('cards-tab').click();document.getElementById('clear-filters').click();document.getElementById('card-query').value='Bulbasaur';document.getElementById('card-query').dispatchEvent(new Event('input'));document.querySelector('#card-grid > button').click()")
     assert cdp.evaluate("document.getElementById('details-dialog').open&&!document.querySelector('.price-checker').open&&!!document.querySelector('#related-list > button')"),'Details should prioritize artwork/actions and preserve related printings'

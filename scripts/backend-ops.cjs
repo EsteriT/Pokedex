@@ -129,7 +129,7 @@ function cliQuery(sql, t) {
   }
 }
 function model(catalogue = []) {
-  if (!Array.isArray(catalogue) || catalogue.length > 10000)
+  if (!Array.isArray(catalogue) || catalogue.length > 50000)
     throw Error("Invalid backup catalogue.");
   const scope = { window: {}, crypto: webcrypto, atob, structuredClone, Blob };
   for (const name of [

@@ -110,6 +110,7 @@ async function main() {
       );
     const revisions = (rows) =>
       rows.map((r) => ({ id: r.id, revision: r.revision }));
+    await require("./check-appearance-backend.cjs")(db, document, scope.window.BinderStore.validate);
     const wire = (rows) =>
       rows.map((r) => ({ id: r.id, document: r.document }));
     const id = randomUUID(),
@@ -169,6 +170,9 @@ async function main() {
       { ...doc, name: " ".repeat(61) + "Binder" },
     ];
     for (const alter of [
+      (d) => (d.cover = { theme: "classic", subtitle: "x".repeat(61) }),
+      (d) => (d.cover = { theme: "classic", pageStyle: { background: "invalid", pockets: "none" } }),
+      (d) => (d.pages[0].pageStyle = { background: "#123456", pockets: "invalid" }),
       (d) => (d.pages[0].regions[1].cells = [[0, 0]]),
       (d) => (d.pages[0].regions[0].cells = [[99, 0]]),
       (d) => d.pages[0].regions.pop(),

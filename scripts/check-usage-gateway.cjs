@@ -199,6 +199,29 @@ const assert = require("node:assert/strict"),
         ? Response.json({ allowed: true })
         : makeReply(),
     );
+  const removed = Array.from({ length: 60 }, (_, i) => ({
+    id: "a".repeat(36), bucket_id: "binder-artwork", owner: "b".repeat(36),
+    name: "a".repeat(36) + "/" + i.toString(16).padStart(64, "0") + ".webp",
+    created_at: "2026-10-24T00:00:00Z", updated_at: "2026-10-24T00:00:00Z",
+    last_accessed_at: "2026-10-24T00:00:00Z",
+    metadata: { size: 1000, mimetype: "image/webp", cacheControl: "3600" },
+  }));
+  const deletionBody = JSON.stringify(removed);
+  assert(Buffer.byteLength(deletionBody) > 16384);
+  const deletionPath = "/storage/v1/object/binder-artwork";
+  assert.equal(route(deletionPath, "DELETE")[2], 64 * 1024);
+  for (const knownLength of [true, false]) {
+    response = await reply(() => new Response(deletionBody, {
+      headers: { "content-type": "application/json", ...(knownLength
+        ? { "content-length": String(Buffer.byteLength(deletionBody)) } : {}) },
+    }))(input(deletionPath, "DELETE", JSON.stringify({ prefixes: removed.map(row => row.name) })));
+    assert.equal(response.status, 200, "A successful 60-file delete must not be reported as a response failure");
+    assert.deepEqual(await response.json(), removed);
+  }
+  response = await reply(() => new Response("x".repeat(65537), {
+    headers: { "content-length": "65537" },
+  }))(input(deletionPath, "DELETE"));
+  assert.equal(response.status, 502, "Deletion responses still have a finite upper bound");
   response = await reply(
     () => new Response("decoded body", { headers: { "Content-Length": "1" } }),
   )(input("/rest/v1/binders", "GET"));
@@ -311,7 +334,8 @@ const assert = require("node:assert/strict"),
         });
       return url.endsWith("/catalogue_info")
         ? Response.json({
-            sets: [{ id: "set", preview: [] }],
+            sets: [{ id: "set", name: "Set", count: 1, preview: [] }],
+            count: 1,
             types: [],
             rarities: [],
           })

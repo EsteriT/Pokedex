@@ -125,7 +125,13 @@
       const result = await rpc("catalogue_info", {});
       if (!Array.isArray(result?.sets) || !result.sets.length) return;
       if (
-        result.sets.length > 10 ||
+        result.sets.length > 500 ||
+        !Number.isInteger(result.count) || result.count < 1 || result.count > 50000 ||
+        result.sets.some(set => !set || typeof set.id !== 'string' ||
+          !/^[A-Za-z0-9.-]{1,40}$/.test(set.id) || typeof set.name !== 'string' ||
+          set.name.length > 160 || !Number.isInteger(set.count) || set.count < 1 ||
+          set.count > 1000 || (set.preview && (!Array.isArray(set.preview) || set.preview.length > 3))) ||
+        new Set(result.sets.map(set => set.id)).size !== result.sets.length ||
         !Array.isArray(result.types) ||
         !Array.isArray(result.rarities)
       )
@@ -164,9 +170,9 @@
       };
     }
     const clean = Object.fromEntries(
-      ["q", "set", "type", "rarity", "finish", "sort"].map((key) => [
+      ["q", "set", "type", "rarity", "finish", "sort", "category", "illustrator", "hpMin", "hpMax", "qScope", "typeMatch"].map((key) => [
         key,
-        String(filters[key] || ""),
+        Array.isArray(filters[key]) ? [...filters[key]] : String(filters[key] ?? ""),
       ]),
     );
     if (!clean.sort) clean.sort = "name";
@@ -244,8 +250,45 @@
       ? source.replace(/\/high\.webp$/, "/low.webp")
       : source;
   }
+  function picture(card, large = false) {
+    const image = document.createElement("img");
+    const unavailable = () => {
+      image.dataset.imageUnavailable = "true";
+      image.alt = "Image unavailable for " + (card?.name || "this card");
+      image.src = "data:image/svg+xml," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 337"><rect x="1" y="1" width="243" height="335" rx="8" fill="#edf1f7" stroke="#8b95a5"/><path d="M85 147h75v54H85zm0 42 23-22 18 17 12-12 22 20" fill="none" stroke="#596273" stroke-width="3"/><text x="122.5" y="230" text-anchor="middle" fill="#596273" font-family="sans-serif" font-size="15">Image unavailable</text></svg>',
+      );
+    };
+    image.alt = card?.name || "Card";
+    image.loading = large ? "eager" : "lazy";
+    image.decoding = "async";
+    image.draggable = false;
+    image.addEventListener("error", unavailable, { once: true });
+    const source = large ? card?.imageUrl : thumbnail(card);
+    if (source) image.src = source;
+    else unavailable();
+    return image;
+  }
+  function setLogo(set) {
+    if (set?.logo === null) return "";
+    const asset = /^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/logo(?:\.webp)?$/;
+    if (typeof set?.logo === "string") {
+      const match = set.logo.match(asset);
+      if (match && match[2] === set.id)
+        return set.logo.replace(/(?:\.webp)?$/, ".webp");
+    }
+    // Older catalogue responses omit logos; reuse their canonical card asset directory.
+    for (const card of set?.preview || set?.cards || []) {
+      const match = card.imageUrl?.match(/^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/[A-Za-z0-9_.-]+\/high\.webp$/);
+      if (match && match[2] === set.id)
+        return "https://assets.tcgdex.net/en/" + match[1] + "/" + match[2] + "/logo.webp";
+    }
+    return "";
+  }
   window.CardCatalogue = {
+    setLogo,
     thumbnail,
+    picture,
     ready,
     byId,
     search,

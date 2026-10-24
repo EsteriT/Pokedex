@@ -22,6 +22,10 @@
   function image(card, large = false) {
     const holder = make("div", "card-image" + (large ? " large-image" : "")),
       img = make("img");
+    if (!card.imageUrl) {
+      holder.append(make("span", "image-unavailable", "Image unavailable"));
+      return holder;
+    }
     if (large) {
       img.src = card.imageUrl;
       img.fetchPriority = "high";
@@ -54,13 +58,23 @@
       $(id).append(n);
     });
   }
+  const choice = id => {
+    const selected = [...$(id).selectedOptions].map(o => o.value).filter(Boolean);
+    return selected.length > 1 ? selected : selected[0] || '';
+  };
   function filters() {
     return {
       q: $("card-query").value.trim(),
-      set: $("set-filter").value,
-      type: $("type-filter").value,
-      rarity: $("rarity-filter").value,
-      finish: $("finish-filter").value,
+      qScope: $("search-scope").value,
+      typeMatch: $("type-match").value,
+      set: choice("set-filter"),
+      type: choice("type-filter"),
+      rarity: choice("rarity-filter"),
+      finish: choice("finish-filter"),
+      category: choice("category-filter"),
+      illustrator: choice("illustrator-filter"),
+      hpMin: $("hp-min").value,
+      hpMax: $("hp-max").value,
       sort:
         $("sort-order").value === "color"
           ? previousSort
@@ -73,9 +87,9 @@
     const query = new URLSearchParams();
     if (new URLSearchParams(location.search).get("view") === "sets")
       query.set("view", "sets");
-    for (const key of ["q", "set", "type", "rarity", "finish", "sort"])
-      if (f[key] && !(key === "sort" && f[key] === "name"))
-        query.set(key, f[key]);
+    for (const key of ["q", "set", "type", "rarity", "finish", "sort", "category", "illustrator", "hpMin", "hpMax", "qScope", "typeMatch"])
+      if (f[key] && !(key === "sort" && f[key] === "name") && !(key === "qScope" && f[key] === "all") && !(key === "typeMatch" && f[key] === "any"))
+        for (const value of Array.isArray(f[key]) ? f[key] : [f[key]]) query.append(key, value);
     if (f.colorEnabled) query.set("color", f.color);
     if (page > 1) query.set("page", page);
     history.replaceState(
@@ -84,8 +98,35 @@
       location.pathname + (query.size ? "?" + query : "") + location.hash,
     );
   }
-  function chip(label, clear) {
-    const b = make("button", "filter-chip", label);
+  function chip(label, clear, setId) {
+    const b = make("button", "filter-chip");
+    const text = make("span", "", label);
+    b.append(text);
+    if (setId) {
+      b.classList.add("set-filter-chip");
+      b.title = label;
+      const set = window.CardCatalogue.sets().find((set) => set.id === setId);
+      const logo = window.CardCatalogue.setLogo({
+        ...set,
+        cards: cards.filter((card) => card.setId === setId),
+      });
+      if (logo) {
+        const art = make("span", "set-filter-art");
+        text.replaceWith(art);
+        const img = make("img", "set-filter-logo");
+        img.dataset.cardSrc = logo;
+        img.width = 88;
+        img.height = 32;
+        img.alt = "";
+        img.decoding = "async";
+        img.addEventListener("load", () => {
+          text.hidden = true;
+          img.classList.add("is-loaded");
+        }, { once: true });
+        img.addEventListener("error", () => img.remove(), { once: true });
+        art.append(text, img);
+      }
+    }
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("viewBox", "0 0 24 24");
     icon.setAttribute("aria-hidden", "true");
@@ -108,7 +149,11 @@
     if (!ready) return;
     const focusId = document.activeElement?.dataset.cardId;
     if (resetPage) page = 1;
+    updateSearchHint();
+    window.DiscoverFilterPickers.sync();
     const f = filters();
+    $("hp-max").setCustomValidity(f.hpMin !== '' && f.hpMax !== '' && Number(f.hpMin) > Number(f.hpMax) ? 'Maximum HP must be at least minimum HP.' : '');
+    if (!$("filters-form").reportValidity()) return;
     const request = ++searchRequest;
     let shown, total;
     try {
@@ -166,6 +211,7 @@
     $("results-state").hidden = true;
     $("result-count").textContent =
       `${total} ${total === 1 ? "card" : "cards"}${f.colorEnabled ? " · ranked by curated sample colors" : ""}`;
+    $("show-filter-results").textContent = `Show ${total} ${total === 1 ? 'card' : 'cards'}`;
     $("page-status").textContent =
       `Page ${page} of ${Math.max(1, Math.ceil(total / pageSize))}`;
     $("previous-results").disabled = page === 1;
@@ -174,35 +220,43 @@
     $("active-filters").replaceChildren();
     if (f.q)
       $("active-filters").append(
-        chip("Search: " + f.q, () => ($("card-query").value = "")),
+        chip($("search-scope").selectedOptions[0].textContent + ": " + f.q, () => ($("card-query").value = "")),
       );
-    for (const [key, id] of [
-      ["set", "set-filter"],
-      ["type", "type-filter"],
-      ["rarity", "rarity-filter"],
-      ["finish", "finish-filter"],
-    ])
-      if (f[key])
-        $("active-filters").append(
-          chip($(id).selectedOptions[0].textContent, () => ($(id).value = "")),
-        );
+    for (const [key, id] of [['set','set-filter'],['type','type-filter'],['rarity','rarity-filter'],['finish','finish-filter'],['category','category-filter'],['illustrator','illustrator-filter']]) {
+      for (const value of Array.isArray(f[key]) ? f[key] : f[key] ? [f[key]] : []) {
+        const option = [...$(id).options].find(o => o.value === value);
+        $("active-filters").append(chip(option.textContent, () => {
+          if ($(id).multiple) option.selected = false;
+          else $(id).value = '';
+        }, key === 'set' ? value : null));
+      }
+    }
+    if (f.hpMin !== '' || f.hpMax !== '') $("active-filters").append(chip('HP ' + (f.hpMin || '0') + '–' + (f.hpMax || 'Any'), () => { $("hp-min").value = ''; $("hp-max").value = ''; }));
     if (f.colorEnabled)
       $("active-filters").append(
         chip("Color " + f.color, () => ($("color-enabled").checked = false)),
       );
+    window.DiscoverImages.watch($("active-filters"));
     $("clear-filters").disabled =
-      !f.q && !f.set && !f.type && !f.rarity && !f.finish && !f.colorEnabled;
+      !f.q && !f.set && !f.type && !f.rarity && !f.finish && !f.category && !f.illustrator && f.hpMin === '' && f.hpMax === '' && !f.colorEnabled;
+    $("clear-all-filters").disabled = $("clear-filters").disabled;
+    $("clear-all-filters").hidden = $("clear-filters").disabled;
+    $("active-filter-row").hidden = $("clear-filters").disabled;
     previousSort = f.sort;
     const colorOption = $("sort-order").querySelector('[value="color"]');
     colorOption.hidden = !f.colorEnabled;
     $("sort-order").value = f.colorEnabled ? "color" : previousSort;
     $("sort-order").disabled = f.colorEnabled;
-    const count = [f.set, f.type, f.rarity, f.finish, f.colorEnabled].filter(
+    const count = [f.finish, f.category, f.illustrator, f.hpMin !== "" || f.hpMax !== ""].filter(
       Boolean,
     ).length;
-    $("filter-count").textContent = count ? "· " + count + " active" : "";
+    $("filter-count").textContent = count || '';
+    $("filter-count").hidden = !count;
+    $("filters-title").classList.toggle('has-selection', count > 0);
     $("color-value").textContent = f.color.toUpperCase();
-    if (f.colorEnabled) $("color-tools").open = true;
+    $("color-title").classList.toggle('has-selection',f.colorEnabled);
+    $("color-count").hidden = !f.colorEnabled;
+    $("color-count").textContent = f.colorEnabled ? '1' : '';
     document.querySelectorAll(".color-swatch").forEach((button) => {
       button.setAttribute(
         "aria-pressed",
@@ -220,6 +274,7 @@
   function openCard(card) {
     $("detail-message").textContent = "";
     activeCard = card;
+    $("view-image").disabled = !card.imageUrl;
     const changingPrinting = $("details-dialog").open;
     if (!changingPrinting) detailFocus = document.activeElement;
     $("detail-art").replaceChildren(image(card, true));
@@ -243,9 +298,8 @@
       "Select finish",
     );
     const finishes = catalogue.finishes(card);
-    $("detail-finish").value = finishes.includes($("finish-filter").value)
-      ? $("finish-filter").value
-      : finishes[0] || "";
+    const preferredFinish = [...$("finish-filter").selectedOptions].find(o => finishes.includes(o.value))?.value;
+    $("detail-finish").value = preferredFinish || finishes[0] || "";
     window.DiscoverCollection?.select(card, $("detail-finish").value);
     $("price-mode").value = "raw";
     $("card-condition").value = "unknown";
@@ -518,11 +572,23 @@
       queryTimer = setTimeout(() => refresh(), 250);
     else refresh();
   });
+  for (const id of ['hp-min','hp-max']) $(id).addEventListener('input', () => {
+    clearTimeout(queryTimer);
+    searchRequest++;
+    queryTimer = setTimeout(() => refresh(), 250);
+  });
+  $("filters-form").addEventListener('submit', e => { e.preventDefault(); refresh(); });
   for (const id of [
+    "search-scope",
+    "type-match",
     "set-filter",
     "type-filter",
     "rarity-filter",
     "finish-filter",
+    "category-filter",
+    "hp-min",
+    "hp-max",
+    "illustrator-filter",
     "sort-order",
     "color-enabled",
     "chosen-color",
@@ -535,9 +601,19 @@
       refresh();
     });
   });
+  function updateSearchHint() {
+    const hints = {all:'Search cards', name:'Pokémon or card name', number:'Card number', set:'Set name or ID', illustrator:'Illustrator name'};
+    $("card-query").placeholder = hints[$("search-scope").value];
+    $("card-query").setAttribute('aria-label', $("search-scope").value === 'all' ? 'Search cards' : 'Search ' + hints[$("search-scope").value].toLowerCase());
+  }
+  $("search-scope").addEventListener('change', updateSearchHint);
+  $("close-color-filter").addEventListener('click', () => { $("color-tools").open=false; $("color-title").focus(); });
   function clear() {
+    clearTimeout(queryTimer);
     $("search-form").reset();
+    updateSearchHint();
     $("filters-form").reset();
+    window.DiscoverFilterPickers.resetSearches();
     $("color-enabled").checked = false;
     $("chosen-color").value = "#7eac91";
     $("sort-order").value = "name";
@@ -545,6 +621,13 @@
     $("card-query").focus();
   }
   $("clear-filters").addEventListener("click", clear);
+  $("clear-all-filters").addEventListener("click", clear);
+  $("show-filter-results").addEventListener("click", async () => {
+    await refresh();
+    if (!$("filters-form").checkValidity()) return;
+    $("filters-panel").open = false;
+    $("filters-title").focus();
+  });
   $("no-results-clear").addEventListener("click", clear);
   for (const [id, delta] of [
     ["previous-results", -1],
@@ -637,11 +720,24 @@
       options(
         "finish-filter",
         Object.entries(catalogue.finishNames).filter(([key]) =>
-          cards.some((c) => c.variants?.[key]),
+          info?.finishes ? info.finishes.includes(key) : cards.some((c) => c.variants?.[key]),
         ),
         "All finishes",
       );
+      const advanced = !window.CardCatalogue?.enabled || info?.searchVersion >= 3;
+      options('category-filter', (info?.categories || [...new Set(cards.map(c => c.category))]).sort().map(v => [v,v === 'Pokemon' ? 'Pokémon' : v]), 'All categories');
+      options('illustrator-filter', (info?.illustrators || [...new Set(cards.map(c => c.illustrator).filter(Boolean))]).sort().map(v=>[v,v]), 'All illustrators');
+      for (const id of ['category-filter','illustrator-filter','hp-min','hp-max']) $(id).disabled = !advanced;
+      for (const option of $("sort-order").options) if (['name-desc','number-desc','hp','hp-desc'].includes(option.value)) option.disabled = !advanced;
+      for (const option of $("search-scope").options) option.disabled = !advanced && option.value !== 'all';
+      window.DiscoverFilterPickers.initialize(advanced);
       for (const [key, id] of [
+        ["category", "category-filter"],
+        ["illustrator", "illustrator-filter"],
+        ["hpMin", "hp-min"],
+        ["hpMax", "hp-max"],
+        ["qScope", "search-scope"],
+        ["typeMatch", "type-match"],
         ["q", "card-query"],
         ["set", "set-filter"],
         ["type", "type-filter"],
@@ -651,19 +747,25 @@
       ])
         if (params.has(key)) {
           const value = params.get(key);
-          if (key === "q" || [...$(id).options].some((n) => n.value === value))
-            $(id).value = value;
+          if (!$(id).disabled) {
+            if (['q','hpMin','hpMax'].includes(key)) $(id).value = value;
+            else if ($(id).multiple) {
+              const values = params.getAll(key);
+              for (const option of $(id).options) option.selected = values.includes(option.value);
+            } else if ([...$(id).options].some(n => n.value === value && !n.disabled)) $(id).value = value;
+          }
         }
       if (/^#[a-f0-9]{6}$/i.test(params.get("color") || "")) {
         $("chosen-color").value = params.get("color");
         $("color-enabled").checked = true;
       }
+      updateSearchHint();
       page = Math.max(1, parseInt(params.get("page"), 10) || 1);
       ready = true;
       await refresh(false);
       $("catalogue-note").textContent = info
-        ? `${info.count} English printings across ${info.sets.length} trial sets. TCGdex data; live prices unavailable. Color matching covers the curated sample only.`
-        : `${cards.length} sample printings. Connected catalogue unavailable or not configured.`;
+        ? `${info.count.toLocaleString('en-US')} English printings · ${info.sets.length} sets`
+        : `${cards.length} sample printings · ${new Set(cards.map(c => c.setId)).size} sets`;
     } catch (error) {
       $("results-state").hidden = false;
       $("results-state").textContent = error.message;
@@ -674,6 +776,7 @@
   document.addEventListener("click", (event) => {
     for (const menu of [
       $("filters-panel"),
+      $("color-tools"),
       document.querySelector(".discover-save-tools"),
     ])
       if (menu.open && !menu.contains(event.target)) menu.open = false;
@@ -682,10 +785,10 @@
     if (
       event.key === "Escape" &&
       !document.querySelector("dialog[open]") &&
-      document.querySelector(".discover-save-tools[open], #filters-panel[open]")
+      document.querySelector(".discover-save-tools[open], #filters-panel[open], #color-tools[open]")
     ) {
       const menu = document.querySelector(
-        ".discover-save-tools[open], #filters-panel[open]",
+        ".discover-save-tools[open], #filters-panel[open], #color-tools[open]",
       );
       menu.open = false;
       menu.querySelector("summary").focus({ preventScroll: true });

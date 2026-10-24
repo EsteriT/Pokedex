@@ -8,27 +8,7 @@
     return node;
   };
   function picture(card, large = false) {
-    const image = make("img");
-    image.src = large
-      ? card.imageUrl
-      : window.CardCatalogue?.thumbnail(card) || card.imageUrl;
-    image.alt = "";
-    image.loading = "lazy";
-    image.addEventListener(
-      "error",
-      () => {
-        const parent = image.parentElement;
-        if (!parent) return;
-        image.hidden = true;
-        parent.classList.add("art-unavailable");
-        if (parent.id === "inventory-preview")
-          image.replaceWith(
-            make("span", "collection-image-fallback", "Image unavailable"),
-          );
-      },
-      { once: true },
-    );
-    return image;
+    return window.CardCatalogue.picture(card, large);
   }
   function options(select, entries, all) {
     const placeholder = make("option", "", all);

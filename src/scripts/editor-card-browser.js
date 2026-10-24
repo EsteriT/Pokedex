@@ -192,11 +192,7 @@
         );
         b.title =
           card.name + " \u00b7 " + card.setName + " #" + card.collectorNumber;
-        const img = make("img");
-        img.src = window.CardCatalogue.thumbnail(card);
-        img.alt = card.name;
-        img.loading = "lazy";
-        img.draggable = false;
+        const img = window.CardCatalogue.picture(card);
         const check = make("span", "\u2713", "card-browser-check");
         check.setAttribute("aria-hidden", "true");
         b.append(

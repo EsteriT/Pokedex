@@ -5,7 +5,7 @@ import json
 def check_catalogue_cloud(cdp, base, folder, workspace, editor, viewer):
     discover = 'discover.html' if folder == 'src/' else 'Pokedex-discover.html'
     cdp.go(base + '/' + folder + discover, "CardCatalogue?.enabled&&document.querySelectorAll('#card-grid > button').length===24")
-    assert cdp.evaluate('CardCatalogue.info.sets.length===10&&CardCatalogue.info.count===1291')
+    assert cdp.evaluate('CardCatalogue.info.sets.length>=10&&CardCatalogue.info.count>=1291')
     assert cdp.evaluate('CARDS.length<150'), 'Opening Discover must not download every card record'
     first = cdp.evaluate("[...document.querySelectorAll('#card-grid > button')].map(b=>b.dataset.cardId)")
     cdp.evaluate("document.getElementById('next-results').click()")

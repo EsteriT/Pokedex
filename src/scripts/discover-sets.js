@@ -4,7 +4,8 @@
   const $ = (id) => document.getElementById(id);
   if (window.CardCatalogue?.enabled)
     $("sets-note").textContent =
-      "Browse the ten English trial sets. More sets will follow after review.";
+      "Browse English sets in the catalogue.";
+  $("future-english-sets").hidden = (window.CardCatalogue?.info?.sets.length || 0) > 10;
   const tabs = [$("cards-tab"), $("sets-tab")];
   const grouped = new Map();
   for (const card of window.CARDS || []) {
@@ -19,10 +20,42 @@
   const sets = (
     window.CardCatalogue?.info?.sets.map((set) => ({
       ...set,
-      cards: set.preview,
+      cards: set.preview || [],
     })) || [...grouped.values()]
-  ).sort((a, b) => a.name.localeCompare(b.name));
-  let lastSetButton = null;
+  );
+  const printingCount = (set) => set.count ?? set.cards.length;
+  const printingLabel = (set) => {
+    const count = printingCount(set);
+    return count + (set.count == null ? " sample" : "") +
+      (count === 1 ? " printing" : " printings");
+  };
+  function setArt(set) {
+    const art = document.createElement("span");
+    art.className = "set-art";
+    art.setAttribute("aria-hidden", "true");
+    const fallback = document.createElement("span");
+    fallback.className = "set-logo-fallback";
+    fallback.textContent = set.name;
+    art.append(fallback);
+    const logo = window.CardCatalogue.setLogo(set);
+    if (logo) {
+      const img = document.createElement("img");
+      img.className = "set-logo";
+      img.dataset.cardSrc = logo;
+      img.width = 280;
+      img.height = 120;
+      img.decoding = "async";
+      img.alt = "";
+      img.loading = "lazy";
+      img.addEventListener("load", () => {
+        img.classList.add("is-loaded");
+        fallback.hidden = true;
+      }, { once: true });
+      img.addEventListener("error", () => img.remove(), { once: true });
+      art.append(img);
+    }
+    return art;
+  }
   function showView(view, focus = false) {
     const isSets = view === "sets";
     tabs.forEach((tab, index) => {
@@ -39,8 +72,7 @@
     history.replaceState(null, "", url.pathname + url.search + url.hash);
     if (focus) tabs[isSets ? 1 : 0].focus({ preventScroll: true });
   }
-  function openSet(set, button) {
-    lastSetButton = button;
+  function openSet(set) {
     // A new set starts with an unfiltered sample, never silently inherits other filters.
     $("search-form").reset();
     $("filters-form").reset();
@@ -50,8 +82,7 @@
     $("sort-order").value = "number";
     showView("cards");
     $("set-filter").dispatchEvent(new Event("change", { bubbles: true }));
-    $("back-to-sets").hidden = false;
-    $("back-to-sets").focus({ preventScroll: true });
+    $("cards-tab").focus({ preventScroll: true });
     $("discover-cards-panel").scrollIntoView({
       block: "start",
       behavior: "instant",
@@ -62,6 +93,12 @@
     const matches = sets.filter((set) =>
       set.name.toLocaleLowerCase().includes(query),
     );
+    const sort = $("sets-sort").value;
+    matches.sort((a, b) => {
+      const byName = a.name.localeCompare(b.name);
+      if (sort === "count") return printingCount(b) - printingCount(a) || byName;
+      return sort === "name-desc" ? -byName : byName;
+    });
     $("sets-grid").replaceChildren(
       ...matches.map((set) => {
         const button = document.createElement("button");
@@ -70,49 +107,28 @@
         button.dataset.setId = set.id;
         button.setAttribute(
           "aria-label",
-          "Browse " +
-            set.name +
-            ", " +
-            (set.count || set.cards.length) +
-            (set.cards.length === 1 ? " printing" : " printings"),
+          "Browse " + set.name + ", " + printingLabel(set),
         );
-        const art = document.createElement("span");
-        art.className = "set-art";
-        art.setAttribute("aria-hidden", "true");
-        art.style.setProperty(
-          "--set-tint",
-          set.cards[0]?.palette?.[0] || "var(--lavender)",
-        );
-        set.cards.slice(0, 3).forEach((card, index) => {
-          const img = document.createElement("img");
-          img.dataset.cardSrc =
-            window.CardCatalogue?.thumbnail(card) || card.imageUrl;
-          img.width = 245;
-          img.height = 337;
-          img.decoding = "async";
-          img.alt = "";
-          img.loading = "lazy";
-          img.style.setProperty("--card-index", index);
-          img.addEventListener("error", () => img.remove(), { once: true });
-          art.append(img);
-        });
+        const art = setArt(set);
         const meta = document.createElement("span");
         meta.className = "set-meta";
         const name = document.createElement("strong");
         name.textContent = set.name;
         const count = document.createElement("span");
-        count.textContent =
-          (set.count || set.cards.length) +
-          (set.cards.length === 1 ? " printing" : " printings");
-        const badge = document.createElement("small");
-        badge.textContent = set.count
-          ? set.missingImages
-            ? set.missingImages + " images unavailable"
-            : "English - TCGdex"
-          : "Sample set";
-        meta.append(name, count, badge);
+        count.textContent = printingLabel(set);
+        meta.append(name, count);
+        if (set.missingImages) {
+          const badge = document.createElement("small");
+          badge.textContent = set.missingImages + " images unavailable";
+          meta.append(badge);
+        }
+        if (set.expectedCount > printingCount(set)) {
+          const gap = document.createElement("small");
+          gap.textContent = (set.expectedCount - printingCount(set)) + " records unavailable";
+          meta.append(gap);
+        }
         button.append(art, meta);
-        button.addEventListener("click", () => openSet(set, button));
+        button.addEventListener("click", () => openSet(set));
         return button;
       }),
     );
@@ -134,14 +150,8 @@
       showView(next ? "sets" : "cards", true);
     });
   });
-  $("back-to-sets").addEventListener("click", () => {
-    showView("sets");
-    if (lastSetButton?.isConnected) {
-      lastSetButton.focus({ preventScroll: true });
-      lastSetButton.scrollIntoView({ block: "nearest", behavior: "instant" });
-    } else $("sets-tab").focus();
-  });
   $("set-query").addEventListener("input", renderSets);
+  $("sets-sort").addEventListener("change", renderSets);
   $("reset-set-search").addEventListener("click", () => {
     $("set-query").value = "";
     renderSets();

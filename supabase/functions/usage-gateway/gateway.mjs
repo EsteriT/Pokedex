@@ -37,7 +37,8 @@ export function route(path, method) {
       return ["artwork", 512000, 4096];
   }
   if (path === "/storage/v1/object/binder-artwork" && method === "DELETE")
-    return ["deletion", 16384, 16384];
+    // Up to 60 owned files return object metadata after deletion.
+    return ["deletion", 16384, 64 * 1024];
   return null;
 }
 async function boundedBody(body, limit) {

@@ -3304,19 +3304,241 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Search leads; filters and sorting have separate, quieter rows. */
+.discover-page {
+  background-color: var(--bg);
+  background-image: radial-gradient(ellipse at 12% 4%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 65%);
+  background-size: 100% 620px;
+  background-repeat: no-repeat;
+}
+.discover-search-panel {
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(160deg, var(--surface), color-mix(in srgb, var(--surface) 82%, var(--bg)));
+  box-shadow: inset 0 1px 0 #ffffff0a, 0 8px 24px #0000000a;
+}
+.discover-search-panel .quick-filters { margin-bottom: 0; }
+.discover-page .discover-search-panel .search { background: var(--bg); }
+.discover-page .quick-filters summary.has-selection {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--line));
+}
+#card-grid .discover-card { animation: discover-card-arrive 160ms ease-out; }
+#card-grid .discover-card:hover { transform: none; }
+#card-grid .card-image {
+  border-radius: 8px;
+  box-shadow: 0 3px 6px #0000001a, 0 10px 22px #00000014;
+  transition: box-shadow 180ms ease;
+}
+#card-grid .card-meta { margin-top: 14px; gap: 5px; }
+#card-grid .card-meta strong { font-size: 16px; font-weight: 600; line-height: 1.35; letter-spacing: -0.2px; }
+#card-grid .card-meta > span { font-size: 13px; line-height: 1.5; }
+#card-grid .card-meta small {
+  justify-self: start;
+  max-width: 100%;
+  margin-top: 3px;
+  padding: 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+#card-grid .card-meta small:empty { display: none; }
+#card-grid .discover-card:focus-visible .card-image { box-shadow: 0 5px 10px #00000024, 0 16px 30px #00000024; }
+@media (hover: hover) and (pointer: fine) {
+  #card-grid .discover-card:hover { transform: translateY(-3px); }
+  #card-grid .discover-card:hover .card-image { box-shadow: 0 5px 10px #00000024, 0 16px 30px #00000024; }
+}
+@keyframes discover-card-arrive { from { opacity: 0.7; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #card-grid .discover-card { animation: none; transition: none; }
+  #card-grid .discover-card:hover { transform: none; }
+  #card-grid .card-image { transition: none; }
+}
+@media (max-width: 620px) {
+  .discover-search-panel { padding: 12px; border-radius: 12px; }
+  #card-grid .card-meta { margin-top: 12px; }
+  #card-grid .card-meta strong { font-size: 14px; }
+  #card-grid .card-meta > span { font-size: 12px; }
+}
+.discover-page .discover-toolbar { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.discover-page .discover-search { grid-column: auto; }
+.discover-page .discover-search #search-scope {
+  flex: 0 0 auto; width: 120px; min-height: 36px; max-width: 120px;
+  padding: 6px 24px 6px 0; border: 0; border-right: 1px solid var(--line);
+  border-radius: 0; background-color: transparent; color: var(--ink); font: inherit; font-size: 14px;
+}
+.discover-page .discover-search #search-scope:focus-visible { outline: none; }
+.discover-search .search:has(#search-scope:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.discover-search .search { gap: 12px; }
+.discover-search #card-query { flex: 1 1 auto; min-width: 0; }
+.search-submit svg { display: none; }
+.quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 16px; }
+.filter-picker { position: relative; min-width: 0; }
+.filter-picker > summary,
+.quick-filters .discover-filters > summary {
+  display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+  min-height: 44px; padding: 10px 12px; box-sizing: border-box;
+  border: 1px solid transparent; border-radius: 9px;
+  background: transparent; color: var(--muted); font-size: 14px;
+  cursor: pointer; list-style: none;
+}
+.filter-picker > summary::after {
+  content: ''; width: 6px; height: 6px; border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor; transform: rotate(45deg); margin: 0 2px 3px;
+}
+.filter-picker > summary:hover,
+.quick-filters .discover-filters > summary:hover { background: var(--soft); color: var(--ink); }
+.filter-picker[open] > summary,
+.quick-filters .discover-filters[open] > summary { background: var(--surface); border-color: var(--line); color: var(--ink); }
+.filter-picker > summary.has-selection,
+.quick-filters .discover-filters > summary.has-selection { color: var(--ink); }
+.filter-badge, #filter-count {
+  display: inline-grid; place-items: center; min-width: 20px; height: 20px;
+  padding: 0 5px; border-radius: 6px; font-size: 12px; line-height: 1;
+  font-weight: 600; color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+.filter-picker-panel {
+  position: absolute; z-index: 15; top: calc(100% + 8px); left: 0;
+  width: 280px; max-width: calc(100vw - 32px); padding: 12px;
+  display: grid; gap: 10px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface); box-shadow: 0 8px 24px #0002; box-sizing: border-box;
+}
+.filter-picker:not([open]) > .filter-picker-panel { display: none; }
+.filter-fields > .filter-picker { min-width: 0; }
+.filter-fields > .filter-picker > summary {
+  width: 100%; justify-content: space-between; border-color: var(--line); background: var(--bg);
+}
+.filter-fields > .filter-picker .filter-picker-panel {
+  position: static; width: 100%; max-width: none; margin-top: 8px; padding: 8px;
+  box-shadow: none; background: var(--bg);
+}
+.filter-fields > .filter-picker .filter-picker-list { max-height: 180px; }
+.filter-fields > .filter-picker .filter-picker-list label { gap: 6px; font-size: 13px; padding: 7px 4px; overflow-wrap: anywhere; }
+.filter-fields > .filter-picker .button { padding: 8px; font-size: 13px; }
+.filter-fields > [data-filter="illustrator-filter"] { grid-column: 1 / -1; }
+.filter-fields > [data-filter="finish-filter"] { grid-column: 2; grid-row: 1; }
+.type-picker-panel #type-match-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.type-picker-panel #type-match { flex: 1; min-width: 0; min-height: 40px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+.filter-picker-list { max-height: min(280px, 35dvh); overflow: auto; display: grid; gap: 4px; }
+.filter-picker-list label {
+  display: flex; align-items: center; gap: 10px; min-height: 40px;
+  padding: 8px; border: 1px solid transparent; border-radius: 8px;
+  cursor: pointer; font-size: 14px; box-sizing: border-box;
+}
+.filter-picker-list label:hover { background: var(--soft); }
+.filter-picker-list label:has(input:checked) { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 25%, var(--line)); }
+.filter-picker-list label:focus-within { outline: 2px solid var(--accent); outline-offset: -2px; }
+.filter-picker-list input { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--accent); }
+.type-picker-panel { width: 360px; }
+.type-picker-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.type-picker-list label { gap: 6px; font-size: 13px; }
+.type-picker-list input { order: 3; margin-left: auto; width: 14px; height: 14px; }
+.type-symbol { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; background: var(--type-color); color: white; }
+.type-symbol svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.discover-page .filter-picker-panel > input,
+.discover-page #filters-form .field > input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; box-sizing: border-box;
+}
+.discover-page #filters-form { width: min(440px, calc(100vw - 32px)); max-height: min(650px, var(--available-filter-height, 75dvh)); padding: 16px; }
+.discover-page #filters-form .filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.discover-page #filters-form .field:has(#illustrator-filter), .hp-fields { grid-column: 1 / -1; }
+.hp-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.discover-page #filters-form .field > select { width: 100%; min-height: 44px; max-width: none; }
+.discover-page #filters-form .field:has(#finish-filter) { grid-column: 2; grid-row: 1; }
+.discover-page #filters-form .color-tools { margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--line); }
+.discover-page #filters-form .color-section { padding: 8px 0 0; border: 0; }
+.color-tools small { color: var(--muted); font-size: 12px; }
+.quick-filters > .color-tools { position: relative; margin: 0; }
+.quick-filters > .color-tools > summary {
+  min-height: 44px; padding: 10px 12px; border-color: transparent; background: transparent; color: var(--muted);
+}
+.quick-filters > .color-tools > summary::after {
+  content: ''; width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor;
+  transform: rotate(45deg); margin: 0 2px 3px;
+}
+.quick-filters > .color-tools[open] > summary { background: var(--surface); border-color: var(--line); color: var(--ink); }
+.quick-filters > .color-tools > .color-section {
+  position: absolute; z-index: 20; top: calc(100% + 8px); left: 0;
+  width: 320px; max-width: calc(100vw - 32px); overflow-y: auto; padding: 16px; margin: 0;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: 0 8px 24px #0002;
+}
+.color-section #close-color-filter { width: 100%; min-height: 40px; }
+.filter-actions { display: flex; align-items: center; gap: 12px; position: sticky; bottom: -16px; padding: 12px 0; margin-top: 12px; background: var(--surface); border-top: 1px solid var(--line); }
+.discover-page .filter-actions .button { flex: 1; min-width: 0; min-height: 44px; margin: 0; padding: 10px 12px; font-size: 14px; white-space: nowrap; }
+.active-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 16px; }
+.active-filter-row .active-filters { display: contents; }
+.clear-all-link { min-height: 40px; padding: 8px 4px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.clear-all-link:hover { color: var(--ink); text-decoration: underline; }
+.discover-page .results-toolbar { min-height: 44px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.results-toolbar h2 { font-size: 15px; margin: 0; }
+.discover-page .results-sort { margin-left: auto; font-size: 13px; }
+.discover-page .results-sort select { min-height: 40px; max-width: 200px; padding: 8px 28px 8px 10px; border-color: transparent; border-radius: 8px; background-color: transparent; }
+.discover-page .results-sort select:hover { border-color: var(--line); background-color: var(--surface); }
+@media (max-width: 980px) {
+  .discover-page #filters-form { position: fixed; left: auto; right: 12px; top: auto; bottom: 12px; width: min(400px, calc(100vw - 24px)); max-height: 80dvh; z-index: 30; box-shadow: 0 0 0 100vmax #0006; }
+}
+@media (max-width: 620px) {
+  .discover-page .discover-search #search-scope { width: 88px; max-width: 88px; font-size: 12px; padding-right: 16px; }
+  .discover-page .discover-search .search { gap: 8px; padding-inline: 10px; }
+  .discover-page .discover-search .search-submit { flex: 0 0 44px; width: 44px; min-height: 44px; padding: 10px; }
+  .search-submit span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .search-submit svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+  .quick-filters { position: relative; gap: 4px; }
+  .filter-picker { position: static; }
+  .filter-picker-panel { left: 0; top: 52px; width: 100%; max-width: 100%; }
+  .filter-picker > summary, .quick-filters .discover-filters > summary { padding: 10px 8px; gap: 6px; font-size: 13px; }
+  .filter-badge, #filter-count { min-width: 18px; height: 18px; padding: 0 4px; }
+  .type-picker-list label { gap: 5px; padding: 7px 5px; }
+  .type-symbol { flex-basis: 20px; height: 20px; }
+  .type-symbol svg { width: 15px; height: 15px; }
+  .discover-page #filters-form { left: 12px; right: 12px; width: auto; }
+  .quick-filters > .color-tools { position: static; }
+  .quick-filters > .color-tools > .color-section { left: 0; top: 100%; width: 100%; max-width: 100%; }
+  .quick-filters > .color-tools > summary { padding-inline: 8px; font-size: 13px; }
+  .discover-page .results-sort select { max-width: 168px; }
+}
 </style>
-    <style>/* Sample set directory; full-catalogue ingestion remains a separate integration. */
+    <style>/* Set directory uses remote TCGdex logos, with a name fallback. */
 .discover-page [hidden] {
   display: none !important;
 }
-.back-to-sets {
-  margin-bottom: 16px;
+.set-filter-art {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 32px;
 }
+.set-filter-art > * { grid-area: 1 / 1; }
+.set-filter-art > span {
+  max-width: 88px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.set-filter-logo {
+  width: 88px;
+  height: 32px;
+  object-fit: contain;
+  opacity: 0;
+}
+.set-filter-logo.is-loaded { opacity: 1; }
 .sets-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   margin-bottom: 16px;
 }
 .sets-toolbar h2 {
@@ -3332,13 +3554,42 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   line-height: 1.6;
 }
 .sets-toolbar .search {
-  width: min(100%, 340px);
+  flex: 1;
+  width: auto;
+  max-width: none;
   min-width: 0;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 12px;
+}
+.sets-controls {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  width: min(100%, 460px);
+  flex-shrink: 0;
+}
+.sets-sort {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.discover-page .sets-sort select {
+  box-sizing: border-box;
+  height: 44px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
 }
 .sets-toolbar input {
   width: 100%;
   min-width: 0;
-  min-height: 44px;
+  min-height: 42px;
   font-size: 16px;
 }
 .sets-count {
@@ -3347,9 +3598,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
 .sets-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  grid-auto-rows: 1fr;
+  gap: 16px;
 }
 .set-tile {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   overflow: hidden;
   padding: 0;
@@ -3366,39 +3620,41 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
     border-color 160ms ease;
 }
 .set-art {
-  display: flex;
+  display: grid;
   position: relative;
-  align-items: flex-end;
-  justify-content: center;
-  height: 240px;
+  place-items: center;
+  width: 100%;
+  height: 144px;
+  flex-shrink: 0;
+  box-sizing: border-box;
   overflow: hidden;
-  background: color-mix(
-    in srgb,
-    var(--set-tint, var(--lavender)) 18%,
-    var(--surface)
-  );
-  padding-top: 24px;
+  background: color-mix(in srgb, var(--soft) 65%, var(--surface));
+  padding: 20px;
 }
-.set-art img {
-  width: 124px;
-  aspect-ratio: 245 / 337;
+.set-art > * { grid-area: 1 / 1; }
+.set-art .set-logo {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: 104px;
+  max-height: 100%;
   object-fit: contain;
-  border-radius: 6px;
-  margin: 0 -12px -14px;
-  transform: translateY(
-      calc((var(--card-index) - 1) * (var(--card-index) - 1) * 12px)
-    )
-    rotate(calc((var(--card-index) - 1) * 8deg));
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+  opacity: 0;
 }
-.set-art img:nth-child(2) {
-  z-index: 1;
+.set-art .set-logo.is-loaded { opacity: 1; }
+.set-logo-fallback {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 .set-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
+  gap: 4px;
+  padding: 16px;
+  flex: 1;
 }
 .set-meta strong {
   font-size: 18px;
@@ -3461,6 +3717,12 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   transform: scale(0.985);
 }
 @media (max-width: 980px) {
+  .sets-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .sets-controls { width: 100%; }
   .sets-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3479,16 +3741,14 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
     gap: 16px;
   }
   .set-art {
-    height: 140px;
-    padding-top: 16px;
+    height: 120px;
+    padding: 16px;
   }
-  .set-art img {
-    width: 68px;
-    margin-inline: -12px;
-  }
+  .set-art .set-logo { height: 88px; }
+  .set-logo-fallback { font-size: 16px; }
   .set-meta {
     padding: 16px;
-    gap: 8px;
+    gap: 4px;
   }
   .set-meta strong {
     font-size: 16px;
@@ -3502,14 +3762,13 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
   .sets-future {
     margin-top: 32px;
   }
+  .sets-sort select { max-width: 150px; }
 }
 @media (max-width: 360px) {
   .set-art {
     height: 120px;
   }
-  .set-art img {
-    width: 60px;
-  }
+  .set-art .set-logo { height: 88px; }
   .set-meta {
     padding: 12px;
   }
@@ -3910,7 +4169,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
           <span class="title-dot">.</span>
         </h1>
         <p id="catalogue-note">
-          Sample catalogue · full catalogue and live prices coming later.
+          Loading catalogue…
         </p>
       </div>
       <div id="discover-collection-bar" class="discover-collection-bar" hidden>
@@ -3989,18 +4248,17 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         role="tabpanel"
         aria-labelledby="cards-tab"
       >
-        <button
-          id="back-to-sets"
-          class="button secondary back-to-sets"
-          type="button"
-          hidden
-        >
-          Back to sets
-        </button>
+        <div class="discover-search-panel">
         <div class="discover-toolbar">
           <form id="search-form" class="discover-search" role="search">
-            <label class="search">
-              <span aria-hidden="true">⌕</span>
+            <div class="search">
+              <select id="search-scope" aria-label="Search by">
+                <option value="all">All</option>
+                <option value="name">Name</option>
+                <option value="number">Number</option>
+                <option value="set">Set</option>
+                <option value="illustrator">Illustrator</option>
+              </select>
               <input
                 id="card-query"
                 type="search"
@@ -4008,34 +4266,46 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
                 aria-label="Search cards by name, card number, or set"
                 maxlength="120"
               />
-            </label>
-            <button class="button primary" type="submit">Search</button>
+            </div>
+            <button class="button primary search-submit" type="submit" aria-label="Search"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Search</span></button>
           </form>
-          <details id="filters-panel" class="discover-filters">
-            <summary id="filters-title">
-              Filters
-              <span id="filter-count"></span>
-            </summary>
-            <form id="filters-form">
-              <div class="filter-fields">
-                <label class="field">
+
+
+        </div>
+        <div class="quick-filters" aria-label="Quick filters">                <label class="field">
                   Set
-                  <select id="set-filter">
+                  <select form="filters-form" id="set-filter">
                     <option value="">All sets</option>
                   </select>
                 </label>
                 <label class="field">
                   Type
-                  <select id="type-filter">
+                  <select form="filters-form" id="type-filter">
                     <option value="">All types</option>
+                  </select>
+                </label>
+                <label id="type-match-field" hidden>Match
+                  <select id="type-match" form="filters-form">
+                    <option value="any">Any selected type</option>
+                    <option value="all">All selected types</option>
                   </select>
                 </label>
                 <label class="field">
                   Rarity
-                  <select id="rarity-filter">
+                  <select form="filters-form" id="rarity-filter">
                     <option value="">All rarities</option>
                   </select>
                 </label>
+          <details id="filters-panel" class="discover-filters">
+            <summary id="filters-title">
+              More filters
+              <span id="filter-count"></span>
+            </summary>
+            <form id="filters-form">
+              <div class="filter-fields">
+                <label class="field">Category<select id="category-filter"><option value="">All categories</option></select></label>
+                <label class="field">Illustrator<select id="illustrator-filter"><option value="">All illustrators</option></select></label>
+                <div class="hp-fields"><label class="field">Min HP<input id="hp-min" type="number" min="0" max="10000" step="1" placeholder="Any" /></label><label class="field">Max HP<input id="hp-max" type="number" min="0" max="10000" step="1" placeholder="Any" /></label></div>
                 <label class="field">
                   Finish
                   <select id="finish-filter">
@@ -4043,31 +4313,23 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
                   </select>
                 </label>
               </div>
-              <button
+
+
+<div class="filter-actions">              <button
                 id="clear-filters"
                 class="button secondary clear-filters"
                 type="button"
                 disabled
               >
-                Clear search &amp; filters
-              </button>
+                Reset all
+              </button><button id="show-filter-results" class="button primary" type="button">Show cards</button></div>
             </form>
           </details>
-          <label>
-            Sort
-            <select id="sort-order">
-              <option value="name">Name A–Z</option>
-              <option value="set">Set, then name</option>
-              <option value="number">Set, then number</option>
-              <option value="color" hidden disabled>Closest color</option>
-            </select>
-          </label>
-        </div>
         <details id="color-tools" class="color-tools">
-          <summary>Match a color</summary>
+          <summary id="color-title">Color <span id="color-count" class="filter-badge" hidden></span></summary>
           <div class="color-section">
             <label>
-              <input id="color-enabled" type="checkbox" />
+              <input form="filters-form" id="color-enabled" type="checkbox" />
               Rank by color
             </label>
             <div
@@ -4155,30 +4417,51 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
             </div>
             <div class="color-control">
               <input
-                id="chosen-color"
+                form="filters-form" id="chosen-color"
                 type="color"
                 value="#7eac91"
                 aria-label="Color to match"
               />
               <output id="color-value" for="chosen-color">#7EAC91</output>
             </div>
-            <p>Curated sample palettes · artwork analysis coming later.</p>
+            <p>Color matching uses the sample catalogue.</p>
+            <button id="close-color-filter" class="button secondary" type="button">Done</button>
           </div>
         </details>
+</div>
+
+        </div>
         <div class="discover-layout">
           <section class="results-main" aria-labelledby="results-heading">
+            <div id="active-filter-row" class="active-filter-row" hidden>
+            <div
+              id="active-filters"
+              class="active-filters"
+              aria-label="Active filters"
+            ></div>
+<button id="clear-all-filters" class="clear-all-link" type="button" hidden>Clear all</button>
+            </div>
             <div class="results-toolbar">
               <h2 id="results-heading" tabindex="-1">
                 <span id="result-count" role="status" aria-live="polite">
                   Loading cards…
                 </span>
               </h2>
+          <label class="results-sort">
+            Sort
+            <select id="sort-order">
+              <option value="name">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="number-desc">Set, then number ↓</option>
+              <option value="hp">HP low–high</option>
+              <option value="hp-desc">HP high–low</option>
+              <option value="set">Set, then name</option>
+              <option value="number">Set, then number</option>
+              <option value="color" hidden disabled>Closest color</option>
+            </select>
+          </label>
             </div>
-            <div
-              id="active-filters"
-              class="active-filters"
-              aria-label="Active filters"
-            ></div>
+
             <div id="results-state" class="discover-state" role="status">
               Loading sample catalogue…
             </div>
@@ -4201,7 +4484,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
                 class="button secondary"
                 type="button"
               >
-                Clear search &amp; filters
+                Reset all
               </button>
             </div>
             <div id="pagination" class="pagination">
@@ -4234,15 +4517,25 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
               Explore sample cards. Full sets are coming later.
             </p>
           </div>
-          <label class="search">
-            <input
-              id="set-query"
-              type="search"
-              maxlength="120"
-              placeholder="Find a set"
-              aria-label="Search available sample sets"
-            />
-          </label>
+          <div class="sets-controls">
+            <label class="search">
+              <input
+                id="set-query"
+                type="search"
+                maxlength="120"
+                placeholder="Find a set"
+                aria-label="Search sets"
+              />
+            </label>
+            <label class="sets-sort">
+              Sort
+              <select id="sets-sort">
+                <option value="name">Name A–Z</option>
+                <option value="name-desc">Name Z–A</option>
+                <option value="count">Most printings</option>
+              </select>
+            </label>
+          </div>
         </div>
         <p
           id="sets-count"
@@ -4252,7 +4545,7 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         ></p>
         <div id="sets-grid" class="sets-grid"></div>
         <div id="sets-empty" class="sets-empty" hidden>
-          <p>No sample sets match your search.</p>
+          <p>No sets match your search.</p>
           <button id="reset-set-search" class="button secondary" type="button">
             Clear search
           </button>
@@ -4260,10 +4553,10 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
         <div class="sets-future" aria-labelledby="future-sets-title">
           <h3 id="future-sets-title">On the horizon</h3>
           <div class="sets-future-grid">
-            <article class="future-set">
+            <article id="future-english-sets" class="future-set">
               <span class="set-coming">Coming later</span>
               <h4>More English sets</h4>
-              <p>The full catalogue of printings from 2010 onward.</p>
+              <p>More English printings as catalogue coverage grows.</p>
             </article>
             <article class="future-set">
               <span class="set-coming">Coming later</span>
@@ -6451,7 +6744,13 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       const result = await rpc("catalogue_info", {});
       if (!Array.isArray(result?.sets) || !result.sets.length) return;
       if (
-        result.sets.length > 10 ||
+        result.sets.length > 500 ||
+        !Number.isInteger(result.count) || result.count < 1 || result.count > 50000 ||
+        result.sets.some(set => !set || typeof set.id !== 'string' ||
+          !/^[A-Za-z0-9.-]{1,40}$/.test(set.id) || typeof set.name !== 'string' ||
+          set.name.length > 160 || !Number.isInteger(set.count) || set.count < 1 ||
+          set.count > 1000 || (set.preview && (!Array.isArray(set.preview) || set.preview.length > 3))) ||
+        new Set(result.sets.map(set => set.id)).size !== result.sets.length ||
         !Array.isArray(result.types) ||
         !Array.isArray(result.rarities)
       )
@@ -6490,9 +6789,9 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       };
     }
     const clean = Object.fromEntries(
-      ["q", "set", "type", "rarity", "finish", "sort"].map((key) => [
+      ["q", "set", "type", "rarity", "finish", "sort", "category", "illustrator", "hpMin", "hpMax", "qScope", "typeMatch"].map((key) => [
         key,
-        String(filters[key] || ""),
+        Array.isArray(filters[key]) ? [...filters[key]] : String(filters[key] ?? ""),
       ]),
     );
     if (!clean.sort) clean.sort = "name";
@@ -6570,8 +6869,45 @@ body :is(h1, h2, h3, button, input, select, textarea, summary) {
       ? source.replace(/\/high\.webp$/, "/low.webp")
       : source;
   }
+  function picture(card, large = false) {
+    const image = document.createElement("img");
+    const unavailable = () => {
+      image.dataset.imageUnavailable = "true";
+      image.alt = "Image unavailable for " + (card?.name || "this card");
+      image.src = "data:image/svg+xml," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 337"><rect x="1" y="1" width="243" height="335" rx="8" fill="#edf1f7" stroke="#8b95a5"/><path d="M85 147h75v54H85zm0 42 23-22 18 17 12-12 22 20" fill="none" stroke="#596273" stroke-width="3"/><text x="122.5" y="230" text-anchor="middle" fill="#596273" font-family="sans-serif" font-size="15">Image unavailable</text></svg>',
+      );
+    };
+    image.alt = card?.name || "Card";
+    image.loading = large ? "eager" : "lazy";
+    image.decoding = "async";
+    image.draggable = false;
+    image.addEventListener("error", unavailable, { once: true });
+    const source = large ? card?.imageUrl : thumbnail(card);
+    if (source) image.src = source;
+    else unavailable();
+    return image;
+  }
+  function setLogo(set) {
+    if (set?.logo === null) return "";
+    const asset = /^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/logo(?:\.webp)?$/;
+    if (typeof set?.logo === "string") {
+      const match = set.logo.match(asset);
+      if (match && match[2] === set.id)
+        return set.logo.replace(/(?:\.webp)?$/, ".webp");
+    }
+    // Older catalogue responses omit logos; reuse their canonical card asset directory.
+    for (const card of set?.preview || set?.cards || []) {
+      const match = card.imageUrl?.match(/^https:\/\/assets\.tcgdex\.net\/en\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/[A-Za-z0-9_.-]+\/high\.webp$/);
+      if (match && match[2] === set.id)
+        return "https://assets.tcgdex.net/en/" + match[1] + "/" + match[2] + "/logo.webp";
+    }
+    return "";
+  }
   window.CardCatalogue = {
+    setLogo,
     thumbnail,
+    picture,
     ready,
     byId,
     search,
@@ -7805,6 +8141,11 @@ PERFORMANCE OF THIS SOFTWARE.
   }
   function search(cards, filters) {
     const q = (filters.q || "").trim().toLowerCase();
+    const accepts = (choice, value) => !choice || (Array.isArray(choice) ? !choice.length || choice.includes(value) : choice === value);
+    const choices = choice => Array.isArray(choice) ? choice : choice ? [choice] : [];
+    const numberMatches = c => /^#?\d+$/.test(q)
+      ? Number(q.replace('#','')) === Number(c.collectorNumber)
+      : c.collectorNumber.toLowerCase() === q.replace('#','');
     const results = cards.filter((c) => {
       const terms = [
         c.name,
@@ -7812,18 +8153,28 @@ PERFORMANCE OF THIS SOFTWARE.
         c.setName,
         c.setId,
         c.providerId,
+        c.illustrator,
       ]
         .join(" ")
         .toLowerCase();
+      const scope = filters.qScope || 'all';
+      const queryMatches = !q || (scope === 'name' ? c.name.toLowerCase().includes(q)
+        : scope === 'number' ? numberMatches(c)
+        : scope === 'set' ? (c.setName + ' ' + c.setId).toLowerCase().includes(q)
+        : scope === 'illustrator' ? (c.illustrator || '').toLowerCase().includes(q)
+        : /^#?\d+$/.test(q) ? numberMatches(c) : terms.includes(q));
       return (
-        (!q ||
-          terms.includes(q) ||
-          (q.match(/^#?\d+$/) &&
-            Number(q.replace("#", "")) === Number(c.collectorNumber))) &&
-        (!filters.set || c.setId === filters.set) &&
-        (!filters.type || c.pokemonTypes.includes(filters.type)) &&
-        (!filters.rarity || c.rarity === filters.rarity) &&
-        (!filters.finish || finishes(c).includes(filters.finish))
+        queryMatches &&
+        accepts(filters.set, c.setId) &&
+        (!choices(filters.type).length || (filters.typeMatch === 'all'
+          ? choices(filters.type).every(t => c.pokemonTypes.includes(t))
+          : c.pokemonTypes.some(t => accepts(filters.type,t)))) &&
+        accepts(filters.rarity, c.rarity) &&
+        accepts(filters.category, c.category) &&
+        (Array.isArray(filters.illustrator) ? accepts(filters.illustrator,c.illustrator) : !filters.illustrator || (c.illustrator || '').toLowerCase().includes(filters.illustrator.toLowerCase())) &&
+        (filters.hpMin == null || filters.hpMin === '' || c.hp != null && c.hp >= Number(filters.hpMin)) &&
+        (filters.hpMax == null || filters.hpMax === '' || c.hp != null && c.hp <= Number(filters.hpMax)) &&
+        (!choices(filters.finish).length || finishes(c).some(f => accepts(filters.finish,f)))
       );
     });
     if (filters.colorEnabled)
@@ -7833,15 +8184,20 @@ PERFORMANCE OF THIS SOFTWARE.
             distance(filters.color, b.palette) || a.name.localeCompare(b.name),
       );
     else
-      results.sort((a, b) =>
+      results.sort((a, b) => {
+        if (filters.sort === 'name-desc') return b.name.localeCompare(a.name) || a.providerId.localeCompare(b.providerId);
+        if (filters.sort === 'number-desc') return a.setName.localeCompare(b.setName) || Number(b.collectorNumber) - Number(a.collectorNumber) || a.providerId.localeCompare(b.providerId);
+        if (filters.sort === 'hp' || filters.sort === 'hp-desc') return (a.hp == null) - (b.hp == null) || (filters.sort === 'hp' ? 1 : -1) * ((a.hp || 0) - (b.hp || 0)) || a.name.localeCompare(b.name);
+        return (
         filters.sort === "number"
           ? a.setName.localeCompare(b.setName) ||
             Number(a.collectorNumber) - Number(b.collectorNumber)
           : filters.sort === "set"
             ? a.setName.localeCompare(b.setName) || a.name.localeCompare(b.name)
             : a.name.localeCompare(b.name) ||
-              a.providerId.localeCompare(b.providerId),
-      );
+              a.providerId.localeCompare(b.providerId)
+        );
+      });
     return results;
   }
   const subject = (card) =>
@@ -8323,27 +8679,7 @@ window.SAMPLE_COLLECTION = {
     return node;
   };
   function picture(card, large = false) {
-    const image = make("img");
-    image.src = large
-      ? card.imageUrl
-      : window.CardCatalogue?.thumbnail(card) || card.imageUrl;
-    image.alt = "";
-    image.loading = "lazy";
-    image.addEventListener(
-      "error",
-      () => {
-        const parent = image.parentElement;
-        if (!parent) return;
-        image.hidden = true;
-        parent.classList.add("art-unavailable");
-        if (parent.id === "inventory-preview")
-          image.replaceWith(
-            make("span", "collection-image-fallback", "Image unavailable"),
-          );
-      },
-      { once: true },
-    );
-    return image;
+    return window.CardCatalogue.picture(card, large);
   }
   function options(select, entries, all) {
     const placeholder = make("option", "", all);
@@ -9803,6 +10139,171 @@ window.SAMPLE_COLLECTION = {
   window.DiscoverImages = { watch };
 })();
 </script>
+    <script>/* Native selects retain form reset and URL state; checklists provide multi-select. */
+(() => {
+  const pickers = [];
+  const maximum = 20;
+  function fitFloatingPanel(details) {
+    if (details.closest('#filters-form')) return;
+    const panel = details.querySelector('.filter-picker-panel, .color-section');
+    if (panel) panel.style.maxHeight = Math.max(180, innerHeight - panel.getBoundingClientRect().top - 12) + 'px';
+  }
+  const types = {
+    Fire: ['#b75b38','M12 3c1 5 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 1 4 2 4 2-2 2-5 1-8Z'],
+    Water: ['#397dad','M12 3C10 7 6 11 6 15a6 6 0 0 0 12 0c0-4-4-8-6-12Z'],
+    Grass: ['#588544','M19 4C7 3 3 9 6 16c7 5 14-1 13-12ZM6 18l9-9'],
+    Lightning: ['#9b7c20','m14 2-9 12h6l-1 8 9-13h-6Z'],
+    Psychic: ['#a65d89','M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6'],
+    Fighting: ['#9b6b4b','M6 12V8a2 2 0 0 1 4 0V5a2 2 0 0 1 4 0v2a2 2 0 0 1 4 0v5h2v5l-4 4H8l-5-7v-3a2 2 0 0 1 3 1Z'],
+    Darkness: ['#536475','M17 4A9 9 0 1 0 20 17 8 8 0 0 1 17 4Z'],
+    Metal: ['#737f89','m12 3 8 4v10l-8 4-8-4V7Zm0 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8'],
+    Fairy: ['#aa739b','m12 3 2 6 6 3-6 3-2 6-2-6-6-3 6-3Z'],
+    Dragon: ['#8f783f','m5 19 4-8-4-4 10-4 4 6-5 2 4 4-5 6-2-5Z'],
+    Colorless: ['#777e89','m12 3 2 6 7-1-5 5 4 6-7-2-4 5v-7l-6-3 7-2Z'],
+  };
+  function typeSymbol(type) {
+    const [color,pathData] = types[type] || ['#777e89','M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14'];
+    const holder = document.createElement('span');
+    holder.className = 'type-symbol';
+    holder.style.setProperty('--type-color',color);
+    holder.setAttribute('aria-hidden','true');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    const path = document.createElementNS(svg.namespaceURI,'path');
+    path.setAttribute('d',pathData);
+    svg.append(path);
+    holder.append(svg);
+    return holder;
+  }
+  function sync() {
+    for (const { select, summary, rows, label } of pickers) {
+      const chosen = [...select.selectedOptions].filter(o => o.value);
+      summary.textContent = label;
+      summary.setAttribute('aria-label', label + ' filter' + (chosen.length ? `, ${chosen.length} selected` : ''));
+      if (chosen.length) {
+        const badge = document.createElement('span');
+        badge.className = 'filter-badge';
+        badge.textContent = chosen.length;
+        badge.setAttribute('aria-hidden','true');
+        summary.append(badge);
+      }
+      summary.classList.toggle('has-selection', chosen.length > 0);
+      for (const { option, input } of rows) input.checked = option.selected;
+      for (const { input } of rows) input.disabled = select.disabled || select.multiple && chosen.length >= maximum && !input.checked;
+    }
+  }
+  function initialize(multiple) {
+    for (const [id, label] of [['set-filter','Set'],['type-filter','Type'],['rarity-filter','Rarity'],['category-filter','Category'],['finish-filter','Finish'],['illustrator-filter','Illustrator']]) {
+      const select = document.getElementById(id);
+      select.multiple = multiple;
+      const details = document.createElement('details');
+      details.className = 'filter-picker';
+      details.dataset.filter = id;
+      const summary = document.createElement('summary');
+      summary.setAttribute('aria-label', label + ' filter');
+      const panel = document.createElement('div');
+      panel.className = 'filter-picker-panel';
+      const search = document.createElement('input');
+      search.type = 'search';
+      search.placeholder = 'Find ' + label.toLowerCase();
+      search.setAttribute('aria-label', 'Search ' + label.toLowerCase() + ' options');
+      const list = document.createElement('div');
+      list.className = 'filter-picker-list';
+      if (id === 'type-filter') {
+        list.classList.add('type-picker-list');
+        panel.classList.add('type-picker-panel');
+        const match = document.getElementById('type-match-field');
+        match.hidden = false;
+        document.getElementById('type-match').disabled = !multiple;
+        panel.append(match);
+      }
+      const rows = [...select.options].filter(o => o.value).map(option => {
+        const row = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.addEventListener('change', () => {
+          if (!multiple) select.value = input.checked ? option.value : '';
+          else option.selected = input.checked;
+          select.options[0].selected = ![...select.options].some(o => o.value && o.selected);
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          sync();
+        });
+        const text = document.createElement('span');
+        text.textContent = option.textContent;
+        row.append(input);
+        if (id === 'type-filter') row.append(typeSymbol(option.value));
+        row.append(text);
+        list.append(row);
+        return { row, option, input };
+      });
+      const empty = document.createElement('p');
+      empty.textContent = 'No matching options';
+      empty.hidden = true;
+      search.addEventListener('input', () => {
+        for (const {row,option} of rows) row.hidden = !option.textContent.toLowerCase().includes(search.value.trim().toLowerCase());
+        empty.hidden = rows.some(({row}) => !row.hidden);
+      });
+      const resetSearch = () => {
+        search.value = '';
+        for (const {row} of rows) row.hidden = false;
+        empty.hidden = true;
+      };
+      const clear = document.createElement('button');
+      clear.type = 'button';
+      clear.className = 'button secondary';
+      clear.textContent = 'Clear ' + label.toLowerCase();
+      clear.addEventListener('click', () => {
+        resetSearch();
+        select.value = '';
+        select.dispatchEvent(new Event('change', {bubbles:true}));
+        sync();
+      });
+      panel.append(search, list, empty, clear);
+      details.append(summary, panel);
+      select.parentElement.before(details);
+      select.parentElement.hidden = true;
+      details.addEventListener('toggle', () => {
+        if (select.disabled) { details.open=false; return; }
+        if (details.open) {
+          document.querySelectorAll('.filter-picker[open], #filters-panel[open], #color-tools[open]').forEach(other => { if(other !== details && !other.contains(details)) other.open = false; });
+          fitFloatingPanel(details);
+        }
+      });
+      pickers.push({select,summary,rows,label,resetSearch});
+    }
+    document.addEventListener('click', e => document.querySelectorAll('.filter-picker[open]').forEach(d => {if (!d.contains(e.target)) d.open=false;}));
+    const advanced = document.getElementById('filters-panel');
+    function fitAdvancedPanel() {
+      const form = document.getElementById('filters-form');
+      if (!advanced.open || innerWidth <= 980) {
+        form.style.removeProperty('--available-filter-height');
+        return;
+      }
+      form.style.setProperty('--available-filter-height', Math.max(180, innerHeight - form.getBoundingClientRect().top - 12) + 'px');
+    }
+    advanced.addEventListener('toggle', e => {
+      if (e.target.open) document.querySelectorAll('.filter-picker[open]').forEach(d => d.open = false);
+      fitAdvancedPanel();
+    });
+    const color = document.getElementById('color-tools');
+    color.addEventListener('toggle', () => {
+      if (color.open) {
+        document.querySelectorAll('.filter-picker[open], #filters-panel[open]').forEach(d => d.open=false);
+        fitFloatingPanel(color);
+      }
+    });
+    window.addEventListener('resize', fitAdvancedPanel);
+    window.addEventListener('resize', () => document.querySelectorAll('.filter-picker[open], #color-tools[open]').forEach(fitFloatingPanel));
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+      const open = document.querySelector('.filter-picker[open]');
+      if (open) { open.open=false; open.querySelector('summary').focus(); e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    sync();
+  }
+  window.DiscoverFilterPickers = { initialize, sync, resetSearches: () => pickers.forEach(p => p.resetSearch()) };
+})();
+</script>
     <script>(() => {
   "use strict";
   const repository = window.BinderRepository || window.BinderStore;
@@ -9827,6 +10328,10 @@ window.SAMPLE_COLLECTION = {
   function image(card, large = false) {
     const holder = make("div", "card-image" + (large ? " large-image" : "")),
       img = make("img");
+    if (!card.imageUrl) {
+      holder.append(make("span", "image-unavailable", "Image unavailable"));
+      return holder;
+    }
     if (large) {
       img.src = card.imageUrl;
       img.fetchPriority = "high";
@@ -9859,13 +10364,23 @@ window.SAMPLE_COLLECTION = {
       $(id).append(n);
     });
   }
+  const choice = id => {
+    const selected = [...$(id).selectedOptions].map(o => o.value).filter(Boolean);
+    return selected.length > 1 ? selected : selected[0] || '';
+  };
   function filters() {
     return {
       q: $("card-query").value.trim(),
-      set: $("set-filter").value,
-      type: $("type-filter").value,
-      rarity: $("rarity-filter").value,
-      finish: $("finish-filter").value,
+      qScope: $("search-scope").value,
+      typeMatch: $("type-match").value,
+      set: choice("set-filter"),
+      type: choice("type-filter"),
+      rarity: choice("rarity-filter"),
+      finish: choice("finish-filter"),
+      category: choice("category-filter"),
+      illustrator: choice("illustrator-filter"),
+      hpMin: $("hp-min").value,
+      hpMax: $("hp-max").value,
       sort:
         $("sort-order").value === "color"
           ? previousSort
@@ -9878,9 +10393,9 @@ window.SAMPLE_COLLECTION = {
     const query = new URLSearchParams();
     if (new URLSearchParams(location.search).get("view") === "sets")
       query.set("view", "sets");
-    for (const key of ["q", "set", "type", "rarity", "finish", "sort"])
-      if (f[key] && !(key === "sort" && f[key] === "name"))
-        query.set(key, f[key]);
+    for (const key of ["q", "set", "type", "rarity", "finish", "sort", "category", "illustrator", "hpMin", "hpMax", "qScope", "typeMatch"])
+      if (f[key] && !(key === "sort" && f[key] === "name") && !(key === "qScope" && f[key] === "all") && !(key === "typeMatch" && f[key] === "any"))
+        for (const value of Array.isArray(f[key]) ? f[key] : [f[key]]) query.append(key, value);
     if (f.colorEnabled) query.set("color", f.color);
     if (page > 1) query.set("page", page);
     history.replaceState(
@@ -9889,8 +10404,35 @@ window.SAMPLE_COLLECTION = {
       location.pathname + (query.size ? "?" + query : "") + location.hash,
     );
   }
-  function chip(label, clear) {
-    const b = make("button", "filter-chip", label);
+  function chip(label, clear, setId) {
+    const b = make("button", "filter-chip");
+    const text = make("span", "", label);
+    b.append(text);
+    if (setId) {
+      b.classList.add("set-filter-chip");
+      b.title = label;
+      const set = window.CardCatalogue.sets().find((set) => set.id === setId);
+      const logo = window.CardCatalogue.setLogo({
+        ...set,
+        cards: cards.filter((card) => card.setId === setId),
+      });
+      if (logo) {
+        const art = make("span", "set-filter-art");
+        text.replaceWith(art);
+        const img = make("img", "set-filter-logo");
+        img.dataset.cardSrc = logo;
+        img.width = 88;
+        img.height = 32;
+        img.alt = "";
+        img.decoding = "async";
+        img.addEventListener("load", () => {
+          text.hidden = true;
+          img.classList.add("is-loaded");
+        }, { once: true });
+        img.addEventListener("error", () => img.remove(), { once: true });
+        art.append(text, img);
+      }
+    }
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("viewBox", "0 0 24 24");
     icon.setAttribute("aria-hidden", "true");
@@ -9913,7 +10455,11 @@ window.SAMPLE_COLLECTION = {
     if (!ready) return;
     const focusId = document.activeElement?.dataset.cardId;
     if (resetPage) page = 1;
+    updateSearchHint();
+    window.DiscoverFilterPickers.sync();
     const f = filters();
+    $("hp-max").setCustomValidity(f.hpMin !== '' && f.hpMax !== '' && Number(f.hpMin) > Number(f.hpMax) ? 'Maximum HP must be at least minimum HP.' : '');
+    if (!$("filters-form").reportValidity()) return;
     const request = ++searchRequest;
     let shown, total;
     try {
@@ -9971,6 +10517,7 @@ window.SAMPLE_COLLECTION = {
     $("results-state").hidden = true;
     $("result-count").textContent =
       `${total} ${total === 1 ? "card" : "cards"}${f.colorEnabled ? " · ranked by curated sample colors" : ""}`;
+    $("show-filter-results").textContent = `Show ${total} ${total === 1 ? 'card' : 'cards'}`;
     $("page-status").textContent =
       `Page ${page} of ${Math.max(1, Math.ceil(total / pageSize))}`;
     $("previous-results").disabled = page === 1;
@@ -9979,35 +10526,43 @@ window.SAMPLE_COLLECTION = {
     $("active-filters").replaceChildren();
     if (f.q)
       $("active-filters").append(
-        chip("Search: " + f.q, () => ($("card-query").value = "")),
+        chip($("search-scope").selectedOptions[0].textContent + ": " + f.q, () => ($("card-query").value = "")),
       );
-    for (const [key, id] of [
-      ["set", "set-filter"],
-      ["type", "type-filter"],
-      ["rarity", "rarity-filter"],
-      ["finish", "finish-filter"],
-    ])
-      if (f[key])
-        $("active-filters").append(
-          chip($(id).selectedOptions[0].textContent, () => ($(id).value = "")),
-        );
+    for (const [key, id] of [['set','set-filter'],['type','type-filter'],['rarity','rarity-filter'],['finish','finish-filter'],['category','category-filter'],['illustrator','illustrator-filter']]) {
+      for (const value of Array.isArray(f[key]) ? f[key] : f[key] ? [f[key]] : []) {
+        const option = [...$(id).options].find(o => o.value === value);
+        $("active-filters").append(chip(option.textContent, () => {
+          if ($(id).multiple) option.selected = false;
+          else $(id).value = '';
+        }, key === 'set' ? value : null));
+      }
+    }
+    if (f.hpMin !== '' || f.hpMax !== '') $("active-filters").append(chip('HP ' + (f.hpMin || '0') + '–' + (f.hpMax || 'Any'), () => { $("hp-min").value = ''; $("hp-max").value = ''; }));
     if (f.colorEnabled)
       $("active-filters").append(
         chip("Color " + f.color, () => ($("color-enabled").checked = false)),
       );
+    window.DiscoverImages.watch($("active-filters"));
     $("clear-filters").disabled =
-      !f.q && !f.set && !f.type && !f.rarity && !f.finish && !f.colorEnabled;
+      !f.q && !f.set && !f.type && !f.rarity && !f.finish && !f.category && !f.illustrator && f.hpMin === '' && f.hpMax === '' && !f.colorEnabled;
+    $("clear-all-filters").disabled = $("clear-filters").disabled;
+    $("clear-all-filters").hidden = $("clear-filters").disabled;
+    $("active-filter-row").hidden = $("clear-filters").disabled;
     previousSort = f.sort;
     const colorOption = $("sort-order").querySelector('[value="color"]');
     colorOption.hidden = !f.colorEnabled;
     $("sort-order").value = f.colorEnabled ? "color" : previousSort;
     $("sort-order").disabled = f.colorEnabled;
-    const count = [f.set, f.type, f.rarity, f.finish, f.colorEnabled].filter(
+    const count = [f.finish, f.category, f.illustrator, f.hpMin !== "" || f.hpMax !== ""].filter(
       Boolean,
     ).length;
-    $("filter-count").textContent = count ? "· " + count + " active" : "";
+    $("filter-count").textContent = count || '';
+    $("filter-count").hidden = !count;
+    $("filters-title").classList.toggle('has-selection', count > 0);
     $("color-value").textContent = f.color.toUpperCase();
-    if (f.colorEnabled) $("color-tools").open = true;
+    $("color-title").classList.toggle('has-selection',f.colorEnabled);
+    $("color-count").hidden = !f.colorEnabled;
+    $("color-count").textContent = f.colorEnabled ? '1' : '';
     document.querySelectorAll(".color-swatch").forEach((button) => {
       button.setAttribute(
         "aria-pressed",
@@ -10025,6 +10580,7 @@ window.SAMPLE_COLLECTION = {
   function openCard(card) {
     $("detail-message").textContent = "";
     activeCard = card;
+    $("view-image").disabled = !card.imageUrl;
     const changingPrinting = $("details-dialog").open;
     if (!changingPrinting) detailFocus = document.activeElement;
     $("detail-art").replaceChildren(image(card, true));
@@ -10048,9 +10604,8 @@ window.SAMPLE_COLLECTION = {
       "Select finish",
     );
     const finishes = catalogue.finishes(card);
-    $("detail-finish").value = finishes.includes($("finish-filter").value)
-      ? $("finish-filter").value
-      : finishes[0] || "";
+    const preferredFinish = [...$("finish-filter").selectedOptions].find(o => finishes.includes(o.value))?.value;
+    $("detail-finish").value = preferredFinish || finishes[0] || "";
     window.DiscoverCollection?.select(card, $("detail-finish").value);
     $("price-mode").value = "raw";
     $("card-condition").value = "unknown";
@@ -10323,11 +10878,23 @@ window.SAMPLE_COLLECTION = {
       queryTimer = setTimeout(() => refresh(), 250);
     else refresh();
   });
+  for (const id of ['hp-min','hp-max']) $(id).addEventListener('input', () => {
+    clearTimeout(queryTimer);
+    searchRequest++;
+    queryTimer = setTimeout(() => refresh(), 250);
+  });
+  $("filters-form").addEventListener('submit', e => { e.preventDefault(); refresh(); });
   for (const id of [
+    "search-scope",
+    "type-match",
     "set-filter",
     "type-filter",
     "rarity-filter",
     "finish-filter",
+    "category-filter",
+    "hp-min",
+    "hp-max",
+    "illustrator-filter",
     "sort-order",
     "color-enabled",
     "chosen-color",
@@ -10340,9 +10907,19 @@ window.SAMPLE_COLLECTION = {
       refresh();
     });
   });
+  function updateSearchHint() {
+    const hints = {all:'Search cards', name:'Pokémon or card name', number:'Card number', set:'Set name or ID', illustrator:'Illustrator name'};
+    $("card-query").placeholder = hints[$("search-scope").value];
+    $("card-query").setAttribute('aria-label', $("search-scope").value === 'all' ? 'Search cards' : 'Search ' + hints[$("search-scope").value].toLowerCase());
+  }
+  $("search-scope").addEventListener('change', updateSearchHint);
+  $("close-color-filter").addEventListener('click', () => { $("color-tools").open=false; $("color-title").focus(); });
   function clear() {
+    clearTimeout(queryTimer);
     $("search-form").reset();
+    updateSearchHint();
     $("filters-form").reset();
+    window.DiscoverFilterPickers.resetSearches();
     $("color-enabled").checked = false;
     $("chosen-color").value = "#7eac91";
     $("sort-order").value = "name";
@@ -10350,6 +10927,13 @@ window.SAMPLE_COLLECTION = {
     $("card-query").focus();
   }
   $("clear-filters").addEventListener("click", clear);
+  $("clear-all-filters").addEventListener("click", clear);
+  $("show-filter-results").addEventListener("click", async () => {
+    await refresh();
+    if (!$("filters-form").checkValidity()) return;
+    $("filters-panel").open = false;
+    $("filters-title").focus();
+  });
   $("no-results-clear").addEventListener("click", clear);
   for (const [id, delta] of [
     ["previous-results", -1],
@@ -10442,11 +11026,24 @@ window.SAMPLE_COLLECTION = {
       options(
         "finish-filter",
         Object.entries(catalogue.finishNames).filter(([key]) =>
-          cards.some((c) => c.variants?.[key]),
+          info?.finishes ? info.finishes.includes(key) : cards.some((c) => c.variants?.[key]),
         ),
         "All finishes",
       );
+      const advanced = !window.CardCatalogue?.enabled || info?.searchVersion >= 3;
+      options('category-filter', (info?.categories || [...new Set(cards.map(c => c.category))]).sort().map(v => [v,v === 'Pokemon' ? 'Pokémon' : v]), 'All categories');
+      options('illustrator-filter', (info?.illustrators || [...new Set(cards.map(c => c.illustrator).filter(Boolean))]).sort().map(v=>[v,v]), 'All illustrators');
+      for (const id of ['category-filter','illustrator-filter','hp-min','hp-max']) $(id).disabled = !advanced;
+      for (const option of $("sort-order").options) if (['name-desc','number-desc','hp','hp-desc'].includes(option.value)) option.disabled = !advanced;
+      for (const option of $("search-scope").options) option.disabled = !advanced && option.value !== 'all';
+      window.DiscoverFilterPickers.initialize(advanced);
       for (const [key, id] of [
+        ["category", "category-filter"],
+        ["illustrator", "illustrator-filter"],
+        ["hpMin", "hp-min"],
+        ["hpMax", "hp-max"],
+        ["qScope", "search-scope"],
+        ["typeMatch", "type-match"],
         ["q", "card-query"],
         ["set", "set-filter"],
         ["type", "type-filter"],
@@ -10456,19 +11053,25 @@ window.SAMPLE_COLLECTION = {
       ])
         if (params.has(key)) {
           const value = params.get(key);
-          if (key === "q" || [...$(id).options].some((n) => n.value === value))
-            $(id).value = value;
+          if (!$(id).disabled) {
+            if (['q','hpMin','hpMax'].includes(key)) $(id).value = value;
+            else if ($(id).multiple) {
+              const values = params.getAll(key);
+              for (const option of $(id).options) option.selected = values.includes(option.value);
+            } else if ([...$(id).options].some(n => n.value === value && !n.disabled)) $(id).value = value;
+          }
         }
       if (/^#[a-f0-9]{6}$/i.test(params.get("color") || "")) {
         $("chosen-color").value = params.get("color");
         $("color-enabled").checked = true;
       }
+      updateSearchHint();
       page = Math.max(1, parseInt(params.get("page"), 10) || 1);
       ready = true;
       await refresh(false);
       $("catalogue-note").textContent = info
-        ? `${info.count} English printings across ${info.sets.length} trial sets. TCGdex data; live prices unavailable. Color matching covers the curated sample only.`
-        : `${cards.length} sample printings. Connected catalogue unavailable or not configured.`;
+        ? `${info.count.toLocaleString('en-US')} English printings · ${info.sets.length} sets`
+        : `${cards.length} sample printings · ${new Set(cards.map(c => c.setId)).size} sets`;
     } catch (error) {
       $("results-state").hidden = false;
       $("results-state").textContent = error.message;
@@ -10479,6 +11082,7 @@ window.SAMPLE_COLLECTION = {
   document.addEventListener("click", (event) => {
     for (const menu of [
       $("filters-panel"),
+      $("color-tools"),
       document.querySelector(".discover-save-tools"),
     ])
       if (menu.open && !menu.contains(event.target)) menu.open = false;
@@ -10487,10 +11091,10 @@ window.SAMPLE_COLLECTION = {
     if (
       event.key === "Escape" &&
       !document.querySelector("dialog[open]") &&
-      document.querySelector(".discover-save-tools[open], #filters-panel[open]")
+      document.querySelector(".discover-save-tools[open], #filters-panel[open], #color-tools[open]")
     ) {
       const menu = document.querySelector(
-        ".discover-save-tools[open], #filters-panel[open]",
+        ".discover-save-tools[open], #filters-panel[open], #color-tools[open]",
       );
       menu.open = false;
       menu.querySelector("summary").focus({ preventScroll: true });
@@ -10506,7 +11110,8 @@ window.SAMPLE_COLLECTION = {
   const $ = (id) => document.getElementById(id);
   if (window.CardCatalogue?.enabled)
     $("sets-note").textContent =
-      "Browse the ten English trial sets. More sets will follow after review.";
+      "Browse English sets in the catalogue.";
+  $("future-english-sets").hidden = (window.CardCatalogue?.info?.sets.length || 0) > 10;
   const tabs = [$("cards-tab"), $("sets-tab")];
   const grouped = new Map();
   for (const card of window.CARDS || []) {
@@ -10521,10 +11126,42 @@ window.SAMPLE_COLLECTION = {
   const sets = (
     window.CardCatalogue?.info?.sets.map((set) => ({
       ...set,
-      cards: set.preview,
+      cards: set.preview || [],
     })) || [...grouped.values()]
-  ).sort((a, b) => a.name.localeCompare(b.name));
-  let lastSetButton = null;
+  );
+  const printingCount = (set) => set.count ?? set.cards.length;
+  const printingLabel = (set) => {
+    const count = printingCount(set);
+    return count + (set.count == null ? " sample" : "") +
+      (count === 1 ? " printing" : " printings");
+  };
+  function setArt(set) {
+    const art = document.createElement("span");
+    art.className = "set-art";
+    art.setAttribute("aria-hidden", "true");
+    const fallback = document.createElement("span");
+    fallback.className = "set-logo-fallback";
+    fallback.textContent = set.name;
+    art.append(fallback);
+    const logo = window.CardCatalogue.setLogo(set);
+    if (logo) {
+      const img = document.createElement("img");
+      img.className = "set-logo";
+      img.dataset.cardSrc = logo;
+      img.width = 280;
+      img.height = 120;
+      img.decoding = "async";
+      img.alt = "";
+      img.loading = "lazy";
+      img.addEventListener("load", () => {
+        img.classList.add("is-loaded");
+        fallback.hidden = true;
+      }, { once: true });
+      img.addEventListener("error", () => img.remove(), { once: true });
+      art.append(img);
+    }
+    return art;
+  }
   function showView(view, focus = false) {
     const isSets = view === "sets";
     tabs.forEach((tab, index) => {
@@ -10541,8 +11178,7 @@ window.SAMPLE_COLLECTION = {
     history.replaceState(null, "", url.pathname + url.search + url.hash);
     if (focus) tabs[isSets ? 1 : 0].focus({ preventScroll: true });
   }
-  function openSet(set, button) {
-    lastSetButton = button;
+  function openSet(set) {
     // A new set starts with an unfiltered sample, never silently inherits other filters.
     $("search-form").reset();
     $("filters-form").reset();
@@ -10552,8 +11188,7 @@ window.SAMPLE_COLLECTION = {
     $("sort-order").value = "number";
     showView("cards");
     $("set-filter").dispatchEvent(new Event("change", { bubbles: true }));
-    $("back-to-sets").hidden = false;
-    $("back-to-sets").focus({ preventScroll: true });
+    $("cards-tab").focus({ preventScroll: true });
     $("discover-cards-panel").scrollIntoView({
       block: "start",
       behavior: "instant",
@@ -10564,6 +11199,12 @@ window.SAMPLE_COLLECTION = {
     const matches = sets.filter((set) =>
       set.name.toLocaleLowerCase().includes(query),
     );
+    const sort = $("sets-sort").value;
+    matches.sort((a, b) => {
+      const byName = a.name.localeCompare(b.name);
+      if (sort === "count") return printingCount(b) - printingCount(a) || byName;
+      return sort === "name-desc" ? -byName : byName;
+    });
     $("sets-grid").replaceChildren(
       ...matches.map((set) => {
         const button = document.createElement("button");
@@ -10572,49 +11213,28 @@ window.SAMPLE_COLLECTION = {
         button.dataset.setId = set.id;
         button.setAttribute(
           "aria-label",
-          "Browse " +
-            set.name +
-            ", " +
-            (set.count || set.cards.length) +
-            (set.cards.length === 1 ? " printing" : " printings"),
+          "Browse " + set.name + ", " + printingLabel(set),
         );
-        const art = document.createElement("span");
-        art.className = "set-art";
-        art.setAttribute("aria-hidden", "true");
-        art.style.setProperty(
-          "--set-tint",
-          set.cards[0]?.palette?.[0] || "var(--lavender)",
-        );
-        set.cards.slice(0, 3).forEach((card, index) => {
-          const img = document.createElement("img");
-          img.dataset.cardSrc =
-            window.CardCatalogue?.thumbnail(card) || card.imageUrl;
-          img.width = 245;
-          img.height = 337;
-          img.decoding = "async";
-          img.alt = "";
-          img.loading = "lazy";
-          img.style.setProperty("--card-index", index);
-          img.addEventListener("error", () => img.remove(), { once: true });
-          art.append(img);
-        });
+        const art = setArt(set);
         const meta = document.createElement("span");
         meta.className = "set-meta";
         const name = document.createElement("strong");
         name.textContent = set.name;
         const count = document.createElement("span");
-        count.textContent =
-          (set.count || set.cards.length) +
-          (set.cards.length === 1 ? " printing" : " printings");
-        const badge = document.createElement("small");
-        badge.textContent = set.count
-          ? set.missingImages
-            ? set.missingImages + " images unavailable"
-            : "English - TCGdex"
-          : "Sample set";
-        meta.append(name, count, badge);
+        count.textContent = printingLabel(set);
+        meta.append(name, count);
+        if (set.missingImages) {
+          const badge = document.createElement("small");
+          badge.textContent = set.missingImages + " images unavailable";
+          meta.append(badge);
+        }
+        if (set.expectedCount > printingCount(set)) {
+          const gap = document.createElement("small");
+          gap.textContent = (set.expectedCount - printingCount(set)) + " records unavailable";
+          meta.append(gap);
+        }
         button.append(art, meta);
-        button.addEventListener("click", () => openSet(set, button));
+        button.addEventListener("click", () => openSet(set));
         return button;
       }),
     );
@@ -10636,14 +11256,8 @@ window.SAMPLE_COLLECTION = {
       showView(next ? "sets" : "cards", true);
     });
   });
-  $("back-to-sets").addEventListener("click", () => {
-    showView("sets");
-    if (lastSetButton?.isConnected) {
-      lastSetButton.focus({ preventScroll: true });
-      lastSetButton.scrollIntoView({ block: "nearest", behavior: "instant" });
-    } else $("sets-tab").focus();
-  });
   $("set-query").addEventListener("input", renderSets);
+  $("sets-sort").addEventListener("change", renderSets);
   $("reset-set-search").addEventListener("click", () => {
     $("set-query").value = "";
     renderSets();

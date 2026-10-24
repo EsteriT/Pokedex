@@ -24,6 +24,30 @@ assert.equal(cards.length, 55);
 assert.equal(new Set(cards.map((c) => c.id)).size, 55);
 assert.equal(new Set(cards.map((c) => c.setId)).size, 6);
 const before = JSON.stringify(cards);
+const modeCards = [
+  { ...cards[0], name:'Dragon Test',collectorNumber:'025',setName:'Water Grass',illustrator:'Test Artist',pokemonTypes:['Dragon','Fighting'],category:'Pokemon',variants:{normal:true} },
+  { ...cards[1], name:'Water Test',collectorNumber:'026',setName:'Dragon Test',illustrator:'Second Artist',pokemonTypes:['Water','Grass'],category:'Trainer',variants:{holo:true} },
+];
+assert.equal(core.search(modeCards,{type:['Dragon','Fighting'],typeMatch:'all'}).length,1);
+assert.equal(core.search(modeCards,{type:['Dragon','Water'],typeMatch:'all'}).length,0);
+assert.equal(core.search(modeCards,{type:['Dragon','Water'],typeMatch:'any'}).length,2);
+assert.equal(core.search(modeCards,{category:['Pokemon','Trainer'],finish:['normal','holo'],illustrator:['Test Artist','Second Artist']}).length,2);
+assert.equal(core.search(modeCards,{q:'Dragon Test',qScope:'name'})[0].name,'Dragon Test');
+assert.equal(core.search(modeCards,{q:'Dragon Test',qScope:'set'})[0].name,'Water Test');
+assert.equal(core.search(modeCards,{q:'#25',qScope:'number'})[0].collectorNumber,'025');
+assert.equal(core.search(modeCards,{q:'Test Artist',qScope:'name'}).length,0);
+assert.equal(core.search(modeCards,{q:'Test Artist',qScope:'illustrator'}).length,1);
+const advanced = core.search(cards,{type:['Fire','Water'],rarity:['Common','Ultra Rare']});
+assert(advanced.length > 0);
+assert(advanced.every(c=>c.pokemonTypes.some(t=>['Fire','Water'].includes(t))&&['Common','Ultra Rare'].includes(c.rarity)));
+assert(core.search(cards,{set:['bw1','xy1']}).every(c=>['bw1','xy1'].includes(c.setId)));
+assert(core.search(cards,{hpMin:100,hpMax:200}).every(c=>c.hp>=100&&c.hp<=200));
+const artist = cards.find(c=>c.illustrator);
+assert(core.search(cards,{q:artist.illustrator}).some(c=>c.id===artist.id));
+for (const sort of ['hp','hp-desc']) {
+  const ordered = core.search(cards,{sort}).filter(c=>c.hp!=null);
+  for(let i=1;i<ordered.length;i++) assert(sort==='hp' ? ordered[i-1].hp<=ordered[i].hp : ordered[i-1].hp>=ordered[i].hp);
+}
 assert(
   core
     .search(cards, { q: "Bulbasaur" })

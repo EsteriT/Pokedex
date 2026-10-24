@@ -79,6 +79,7 @@ Edit the files in `src/`; generated previews are rebuilt from those sources.
 | `npm run build:pages` | Build the deployment into `dist/` and check its page links. |
 | `npm run test:browser` | Run Chromium regressions with Python 3 and Brave, Chrome or Edge. Set `BROWSER_PATH` if needed. |
 | `npm run test:backend` | Execute database rules in embedded PostgreSQL. |
+| `npm run test:catalogue:full` | Import the prepared full-English snapshot twice into the local Docker database and check search, preservation and recovery; see [the preparation record](docs/FULL-ENGLISH-CATALOGUE.md). |
 | `npm run test:repository` | Check the cloud adapter with controlled SDK fixtures. |
 | `npm run test:backend:live` | Test real services against a running local Supabase stack only. |
 | `npm run test:backend:browser` | Check real local cloud Save, backups, conflicts, sign-out and account isolation in Chromium. |

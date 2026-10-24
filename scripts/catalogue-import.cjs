@@ -1,4 +1,4 @@
-/* Operator-only, ten-set trial. No hosted write mode is provided. */
+/* Operator-only downloads and loopback Docker imports. No hosted write mode. */
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -17,6 +17,11 @@ const setIds = [
   "swsh1",
   "sv03.5",
 ];
+const printingAliases = {
+  // Keep safe internal IDs while retaining the provider's punctuation identifiers.
+  "exu-!": { id: "exu-unown-exclamation", number: "!" },
+  "exu-%3F": { id: "exu-unown-question", number: "?" },
+};
 const finishes = ["normal", "holo", "reverse", "firstEdition", "wPromo"];
 function samples() {
   const scope = { window: {} };
@@ -28,7 +33,7 @@ function samples() {
   return scope.window.CARDS;
 }
 function text(value, max, optional = false) {
-  if (optional && value == null) return "";
+  if (optional && (value == null || value === "")) return "";
   if (
     typeof value !== "string" ||
     !value.trim() ||
@@ -41,7 +46,7 @@ function text(value, max, optional = false) {
 function normalize(card, set, legacy) {
   const providerId = text(card.id, 80);
   if (
-    !/^[A-Za-z0-9.-]+$/.test(providerId) ||
+    (!/^[A-Za-z0-9.-]+$/.test(providerId) && !printingAliases[providerId]) ||
     card.set?.id !== set.id ||
     !providerId.startsWith(set.id + "-")
   )
@@ -83,9 +88,9 @@ function normalize(card, set, legacy) {
   if (!Array.isArray(types) || types.length > 4)
     throw Error("Invalid card types.");
   const record = {
-    id: legacy?.id || providerId,
+    id: legacy?.id || printingAliases[providerId]?.id || providerId,
     providerId,
-    collectorNumber: number,
+    collectorNumber: printingAliases[providerId]?.number || number,
     name: text(card.name, 160),
     imageUrl,
     pokemonTypes: types.map((t) => text(t, 30)),
@@ -103,20 +108,31 @@ function normalize(card, set, legacy) {
   };
   return record;
 }
-async function request(endpoint, cacheFile) {
+async function request(endpoint, cacheFile, query) {
   if (
     cacheFile &&
     fs.existsSync(cacheFile) &&
     Date.now() - fs.statSync(cacheFile).mtimeMs < 86400000
-  )
-    return JSON.parse(fs.readFileSync(cacheFile, "utf8"));
+  ) {
+    const cached = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
+    if (!query || (!cached.errors?.length && Array.isArray(cached.data?.cards)))
+      return cached;
+  }
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await fetch("https://api.tcgdex.net/v2/en/" + endpoint, {
-      redirect: "error",
-      signal: AbortSignal.timeout(30000),
-      headers: { "User-Agent": "Pokedex-catalogue-trial/1.0" },
-    });
+    const response = await fetch(
+      "https://api.tcgdex.net/v2/" + (query ? "graphql" : "en/" + endpoint),
+      {
+        ...(query ? { method: "POST", body: JSON.stringify({ query }) } : {}),
+        redirect: "error",
+        signal: AbortSignal.timeout(30000),
+        headers: {
+          "User-Agent": "Pokedex-catalogue/1.0",
+          ...(query ? { "Content-Type": "application/json" } : {}),
+        },
+      },
+    );
     if ((response.status === 429 || response.status >= 500) && attempt < 2) {
+      await response.body?.cancel();
       await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
       continue;
     }
@@ -134,91 +150,275 @@ async function request(endpoint, cacheFile) {
       chunks.push(chunk);
     }
     const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    if (query && (data.errors?.length || !Array.isArray(data.data?.cards)))
+      throw Error("TCGdex returned incomplete card metadata.");
     if (cacheFile) fs.writeFileSync(cacheFile, JSON.stringify(data));
     return data;
   }
 }
-async function download() {
-  fs.mkdirSync(path.join(folder, "cards"), { recursive: true });
-  const legacy = new Map(samples().map((c) => [c.providerId, c]));
-  const cards = [],
-    sets = [],
-    seen = new Set();
-  for (const id of setIds) {
-    const set = await request("sets/" + id, path.join(folder, id + ".json"));
+function selectSets(list, pocket) {
+  if (
+    !Array.isArray(list) ||
+    !list.length ||
+    list.length > 500 ||
+    !Array.isArray(pocket?.sets) ||
+    pocket.id !== "tcgp" ||
+    !pocket.sets.length
+  )
+    throw Error("Invalid English set directory or Pocket exclusions.");
+  const excluded = new Set(pocket.sets.map((s) => s.id));
+  const ids = new Set();
+  const physical = list.filter((set) => {
     if (
-      set.id !== id ||
-      !Array.isArray(set.cards) ||
-      set.cards.length < 1 ||
-      set.cards.length > 1000 ||
-      set.cards.length !== set.cardCount?.total
+      !/^[A-Za-z0-9.-]{1,40}$/.test(set.id) ||
+      ids.has(set.id) ||
+      !Number.isInteger(set.cardCount?.total) ||
+      set.cardCount.total < 1 ||
+      set.cardCount.total > 1000
     )
-      throw Error("Incomplete or inconsistent set listing: " + id);
-    const result = [];
-    let cursor = 0;
-    // Four requests at a time; completed responses can be reused after interruption.
-    await Promise.all(
-      Array.from({ length: 4 }, async () => {
-        while (cursor < set.cards.length) {
-          const brief = set.cards[cursor++];
-          if (
-            typeof brief.id !== "string" ||
-            !/^[A-Za-z0-9.-]+$/.test(brief.id)
-          )
-            throw Error("Invalid card ID.");
-          const card = await request(
-            "cards/" + encodeURIComponent(brief.id),
-            path.join(folder, "cards", brief.id + ".json"),
+      throw Error("Invalid or duplicate English set.");
+    ids.add(set.id);
+    return !excluded.has(set.id);
+  });
+  if (
+    [...excluded].some((id) => !ids.has(id)) ||
+    setIds.some((id) => !ids.has(id))
+  )
+    throw Error("Incomplete English set directory.");
+  return physical;
+}
+async function download(allEnglish = false) {
+  fs.mkdirSync(path.join(folder, "full-sets"), { recursive: true });
+  const directory = allEnglish
+    ? selectSets(
+        await request("sets", path.join(folder, "english-sets.json")),
+        await request("series/tcgp", path.join(folder, "pocket-series.json")),
+      )
+    : setIds.map((id) => ({ id }));
+  const legacy = new Map(samples().map((c) => [c.providerId, c]));
+  const results = new Array(directory.length);
+  let cursor = 0;
+  const unavailableSets = [];
+  const failures = [];
+  const coverageGaps = [];
+  const workers = await Promise.allSettled(
+    Array.from({ length: 4 }, async () => {
+      while (cursor < directory.length) {
+        const index = cursor++,
+          expected = directory[index],
+          id = expected.id;
+        try {
+          const set = await request(
+            "sets/" + id,
+            path.join(folder, id + ".json"),
           );
-          if (card.id !== brief.id || seen.has(card.id))
-            throw Error("Duplicate or mismatched card.");
-          seen.add(card.id);
-          result.push(normalize(card, set, legacy.get(card.id)));
+          if (
+            allEnglish &&
+            set.id === id &&
+            Array.isArray(set.cards) &&
+            set.cards.length === 0 &&
+            set.cardCount?.total > 0
+          ) {
+            unavailableSets.push({
+              id,
+              name: set.name,
+              expectedCount: set.cardCount.total,
+              reason: "Provider lists this set but supplies no card records.",
+            });
+            console.log(
+              id + ": no provider card records; recorded as unavailable.",
+            );
+            continue;
+          }
+          if (
+            set.id !== id ||
+            !Array.isArray(set.cards) ||
+            !set.cards.length ||
+            set.cards.length > 1000 ||
+            (allEnglish
+              ? set.cards.length > set.cardCount?.total
+              : set.cards.length !== set.cardCount?.total) ||
+            (expected.cardCount &&
+              expected.cardCount.total !== set.cardCount?.total)
+          )
+            throw Error("Incomplete or inconsistent set listing: " + id);
+          if (set.cards.length < set.cardCount.total)
+            coverageGaps.push({
+              id,
+              name: set.name,
+              expectedCount: set.cardCount.total,
+              availableCount: set.cards.length,
+            });
+          if (allEnglish && set.serie?.id === "tcgp")
+            throw Error("Pocket set excluded: " + id);
+          const query =
+            "{cards(filters:{id:" +
+            JSON.stringify(id + "-*") +
+            "}){id localId name category types rarity illustrator hp image set{id} variants{normal reverse holo firstEdition wPromo}}}";
+          const full = await request(
+            "",
+            path.join(folder, "full-sets", id + ".json"),
+            query,
+          );
+          if (full.errors?.length || !Array.isArray(full.data?.cards))
+            throw Error("Incomplete card metadata: " + id);
+          // Prefix queries also match siblings such as 30th-c; require exact membership.
+          const rows = full.data.cards.filter((c) => c?.set?.id === id);
+          const requested = new Set(set.cards.map((c) => c.id));
+          const englishNames = new Map(set.cards.map((c) => [c.id, c.name]));
+          if (
+            requested.size !== set.cards.length ||
+            rows.length !== requested.size
+          )
+            throw Error("Incomplete card batch: " + id);
+          const cards = rows
+            .map((card) => {
+              if (!requested.delete(card.id))
+                throw Error("Duplicate or unexpected card: " + id);
+              if (card.name !== englishNames.get(card.id))
+                throw Error("Inconsistent English card name: " + card.id);
+              return normalize(card, set, legacy.get(card.id));
+            })
+            .sort((a, b) =>
+              a.collectorNumber.localeCompare(b.collectorNumber, "en", {
+                numeric: true,
+              }),
+            );
+          if (requested.size) throw Error("Missing card: " + id);
+          const logo = set.logo == null ? null : text(set.logo, 240);
+          if (
+            logo &&
+            !new RegExp(
+              "^https://assets\\.tcgdex\\.net/en/[A-Za-z0-9_.-]+/" +
+                id.replaceAll(".", "\\.") +
+                "/logo$",
+            ).test(logo)
+          )
+            throw Error("Untrusted set logo: " + id);
+          results[index] = {
+            cards,
+            set: {
+              id,
+              name: text(set.name, 160),
+              logo,
+              releaseDate: set.releaseDate || null,
+              count: cards.length,
+              expectedCount: set.cardCount.total,
+              missingImages: cards.filter((c) => !c.imageUrl).length,
+            },
+          };
+          console.log(id + ": " + cards.length + " card records checked.");
+        } catch (error) {
+          failures.push({ id, reason: error.message });
         }
-      }),
+      }
+    }),
+  );
+  const failed = workers.find((w) => w.status === "rejected");
+  if (failed) throw failed.reason;
+  if (failures.length) {
+    fs.writeFileSync(
+      path.join(folder, "download-failures.json"),
+      JSON.stringify(failures, null, 2),
     );
-    result.sort((a, b) =>
-      a.collectorNumber.localeCompare(b.collectorNumber, "en", {
-        numeric: true,
-      }),
+    throw Error(
+      "Catalogue download failed for " +
+        failures.map((f) => f.id).join(", ") +
+        ". See local download-failures.json; no database changed.",
     );
-    cards.push(...result);
-    sets.push({
-      id,
-      name: text(set.name, 160),
-      releaseDate: set.releaseDate,
-      count: result.length,
-      preview: result.slice(0, 3),
-      missingImages: result.filter((c) => !c.imageUrl).length,
-    });
-    console.log(id + ": " + result.length + " card records checked.");
   }
-  for (const id of legacy.keys())
-    if (!seen.has(id)) throw Error("A legacy printing is missing: " + id);
+  const complete = results.filter(Boolean);
   const data = {
     provider: "tcgdex",
     language: "en",
+    scope: allEnglish ? "english-physical" : "trial",
     fetchedAt: new Date().toISOString(),
-    sets,
-    cards,
+    listedSets: directory.length,
+    unavailableSets,
+    coverageGaps,
+    sets: complete.map((r) => r.set),
+    cards: complete.flatMap((r) => r.cards),
   };
-  fs.writeFileSync(path.join(folder, "tcgdex-en.json"), JSON.stringify(data));
+  validateSnapshot(data);
+  const seen = new Set(data.cards.map((c) => c.providerId));
+  if ([...legacy.keys()].some((id) => !seen.has(id)))
+    throw Error("A legacy printing is missing.");
+  fs.writeFileSync(
+    path.join(folder, allEnglish ? "tcgdex-en-full.json" : "tcgdex-en.json"),
+    JSON.stringify(data),
+  );
   console.log(
     "Downloaded " +
-      cards.length +
-      " printings across ten sets. No database changed.",
+      data.cards.length +
+      " printings across " +
+      data.sets.length +
+      " sets. No database changed.",
   );
+  if (unavailableSets.length || coverageGaps.length)
+    console.log(
+      unavailableSets.length +
+        " set groups have no card records; " +
+        coverageGaps.length +
+        " have incomplete metadata. Coverage gaps are recorded in the snapshot.",
+    );
+  return data;
+}
+function validateSnapshot(data) {
+  if (
+    data?.provider !== "tcgdex" ||
+    data.language !== "en" ||
+    (data.scope != null &&
+      !["trial", "english-physical"].includes(data.scope)) ||
+    !Array.isArray(data.sets) ||
+    !data.sets.length ||
+    data.sets.length > 500 ||
+    !Array.isArray(data.cards) ||
+    !data.cards.length ||
+    data.cards.length > 50000 ||
+    (data.scope !== "english-physical" &&
+      (data.sets.length !== 10 ||
+        data.sets.some((s) => !setIds.includes(s.id))))
+  )
+    throw Error("Invalid English catalogue snapshot.");
+  const counts = new Map(),
+    ids = new Set(),
+    providers = new Set();
+  for (const set of data.sets) {
+    if (
+      !/^[A-Za-z0-9.-]{1,40}$/.test(set.id) ||
+      counts.has(set.id) ||
+      !Number.isInteger(set.count) ||
+      set.count < 1 ||
+      set.count > 1000
+    )
+      throw Error("Invalid set counts or identity.");
+    text(set.name, 160);
+    counts.set(set.id, 0);
+  }
+  for (const card of data.cards) {
+    if (
+      !counts.has(card.setId) ||
+      !/^[A-Za-z0-9_.-]{1,80}$/.test(card.id) ||
+      (card.providerId !== card.setId + "-" + card.collectorNumber &&
+        !(
+          printingAliases[card.providerId]?.id === card.id &&
+          card.setId === "exu" &&
+          printingAliases[card.providerId].number === card.collectorNumber
+        )) ||
+      ids.has(card.id) ||
+      providers.has(card.providerId)
+    )
+      throw Error("Invalid or duplicate printing.");
+    ids.add(card.id);
+    providers.add(card.providerId);
+    counts.set(card.setId, counts.get(card.setId) + 1);
+  }
+  if (data.sets.some((s) => s.count !== counts.get(s.id)))
+    throw Error("Incomplete English catalogue snapshot.");
   return data;
 }
 function sql(data) {
-  if (
-    data.provider !== "tcgdex" ||
-    data.language !== "en" ||
-    data.sets.length !== 10 ||
-    data.sets.some((s) => !setIds.includes(s.id)) ||
-    data.cards.length > 10000
-  )
-    throw Error("Not a ten-set English trial snapshot.");
+  validateSnapshot(data);
   const literal = (value) =>
     "'" + JSON.stringify(value).replaceAll("'", "''") + "'::jsonb";
   return `begin;
@@ -238,11 +438,14 @@ commit;`;
 }
 async function main() {
   const mode = process.argv[2];
+  const allEnglish = process.argv[3] === "--all-english";
+  if (process.argv.length > 4 || (process.argv[3] && !allEnglish))
+    throw Error("Unknown import option.");
   if (!["download", "--local"].includes(mode))
     throw Error(
       "Use download or --local. Hosted import is intentionally unavailable.",
     );
-  const data = await download();
+  const data = await download(allEnglish);
   if (mode === "download") return;
   const filename = path.join(folder, "import.sql");
   fs.writeFileSync(filename, sql(data));
@@ -273,7 +476,14 @@ async function main() {
     );
   console.log("Local catalogue imported. Existing account data preserved.");
 }
-module.exports = { setIds, normalize, samples, sql };
+module.exports = {
+  setIds,
+  normalize,
+  samples,
+  sql,
+  selectSets,
+  validateSnapshot,
+};
 if (require.main === module)
   main().catch((error) => {
     console.error(error.message);

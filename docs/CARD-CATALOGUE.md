@@ -1,5 +1,7 @@
 # English card catalogue trial
 
+**Local expansion prepared on 24 October:** [full English preparation and acceptance](FULL-ENGLISH-CATALOGUE.md) records 21,256 available printings across 201 groups, upstream gaps, local tests and release boundaries. The production catalogue remains the ten-set trial described below.
+
 Started locally on `feat/card-catalogue` on 20 October 2026. The owner subsequently approved merging, pushing and deploying the reviewed version. The hosted catalogue migration and 1,291 public printing records are now applied; website release checks are recorded below. Earlier local-only notes describe the original review boundary.
 
 ## Scope

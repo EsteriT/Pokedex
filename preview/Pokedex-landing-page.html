@@ -7739,27 +7739,34 @@ document.querySelectorAll(".faq-question").forEach((details) => {
         Math.min(w, h) * 0.018,
         false,
       );
-    const image = make("image", {
+    const image = card.imageUrl ? make("image", {
       href: card.imageUrl,
       x,
       y,
       width: iw,
       height: ih,
       preserveAspectRatio: "xMidYMid meet",
-    });
-    image.addEventListener("error", () => {
-      image.remove();
+    }) : null;
+    const unavailable = () => {
+      image?.remove();
+      group.append(make("rect", {
+        x, y, width: iw, height: ih, rx: Math.min(iw, ih) * 0.025,
+        fill: "var(--soft)", stroke: "var(--muted)", "stroke-width": 1,
+      }));
       const text = make("text", {
         x: w / 2,
         y: h / 2,
         "text-anchor": "middle",
         fill: "var(--muted)",
-        "font-size": 10,
+        "font-size": Math.min(14, iw * 0.075),
       });
-      text.textContent = card.name;
+      text.textContent = "Image unavailable";
       group.append(text);
-    });
-    group.append(image);
+    };
+    if (card.imageUrl) {
+      image.addEventListener("error", unavailable, { once: true });
+      group.append(image);
+    } else unavailable();
     const rigid = frames.toploader && frames.toploader !== "none",
       sleeved = frames.sleeve && frames.sleeve !== "none";
     if (rigid || sleeved) {

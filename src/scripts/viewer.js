@@ -434,16 +434,7 @@
     $("viewer-inspect-title").textContent = window.BinderVisuals.name(content);
     $("viewer-inspect-art").replaceChildren();
     if (!content.kind && card) {
-      const img = document.createElement("img");
-      img.src = card.imageUrl;
-      img.alt = card.name;
-      img.addEventListener(
-        "error",
-        () => {
-          img.replaceWith(document.createTextNode("Image unavailable."));
-        },
-        { once: true },
-      );
+      const img = window.CardCatalogue.picture(card, true);
       $("viewer-inspect-art").append(img);
       const finishes = {
         normal: "Normal",

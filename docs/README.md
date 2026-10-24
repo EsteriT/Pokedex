@@ -14,6 +14,7 @@ The frontend MVP is the accepted baseline. Start with the project overview, then
 | [Full catalogue gap details](CATALOGUE-GAP-DETAILS.md) | All 65 image-gap groups, 34 name-difference counterparts, and correction of the raw 228 group-count discrepancy |
 | [Image verification](CATALOGUE-IMAGE-VERIFICATION.md) | Actual downloads, anniversary printing checks, Pokewallet image samples and remaining gaps |
 | [Priority fixes - plain-text report](PRIORITY-FIX-REPORT-2026-10-24.txt) | Original problems, five fixes, tests, remaining limits and all 33 audit claim dispositions |
+| [24 October release](RELEASE-2026-10-24.md) | Verified backup, saved-data compatibility, coordinated deployment and live acceptance |
 | [Account data and recovery](ACCOUNT-DATA-AND-RECOVERY.md) | Account export/restore/deletion, encrypted operator backups and recovery procedures |
 | [Account data audit](ACCOUNT-DATA-AUDIT.md) | Pre-merge findings, fixes, diagnostic evidence and remaining hosted release gates |
 | [Account controls rollout](ACCOUNT-DATA-ROLLOUT.md) | Authorized hosted migrations, security verification, deployment and manual acceptance |

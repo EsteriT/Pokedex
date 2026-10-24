@@ -1,5 +1,13 @@
 Priority fix report - 24 October 2026
 
+RELEASE UPDATE: The owner subsequently authorized deployment. Release 9847fb9,
+the three database function migrations and gateway version 2 are now live.
+A fresh verified encrypted backup passed first. Google sign-in, Save/reopen,
+customization, search and a real 60-file deletion receipt passed live checks.
+All temporary test data was removed; original binder/collection fingerprints
+match exactly. See RELEASE-2026-10-24.md for the durable acceptance record.
+The local-only statements below describe the earlier overnight report snapshot.
+
 The five priority fixes are implemented locally on the current branch. They have
 not been pushed or deployed. The live website is unchanged. No real account or
 saved binder was edited during testing. The card-image investigation is paused.
